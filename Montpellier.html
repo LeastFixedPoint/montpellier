@@ -1,0 +1,259 @@
+<html>
+	<head>
+        <title>Application Sandbox sample</title>
+        <link href="sample.css" rel="stylesheet" type="text/css"/>
+        
+        <!-- Uncomment the following line to add introspection.  When running the application hit F12 to bring up the introspector -->
+        <!-- <script type="text/javascript" src="AIRIntrospector.js"></script> -->
+        
+        <!-- Uncomment the following line to use the AIR source viewer -->
+        <!-- <script type="text/javascript" src="AIRSourceViewer.js"></script> -->
+        
+        <!-- Uncomment the following line to use the AIR Localizer -->
+        <!-- <script type="text/javascript" src="AIRLocalizer.js"></script> -->
+        
+        <!-- Uncomment the following line to use the AIR Menu Builder -->
+        <!-- <script type="text/javascript" src="AIRMenuBuilder.js"></script> -->
+        
+        <script type="text/javascript" src="AIRAliases.js"></script>
+        <script type="text/javascript">
+        	
+            // AIR-related functions created by the developer
+            
+            // reads the content of a local text file
+            function readLocalFile(){
+                var f = air.File.applicationDirectory.resolvePath("LocalFile.txt");
+				
+                var fs = new air.FileStream();
+                fs.open(f, air.FileMode.READ);
+                var content = fs.readUTFBytes(fs.bytesAvailable);
+                fs.close();
+                
+                return content;
+            }
+            
+            // loads the content of a remote URL
+            function doRequest(url) {
+               var req = new XMLHttpRequest();
+               req.onreadystatechange = function() { 
+                    if (req.readyState == 4) {
+                        var str = req.responseText;
+                        if (str.length > 400) {
+                            str = str.substring(0, 399);
+                            str += "..";
+                        }
+                        alert('readystate: ' + req.readyState + '\n' +
+                            'status/statusText: ' + req.status + '/' + 
+                             req.statusText + '\n' +
+                            'responseText (400 chars): '  + "\n\n" + str);
+                    }
+                };
+                req.open('GET', url, true);
+                req.send(null);                
+            }
+			
+			function openInBrowser(url) {
+				air.navigateToURL( new air.URLRequest(url)); 
+			}
+			
+			function Feature(kind) {
+				this.kind = kind;
+				
+				this.parts = [];
+				
+				this.completed = function() {
+					return false;
+				}
+			}
+			
+			function Section(tile) {
+				this.id = '?';
+				this.kind = '?';
+				this.tile = tile;
+				this.center = {x: 0.5, y: 0.5};
+				
+				this.toString = function() { return this.kind + this.id; }
+				this.loadFromString = function(string) { this.kind = string[0]; this.id = string[1]; return this; }
+			}
+			
+			// Describes a tile
+			function Tile(board) {
+				this.board = board;
+				this.x = 0;
+				this.y = 0;
+				this.direction = 0; // 0 = top (side 0 is looking at top), then clockwise
+				this.imagePath = '';
+				this.sections = [];
+				
+				this.sides = [new Side(this, 0), new Side(this, 1), new Side(this, 2), new Side(this, 3)];
+				this.center = new Center();
+				
+				this.toString = function() {
+					var string = '';
+					for (sideIndex in this.sides) {
+						string += this.sides[sideIndex].toString() + '-';
+					}
+					return string + this.center.toString();
+				}
+				
+				this.loadFromString = function(string) {
+					var sideStrings = string.split('-');
+					
+					for (sideIndex in sideStrings) { 
+						if (sideIndex < 4) {
+							this.sides[sideIndex].loadFromString(sideStrings[sideIndex]);
+						} else if (sideIndex == 4) {
+							this.center.loadFromString(sideStrings[sideIndex]);
+						}
+					}
+					
+					return this;
+				}
+			}
+			
+			function Center(tile) {
+				this.tile = tile;
+				this.sections = [];
+
+				this.loadFromString = function(string) {
+					while (string.length > 1) {
+						var code = string.substring(0,2);
+						
+						if (this.tile.sections[code] == undefined) {
+							this.tile.sections[code] = new Section(this.tile).loadFromString(code);
+						}
+
+						string = string.substring(2);
+						
+						this.sections.push(this.tile.sections[code])
+					}
+					
+					return this;
+				}
+			
+				this.toString = function() { 
+					var string = '';
+					for (sectionIndex in this.sections) { 
+						string += this.sections[sectionIndex].toString();
+					}
+					return string;
+				}
+			}
+			
+			// Describes one side of a tile
+			// Possible side configurations:
+			//   - Town
+			//   - Field-Road-Field
+			//   - Field
+			function Side(tile, index) {
+				this.index = index;
+				this.tile = tile;
+				this.sections = []; // Clockwise
+				
+				this.isCompartibleWith = function(side) {
+					var length = this.sections.length;
+					if (length != side.sections.length) return false;
+					
+					for (var i = 0; i < length; i++) {
+						if (this.sections[i].kind != side.sections[length - i - 1].kind) return false;
+					}
+				}
+				
+				this.loadFromString = function(string) {
+					while (string.length > 1) {
+						var code = string.substring(0,2);
+						
+						if (this.tile.sections[code] == undefined) {
+							this.tile.sections[code] = new Section(this.tile).loadFromString(code);
+						}
+
+						string = string.substring(2);
+						
+						this.sections.push(this.tile.sections[code])
+					}
+					
+					return this;
+				}
+				
+				this.toString = function() { 
+					var string = '';
+					for (index in this.sections) { 
+						string += this.sections[index].toString();
+					}
+					return string;
+				}
+				
+				// Returns the next side clockwise
+				this.next = function() {
+					return this.tile.sides[(index > 3) ? 0 : (index + 1)];
+				}
+				
+				// Returns the corresponding side of the adjacent tile
+				/*
+				this.getAdjacentSide = function() {
+					var d = (this.index + this.tile.direction) % 4;
+					switch (d) {
+						case 0: var dx = 0; var dy = -1; break;
+						case 1: var dx = +1; var dy = 0; break;
+						case 2: var dx = 0; var dy = +1; break;
+						case 3: var dx = -1; var dy = 0; break;
+						default: alert('Unknown direction [' + d + ']');
+					}
+					
+					var tile = this.tile.board.getTileAt(this.tile.x + dx, this.tile.y + dy);
+					
+					switch (d) {
+						case 0: return tile.sides[]; break;
+						case 1: return tile.sides[]; break;
+						case 2: return tile.sides[]; break;
+						case 3: return tile.sides[]; break;
+						default: alert('Unknown direction [' + d + ']');
+					}
+				}*/
+			}
+            
+        </script>
+	</head>
+
+    <body>
+        <h3>Montpellier</h3>
+		
+		<p>
+	        <script type="text/javascript">
+	        	var tile = new Tile(null);
+				tile.loadFromString('f1r1f2-t1-t1-f1');
+	        	document.write(tile.toString());
+	        </script>
+		</p>
+        
+		<div id="game-board">
+			<div class="tile" style="background-image: url(tiles/city3.png); left: 90px; top: 90px;"></div>	
+		</div>
+		
+        <ul>
+            <li>Has access to AIR APIs:
+            
+                <br/> 
+                <input type="button" onclick="alert(readLocalFile())" value="Read a local file using AIR APIs"/>
+            </li>                 
+            <li>Use of <code>eval()</code> and other string-to-code techniques are limited.
+                &mdash; the following throws an exception because is executed after onload fired:
+                <br/> <input type="button"  onclick='try { eval("alert(44)") } catch (e) {alert(e)}' value='eval("alert(44)")'/>
+				<br/><br/>
+				Read more about these restrictions: <a href="#" onclick="openInBrowser('http://www.adobe.com/go/airhtmlsecurityfaq');">http://www.adobe.com/go/airhtmlsecurityfaq</a>.
+				
+			</li>
+                
+            <li>Can only load JavaScript files from the application resource directory.</li>
+            
+            <li>XMLHttpRequest object can reach into remote domains &mdash; the following loads http://www.adobe.com:
+            <br/> 
+                <input type="button"  onclick='doRequest("http://www.adobe.com");' value='doRequest("http://www.adobe.com");'/>
+            </li>
+			<li>
+				Read more about developing AIR Applications with HTML and Ajax: <a href="#" onclick="openInBrowser('http://www.adobe.com/go/learn_air_html')">http://www.adobe.com/go/learn_air_html</a>.
+			</li>
+        </ul>
+        
+    </body>
+</html>
