@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.core.tile;
 
-import info.reflectionsofmind.connexion.core.location.IOffset;
+import info.reflectionsofmind.connexion.core.board.geometry.IOffset;
 import info.reflectionsofmind.connexion.core.util.Link;
 
 import java.util.Collections;

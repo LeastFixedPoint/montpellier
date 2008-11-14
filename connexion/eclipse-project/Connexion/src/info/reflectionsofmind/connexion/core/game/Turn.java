@@ -1,6 +1,7 @@
 package info.reflectionsofmind.connexion.core.game;
 
-import info.reflectionsofmind.connexion.core.location.ILocation;
+import info.reflectionsofmind.connexion.core.board.Meeple;
+import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 

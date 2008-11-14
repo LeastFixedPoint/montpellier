@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.core.tile;
 
-import info.reflectionsofmind.connexion.core.location.IOffset;
-import info.reflectionsofmind.connexion.core.location.Offset;
+import info.reflectionsofmind.connexion.core.board.geometry.IOffset;
+import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Offset;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeParser;
 import info.reflectionsofmind.connexion.core.util.Multi;

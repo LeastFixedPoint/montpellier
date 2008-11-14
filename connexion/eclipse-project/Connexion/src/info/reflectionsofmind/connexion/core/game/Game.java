@@ -1,5 +1,7 @@
 package info.reflectionsofmind.connexion.core.game;
 
+import info.reflectionsofmind.connexion.core.board.Board;
+import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.core.util.Loop;
@@ -11,10 +13,20 @@ import java.util.List;
 
 public class Game
 {
+	private final ITileGenerator generator;
 	private final List<Player> players = new ArrayList<Player>();
 	private final Loop<Player> currentPlayer = new Loop<Player>(this.players);
-	private Board board;
+	private final Board board;
+	private Tile currentTile;
 
+	public Game(final ITileGenerator generator, final List<Player> players)
+	{
+		this.players.addAll(players);
+		this.generator = generator;
+		this.board = new Board(new Geometry(), generator.nextTile());
+		this.currentTile = generator.nextTile();
+	}
+	
 	public Tile getNextTile()
 	{
 		try
@@ -42,11 +54,11 @@ public class Game
 		}
 
 		// TODO Turn processing
-	}
 
-	public void addPlayer(final Player player)
-	{
-		this.players.add(player);
+		if (generator.hasMoreTiles())
+		{
+			this.currentTile = generator.nextTile();
+		}
 	}
 
 	public Player getCurrentPlayer()
@@ -57,11 +69,6 @@ public class Game
 	public Board getBoard()
 	{
 		return this.board;
-	}
-
-	public void setBoard(final Board board)
-	{
-		this.board = board;
 	}
 
 	public List<Player> getPlayers()

@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.core.game;
 
+import info.reflectionsofmind.connexion.core.board.Meeple;
 import info.reflectionsofmind.connexion.core.util.Multi;
 
 public class Player
