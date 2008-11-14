@@ -1,7 +1,9 @@
-package info.reflectionsofmind.connexion.core.game;
+package info.reflectionsofmind.connexion.core.board;
 
-import info.reflectionsofmind.connexion.core.location.ILocation;
-import info.reflectionsofmind.connexion.core.location.IOffset;
+import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
+import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
+import info.reflectionsofmind.connexion.core.board.geometry.IOffset;
+import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Location;
 import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Side;
 import info.reflectionsofmind.connexion.core.tile.Tile;
@@ -16,10 +18,17 @@ import com.google.common.collect.HashBiMap;
 
 public class Board
 {
+	private final IGeometry geometry;
 	private final BiMap<ILocation, Tile> tiles = new HashBiMap<ILocation, Tile>();
 	private final BiMap<Meeple, Section> meeples = new HashBiMap<Meeple, Section>();
 	private final List<Feature> features = new ArrayList<Feature>();
 
+	public Board(IGeometry geometry, Tile initialTile)
+	{
+		this.geometry = geometry;
+		placeTile(initialTile, this.geometry.getInitialLocation());
+	}
+	
 	public void placeTile(final Tile tile, final ILocation location)
 	{
 		if (!isValidLocation(tile, location)) throw new RuntimeException();
@@ -145,6 +154,6 @@ public class Board
 	{
 		final IOffset offset = side.getOffset();
 		final Tile adjacentTile = this.tiles.get(location.offset(offset));
-		return adjacentTile == null ? null : adjacentTile.getSideAt(offset.inverse());
+		return adjacentTile == null ? null : adjacentTile.getSideAt(location.getAdjacentOffset(offset));
 	}
 }

@@ -1,5 +1,6 @@
-package info.reflectionsofmind.connexion.core.location;
+package info.reflectionsofmind.connexion.core.board.geometry.rectangular;
 
+import info.reflectionsofmind.connexion.core.board.geometry.IOffset;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -30,8 +31,7 @@ public class Offset implements IOffset
 		return this.dy;
 	}
 
-	@Override
-	public IOffset inverse()
+	public Offset inverse()
 	{
 		return new Offset(-this.dx, -this.dy);
 	}

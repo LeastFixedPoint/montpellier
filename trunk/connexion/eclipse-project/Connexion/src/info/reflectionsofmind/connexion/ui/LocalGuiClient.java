@@ -51,7 +51,14 @@ public class LocalGuiClient extends JFrame implements IClient
 		this.gameBoardPanel = new GameBoardPanel();
 		add(this.gameBoardPanel, "span, grow");
 
-		this.server.register(this);
+		try
+		{
+			this.server.register(this);
+		}
+		catch (ServerException exception)
+		{
+			JOptionPane.showMessageDialog(null, "Cannot register on server.", "Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	@Override
@@ -119,7 +126,7 @@ public class LocalGuiClient extends JFrame implements IClient
 			setWaitingMode();
 		}
 	}
-
+	
 	class CurrentTilePanel extends JPanel
 	{
 		private static final long serialVersionUID = 1L;
@@ -129,6 +136,7 @@ public class LocalGuiClient extends JFrame implements IClient
 		{
 			setBorder(BorderFactory.createLineBorder(Color.RED));
 			setLayout(new MigLayout("", "[max]", "[max]"));
+			
 
 			this.tileImage = new StretchingImage(getIcon());
 			add(this.tileImage, "grow");

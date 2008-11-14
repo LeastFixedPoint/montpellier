@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.core.game;
+package info.reflectionsofmind.connexion.core.board;
 
 import info.reflectionsofmind.connexion.core.tile.Section;
 
