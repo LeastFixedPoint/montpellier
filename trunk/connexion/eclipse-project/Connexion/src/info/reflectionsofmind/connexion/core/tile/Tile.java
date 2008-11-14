@@ -1,7 +1,5 @@
 package info.reflectionsofmind.connexion.core.tile;
 
-import info.reflectionsofmind.connexion.core.board.geometry.IOffset;
-import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Offset;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeParser;
 import info.reflectionsofmind.connexion.core.util.Multi;
@@ -39,11 +37,9 @@ public class Tile
 		parser.parseAdjacentsCode(subCodes[1], this.sectionIds);
 		final List<List<Section>> sidesSections = parser.parseSidesCode(subCodes[2], this.sectionIds);
 
-		Offset offset = new Offset();
 		for (final List<Section> sideSections : sidesSections)
 		{
-			new Side(this, offset, sideSections);
-			offset = offset.nextRight();
+			new Side(this, sideSections);
 		}
 	}
 
@@ -55,18 +51,5 @@ public class Tile
 	public Multi<Tile, Side> getSides()
 	{
 		return this.sides;
-	}
-	
-	public Side getSideAt(IOffset offset)
-	{
-		for (Side side : this.sides)
-		{
-			if (side.getOffset().equals(offset))
-			{
-				return side;
-			}
-		}
-		
-		return null;
 	}
 }

@@ -1,5 +1,8 @@
 package info.reflectionsofmind.connexion.ui;
 
+import info.reflectionsofmind.connexion.IClient;
+import info.reflectionsofmind.connexion.IServer;
+import info.reflectionsofmind.connexion.ServerException;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.NotYourTurnException;
 import info.reflectionsofmind.connexion.core.game.Player;
@@ -9,7 +12,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -29,6 +31,8 @@ public class LocalGuiClient extends JFrame implements IClient
 	private final PlayerStatusPanel playerStatusPanel;
 	private final GameBoardPanel gameBoardPanel;
 
+	private boolean turnMode = false;
+
 	public LocalGuiClient(final IServer server)
 	{
 		super("Connexion");
@@ -40,15 +44,15 @@ public class LocalGuiClient extends JFrame implements IClient
 		setSize(400, 400);
 		setMinimumSize(new Dimension(400, 400));
 		setExtendedState(MAXIMIZED_BOTH);
-		setLayout(new MigLayout("", "[100]6[grow]", "[100]6[grow]"));
+		setLayout(new MigLayout("", "[]6[grow]", "[]6[grow]"));
 
-		this.currentTilePanel = new CurrentTilePanel();
+		this.currentTilePanel = new CurrentTilePanel(this);
 		add(this.currentTilePanel, "grow");
 
 		this.playerStatusPanel = new PlayerStatusPanel();
 		add(this.playerStatusPanel, "wrap, grow");
 
-		this.gameBoardPanel = new GameBoardPanel();
+		this.gameBoardPanel = new GameBoardPanel(this);
 		add(this.gameBoardPanel, "span, grow");
 
 		try
@@ -89,18 +93,23 @@ public class LocalGuiClient extends JFrame implements IClient
 
 	public void setWaitingMode()
 	{
-		// TODO Actions in waiting mode
+		this.turnMode = false;
 	}
 
 	public void setTurnMode()
 	{
-		// TODO Actions in turn mode
+		this.turnMode = true;
+	}
+
+	public boolean isTurnMode()
+	{
+		return this.turnMode;
 	}
 
 	public void onTurn(final Turn turn)
 	{
 		this.currentTilePanel.updateInterface();
-		
+
 		try
 		{
 			getGame().doTurn(turn);
@@ -113,9 +122,10 @@ public class LocalGuiClient extends JFrame implements IClient
 		updateInterface();
 	}
 
-	private void updateInterface()
+	public void updateInterface()
 	{
 		this.currentTilePanel.updateInterface();
+		this.gameBoardPanel.repaint();
 
 		if (getGame().getCurrentPlayer() == getPlayer())
 		{
@@ -126,41 +136,10 @@ public class LocalGuiClient extends JFrame implements IClient
 			setWaitingMode();
 		}
 	}
-	
-	class CurrentTilePanel extends JPanel
+
+	public IServer getServer()
 	{
-		private static final long serialVersionUID = 1L;
-		private final StretchingImage tileImage;
-
-		public CurrentTilePanel()
-		{
-			setBorder(BorderFactory.createLineBorder(Color.RED));
-			setLayout(new MigLayout("", "[max]", "[max]"));
-			
-
-			this.tileImage = new StretchingImage(getIcon());
-			add(this.tileImage, "grow");
-		}
-
-		public void updateInterface()
-		{
-			if (this.tileImage != null)
-			{
-				this.tileImage.setIcon(getIcon());
-			}
-		}
-
-		private ImageIcon getIcon()
-		{
-			if (getGame() != null)
-			{
-				return new ImageIcon(getGame().getTileImageURL(getGame().getNextTile()));
-			}
-			else
-			{
-				return new ImageIcon();
-			}
-		}
+		return this.server;
 	}
 
 	class PlayerStatusPanel extends JPanel
@@ -168,16 +147,6 @@ public class LocalGuiClient extends JFrame implements IClient
 		private static final long serialVersionUID = 1L;
 
 		public PlayerStatusPanel()
-		{
-			setBorder(BorderFactory.createLineBorder(Color.RED));
-		}
-	}
-
-	class GameBoardPanel extends JPanel
-	{
-		private static final long serialVersionUID = 1L;
-
-		public GameBoardPanel()
 		{
 			setBorder(BorderFactory.createLineBorder(Color.RED));
 		}

@@ -3,7 +3,6 @@ package info.reflectionsofmind.connexion.core.game;
 import info.reflectionsofmind.connexion.core.board.Board;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.tile.Tile;
-import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.core.util.Loop;
 
 import java.net.URL;
@@ -27,18 +26,9 @@ public class Game
 		this.currentTile = generator.nextTile();
 	}
 	
-	public Tile getNextTile()
+	public Tile getCurrentTile()
 	{
-		try
-		{
-			return new Tile("c1c2f1f2f3f4r1r2|f1r1f2c2f3r2f4,f2c1f3,c1r1,c1r1,r2c1c2,c1r2,f1f2c1,f3f4c1|c1,f1r1f2,c2,f3r2f4");
-		}
-		catch (final TileCodeFormatException exception)
-		{
-			throw new RuntimeException(exception);
-		}
-		
-		// TODO Tile sequence
+		return this.currentTile;
 	}
 
 	public URL getTileImageURL(final Tile tile)
@@ -53,7 +43,7 @@ public class Game
 			throw new NotYourTurnException(getCurrentPlayer(), turn.getPlayer());
 		}
 
-		// TODO Turn processing
+		getBoard().placeTile(turn.getTile(), turn.getLocation(), turn.getDirection());
 
 		if (generator.hasMoreTiles())
 		{
