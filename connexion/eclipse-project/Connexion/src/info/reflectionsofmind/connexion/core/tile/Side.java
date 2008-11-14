@@ -1,6 +1,5 @@
 package info.reflectionsofmind.connexion.core.tile;
 
-import info.reflectionsofmind.connexion.core.board.geometry.IOffset;
 import info.reflectionsofmind.connexion.core.util.Link;
 
 import java.util.Collections;
@@ -10,12 +9,10 @@ public class Side
 {
 	private final Link<Side, Tile> tile = new Link<Side, Tile>(this);
 	private final List<Section> sections;
-	private final IOffset offset;
 
-	public Side(final Tile tile, final IOffset offset, final List<Section> sections)
+	public Side(final Tile tile, final List<Section> sections)
 	{
 		this.tile.link(tile.getSides());
-		this.offset = offset;
 		this.sections = Collections.unmodifiableList(sections);
 	}
 
@@ -27,10 +24,5 @@ public class Side
 	public List<Section> getSections()
 	{
 		return this.sections;
-	}
-	
-	public IOffset getOffset()
-	{
-		return this.offset;
 	}
 }

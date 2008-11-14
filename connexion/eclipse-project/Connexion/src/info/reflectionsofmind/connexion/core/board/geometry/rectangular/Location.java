@@ -1,19 +1,35 @@
 package info.reflectionsofmind.connexion.core.board.geometry.rectangular;
 
+import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
-import info.reflectionsofmind.connexion.core.board.geometry.IOffset;
 
 public class Location implements ILocation
 {
 	private final int x;
 	private final int y;
+	private final Geometry geometry;
 
-	public Location(final int x, final int y)
+	public Location(final Geometry geometry, final int x, final int y)
 	{
+		this.geometry = geometry;
 		this.x = x;
 		this.y = y;
 	}
 
+	@Override
+	public Location shift(final IDirection direction)
+	{
+		return getGeometry().newLocation(//
+				getX() + getGeometry().cast(direction).getDx(),//
+				getY() + getGeometry().cast(direction).getDy());
+	}
+
+	@Override
+	public Direction getOpposingDirection(IDirection direction)
+	{
+		return getGeometry().cast(direction).inverse();
+	}
+	
 	public int getX()
 	{
 		return this.x;
@@ -23,18 +39,11 @@ public class Location implements ILocation
 	{
 		return this.y;
 	}
-
-	public Location offset(final IOffset offset)
-	{
-		if (!(offset instanceof Offset)) throw new RuntimeException("Incompartible offset [" + offset + "] for location [" + this + "].");
-		return new Location(getX() + ((Offset) offset).getDx(), getY() + ((Offset) offset).getDy());
-	}
-
+	
 	@Override
-	public IOffset getAdjacentOffset(final IOffset offset)
+	public Geometry getGeometry()
 	{
-		if (!(offset instanceof Offset)) throw new RuntimeException("Incompartible offset [" + offset + "] for location [" + this + "].");
-		return ((Offset) offset).inverse();
+		return this.geometry;
 	}
 
 	@Override
@@ -42,5 +51,11 @@ public class Location implements ILocation
 	{
 		return obj instanceof Location && // 
 				((Location) obj).x == this.x && ((Location) obj).y == this.y;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Location: " + getX() + ":" + getY() + "";
 	}
 }

@@ -4,9 +4,8 @@ import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +20,9 @@ public class SimpleTileGenerator implements ITileGenerator
 	private final List<Tile> sequence = new ArrayList<Tile>();
 	private final Iterator<Tile> iterator;
 
-	public SimpleTileGenerator(final File file) throws IOException, TileCodeFormatException
+	public SimpleTileGenerator(final URL url) throws IOException, TileCodeFormatException
 	{
-		final BufferedReader reader = new BufferedReader(new FileReader(file));
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
 
 		while (reader.ready())
 		{

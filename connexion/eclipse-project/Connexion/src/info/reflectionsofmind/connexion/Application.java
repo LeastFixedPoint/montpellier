@@ -1,5 +1,7 @@
-package info.reflectionsofmind.connexion.ui;
+package info.reflectionsofmind.connexion;
 
+
+import info.reflectionsofmind.connexion.ui.LocalGuiClient;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;

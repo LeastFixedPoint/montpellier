@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.ui;
+package info.reflectionsofmind.connexion;
 
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.NotYourTurnException;
@@ -43,7 +43,8 @@ public class LocalServer implements IServer
 
 		try
 		{
-			final SimpleTileGenerator generator = new SimpleTileGenerator(new File("DefaultTileList.properties"));
+			final SimpleTileGenerator generator = new SimpleTileGenerator(
+					getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/tilelist/DefaultTileList.properties"));
 			this.game = new Game(generator, players);
 		}
 		catch (Exception exception)

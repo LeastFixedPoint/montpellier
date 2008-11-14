@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.ui;
+package info.reflectionsofmind.connexion;
 
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
