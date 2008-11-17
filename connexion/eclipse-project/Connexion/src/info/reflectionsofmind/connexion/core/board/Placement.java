@@ -12,27 +12,29 @@ import java.util.List;
 public class Placement
 {
 	private final Board board;
-	private final Tile tile;
+	private final OrientedTile orientedTile;
 	private final ILocation location;
-	private final IDirection direction;
 
-	public Placement(final Board board, final Tile tile, final ILocation location, final IDirection direction)
+	public Placement(final Board board, final OrientedTile orientedTile, final ILocation location)
 	{
 		this.board = board;
-		this.tile = tile;
+		this.orientedTile = orientedTile;
 		this.location = location;
-		
-		if (direction == null)
-		{
-			throw new RuntimeException("OMGLOL");
-		}
-		
-		this.direction = direction;
 	}
 
+	public OrientedTile getOrientedTile()
+	{
+		return this.orientedTile;
+	}
+	
 	public Tile getTile()
 	{
-		return this.tile;
+		return getOrientedTile().getTile();
+	}
+	
+	public IDirection getDirection()
+	{
+		return getOrientedTile().getDirection();
 	}
 
 	public ILocation getLocation()
@@ -40,42 +42,20 @@ public class Placement
 		return this.location;
 	}
 
-	public IDirection getDirection()
-	{
-		return this.direction;
-	}
-
 	public Board getBoard()
 	{
 		return this.board;
 	}
-
+	
 	public Loop<Side> getSides()
 	{
-		final List<Side> sides = new ArrayList<Side>();
-
-		final IDirection direction = getDirection();
-		
-		if (direction == null)
-		{
-			throw new RuntimeException("Ooops");
-		}
-		
-		final int d = direction.getIndex();
-		final int n = getBoard().getGeometry().getNumberOfDirections();
-
-		for (int i = 0; i < n; i++)
-		{
-			sides.add(getTile().getSides().get(i + d));
-		}
-
-		return new Loop<Side>(sides);
+		return getOrientedTile().getSides();
 	}
 
 	public Side getSide(final IDirection direction)
 	{
 		final int index = direction.getIndex() + getDirection().getIndex();
-		return this.tile.getSides().get(index);
+		return getTile().getSides().get(index);
 	}
 
 	public IDirection getDirectionOfSide(final Side side)

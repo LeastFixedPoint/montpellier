@@ -31,12 +31,11 @@ public class Board
 	// ============================================================================================
 	// === TILE PLACEMENT
 	// ============================================================================================
-	
+
 	private void placeInitialTile(final Tile initialTile)
 	{
-		final Placement placement = new Placement(this, initialTile,// 
-				getGeometry().getInitialLocation(), //
-				getGeometry().getDirections().get(0));
+		final OrientedTile orientedTile = new OrientedTile(initialTile, getGeometry().getDirections().get(0));
+		final Placement placement = new Placement(this, orientedTile, getGeometry().getInitialLocation());
 
 		this.placements.add(placement);
 		this.features.addAll(createFeatures(initialTile));
@@ -44,9 +43,10 @@ public class Board
 
 	public void placeTile(final Tile tile, final ILocation location, final IDirection direction) throws InvalidLocationException
 	{
-		final Placement placement = new Placement(this, tile, location, direction);
+		final OrientedTile orientedTile = new OrientedTile(tile, direction);
+		final Placement placement = new Placement(this, orientedTile, location);
 
-		if (!isValidLocation(tile, location, direction)) throw new InvalidLocationException(placement);
+		if (!isValidLocation(orientedTile, location)) throw new InvalidLocationException(placement);
 
 		this.placements.add(placement);
 		this.features.addAll(createFeatures(tile));
@@ -54,7 +54,7 @@ public class Board
 		for (final Side side : placement.getSides())
 		{
 			final Side opposingSide = getOpposingSide(placement, side);
-			
+
 			if (opposingSide != null)
 			{
 				joinSides(side, opposingSide);
@@ -85,6 +85,7 @@ public class Board
 		{
 			final Feature currentFeature = getFeatureOf(currentSectionIterator.next());
 			final Feature adjacentFeature = getFeatureOf(adjacentSectionIterator.previous());
+
 			mergeFeatures(currentFeature, adjacentFeature);
 		}
 
@@ -96,6 +97,8 @@ public class Board
 
 	private void mergeFeatures(final Feature currentFeature, final Feature adjacentFeature)
 	{
+		if (currentFeature == adjacentFeature) return;
+
 		this.features.remove(currentFeature);
 
 		for (final Section section : currentFeature.getSections())
@@ -103,7 +106,7 @@ public class Board
 			adjacentFeature.addSection(section);
 		}
 	}
-	
+
 	// ============================================================================================
 	// === MEEPLE PLACEMENT
 	// ============================================================================================
@@ -117,12 +120,11 @@ public class Board
 	// === TILE PLACEMENT VALIDATION
 	// ============================================================================================
 
-	
-	public boolean isValidLocation(final Tile tile, final ILocation location, final IDirection direction)
+	public boolean isValidLocation(final OrientedTile orientedTile, final ILocation location)
 	{
 		if (getPlacementAt(location) != null) return false;
 		if (!hasNeighbouringTiles(location)) return false;
-		if (!compartibleSides(tile, location, direction)) return false;
+		if (!compartibleSides(orientedTile, location)) return false;
 
 		return true;
 	}
@@ -138,11 +140,9 @@ public class Board
 		return false;
 	}
 
-	private boolean compartibleSides(final Tile tile, final ILocation location, final IDirection direction)
+	private boolean compartibleSides(final OrientedTile orientedTile, final ILocation location)
 	{
-		final Placement placement = new Placement(this, tile, location, direction);
-
-		// TODO Create OrientedTile or something like that
+		final Placement placement = new Placement(this, orientedTile, location);
 
 		for (final Side currentSide : placement.getSides())
 		{
@@ -222,11 +222,10 @@ public class Board
 		final Placement opposingPlacement = getPlacementAt(placement.getLocation().shift(direction));
 		return opposingPlacement == null ? null : opposingPlacement.getSideForDirection(opposingDirection);
 	}
-	
+
 	// ============================================================================================
 	// === GETTERS
 	// ============================================================================================
-
 
 	public IGeometry getGeometry()
 	{
@@ -241,5 +240,38 @@ public class Board
 	public List<Placement> getPlacements()
 	{
 		return this.placements;
+	}
+
+	public List<Section> getAdjacentSections(Section section)
+	{
+		final List<Section> sections = new ArrayList<Section>();
+		
+		for (Side currentSide : section.getTile().getSides())
+		{
+			if (currentSide.getSections().contains(section))
+			{
+				final Side oppositeSide = getOpposingSide(getPlacementOf(section.getTile()), currentSide);
+				
+				if (oppositeSide != null)
+				{
+					final Iterator<Section> currentSectionIterator = currentSide.getSections().iterator();
+					final ListIterator<Section> oppositeSectionIterator = oppositeSide.getSections().listIterator(oppositeSide.getSections().size());
+	
+					while (currentSectionIterator.hasNext() && oppositeSectionIterator.hasPrevious())
+					{
+						if (currentSectionIterator.next() == section)
+						{
+							sections.add(oppositeSectionIterator.previous());
+						}
+						else
+						{
+							oppositeSectionIterator.next();
+						}
+					}
+				}
+			}
+		}
+		
+		return sections;
 	}
 }

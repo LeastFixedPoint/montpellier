@@ -1,6 +1,7 @@
 package info.reflectionsofmind.connexion.core.game;
 
 import info.reflectionsofmind.connexion.core.board.Meeple;
+import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.core.tile.Section;
@@ -9,18 +10,16 @@ import info.reflectionsofmind.connexion.core.tile.Tile;
 public class Turn
 {
 	private final Player player;
-	private final Tile tile;
+	private final OrientedTile orientedTile;
 	private final ILocation location;
-	private final IDirection direction;
 	private final Meeple meeple;
 	private final Section section;
 
-	public Turn(final Player player, final Tile tile, final ILocation location, final IDirection direction, final Meeple meeple, final Section section)
+	public Turn(final Player player, final OrientedTile orientedTile, final ILocation location, final Meeple meeple, final Section section)
 	{
 		this.player = player;
-		this.tile = tile;
+		this.orientedTile = orientedTile;
 		this.location = location;
-		this.direction = direction;
 		this.meeple = meeple;
 		this.section = section;
 	}
@@ -29,10 +28,15 @@ public class Turn
 	{
 		return this.player;
 	}
-
+	
+	public OrientedTile getOrientedTile()
+	{
+		return this.orientedTile;
+	}
+	
 	public Tile getTile()
 	{
-		return this.tile;
+		return getOrientedTile().getTile();
 	}
 
 	public ILocation getLocation()
@@ -42,7 +46,7 @@ public class Turn
 
 	public IDirection getDirection()
 	{
-		return this.direction;
+		return getOrientedTile().getDirection();
 	}
 	
 	public Meeple getMeeple()

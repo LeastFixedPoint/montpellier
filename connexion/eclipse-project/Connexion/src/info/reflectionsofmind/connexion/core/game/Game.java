@@ -3,7 +3,11 @@ package info.reflectionsofmind.connexion.core.game;
 import info.reflectionsofmind.connexion.core.board.Board;
 import info.reflectionsofmind.connexion.core.board.InvalidLocationException;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
+import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Tile;
+import info.reflectionsofmind.connexion.tilelist.ITileGenerator;
+import info.reflectionsofmind.connexion.tilelist.DoublePoint;
+import info.reflectionsofmind.connexion.tilelist.TileData;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,24 +20,23 @@ public class Game
 	private final List<Player> players = new ArrayList<Player>();
 	private final int currentPlayerIndex = 0;
 	private final Board board;
-	private Tile currentTile;
 
 	public Game(final ITileGenerator generator, final List<Player> players)
 	{
 		this.players.addAll(players);
 		this.generator = generator;
-		this.board = new Board(new Geometry(), generator.nextTile());
-		this.currentTile = generator.nextTile();
+		this.board = new Board(new Geometry(), generator.currentTile().getTile());
+		generator.nextTile();
 	}
 	
 	public Tile getCurrentTile()
 	{
-		return this.currentTile;
+		return generator.currentTile().getTile();
 	}
-
-	public BufferedImage getTileImage(final Tile tile)
+	
+	public TileData getTileData(final Tile tile)
 	{
-		return generator.getTileImage(tile);
+		return generator.getTileData(tile);
 	}
 
 	public void doTurn(final Turn turn) throws NotYourTurnException, InvalidLocationException
@@ -47,7 +50,7 @@ public class Game
 
 		if (generator.hasMoreTiles())
 		{
-			this.currentTile = generator.nextTile();
+			generator.nextTile();
 		}
 	}
 
