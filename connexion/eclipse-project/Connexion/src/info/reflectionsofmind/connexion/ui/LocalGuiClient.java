@@ -3,7 +3,6 @@ package info.reflectionsofmind.connexion.ui;
 import info.reflectionsofmind.connexion.IClient;
 import info.reflectionsofmind.connexion.IServer;
 import info.reflectionsofmind.connexion.ServerException;
-import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
 
@@ -24,7 +23,6 @@ public class LocalGuiClient extends JFrame implements IClient
 	private final IServer server;
 
 	private Player player;
-	private Game game;
 
 	private final CurrentTilePanel currentTilePanel;
 	private final PlayerStatusPanel playerStatusPanel;
@@ -71,9 +69,8 @@ public class LocalGuiClient extends JFrame implements IClient
 	}
 
 	@Override
-	public void onStart(final Game game, final Player player)
+	public void onStart(final Player player)
 	{
-		this.game = game;
 		this.player = player;
 		setVisible(true);
 
@@ -89,11 +86,6 @@ public class LocalGuiClient extends JFrame implements IClient
 	public Player getPlayer()
 	{
 		return this.player;
-	}
-
-	public Game getGame()
-	{
-		return this.game;
 	}
 
 	public void setWaitingMode()
@@ -121,9 +113,9 @@ public class LocalGuiClient extends JFrame implements IClient
 	{
 		this.currentTilePanel.updateInterface();
 
-		if (getGame() != null)
+		if (getServer().getGame() != null)
 		{
-			if (getGame().getCurrentPlayer() == getPlayer())
+			if (getServer().getGame().getCurrentPlayer() == getPlayer())
 			{
 				setTurnMode();
 			}

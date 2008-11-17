@@ -7,6 +7,7 @@ import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.game.Game;
+import info.reflectionsofmind.connexion.tilelist.TileSourceUtil;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -71,7 +72,7 @@ class CurrentTilePanel extends JPanel
 	{
 		if (getGame() != null)
 		{
-			return getGame().getTileData(getGame().getCurrentTile()).getImage();
+			return TileSourceUtil.getTileData(getClient().getServer().getTileSource(), getGame().getCurrentTile()).getImage();
 		}
 		else
 		{
@@ -91,7 +92,7 @@ class CurrentTilePanel extends JPanel
 
 	private Game getGame()
 	{
-		return (getClient() == null) ? null : getClient().getGame();
+		return getClient().getServer().getGame();
 	}
 
 	public void reset()

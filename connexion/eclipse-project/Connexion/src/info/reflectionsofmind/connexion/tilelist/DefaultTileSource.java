@@ -4,6 +4,7 @@ import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,13 +17,11 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-public class DefaultTileGenerator implements ITileGenerator
+public class DefaultTileSource implements ITileSource
 {
 	private final List<TileData> tiles = new ArrayList<TileData>();
-	private final List<TileData> sequence = new ArrayList<TileData>();
-	private int currentTileIndex = 0;
 
-	public DefaultTileGenerator(final URL url) throws IOException, TileCodeFormatException
+	public DefaultTileSource(final URL url) throws IOException, TileCodeFormatException
 	{
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
 
@@ -30,12 +29,15 @@ public class DefaultTileGenerator implements ITileGenerator
 		{
 			final TileData tileData = readTileData(reader);
 			this.tiles.add(tileData);
-			this.sequence.add(tileData);
 		}
-		
-		Collections.shuffle(this.sequence);
 
 		reader.close();
+	}
+
+	@Override
+	public List<TileData> getTiles()
+	{
+		return Collections.unmodifiableList(this.tiles);
 	}
 
 	private TileData readTileData(final BufferedReader reader) throws IOException, TileCodeFormatException
@@ -45,7 +47,7 @@ public class DefaultTileGenerator implements ITileGenerator
 		final String[] points = reader.readLine().split(",");
 
 		final Tile tile = new Tile(tileCode);
-		final BufferedImage image = ImageIO.read(new URL(imageUrl));
+		final BufferedImage image = ImageIO.read(Thread.currentThread().getContextClassLoader().getResourceAsStream(imageUrl));
 		final TileData tileData = new TileData(tile, image);
 
 		final Iterator<Section> sections = tile.getSections().iterator();
@@ -53,7 +55,7 @@ public class DefaultTileGenerator implements ITileGenerator
 		{
 			if (sections.hasNext())
 			{
-				tileData.addSectionPoint(sections.next(), DoublePoint.fromString(point));
+				tileData.addSectionPoint(sections.next(), strToPoint2D(point));
 			}
 			else
 			{
@@ -64,35 +66,11 @@ public class DefaultTileGenerator implements ITileGenerator
 		return tileData;
 	}
 
-	@Override
-	public boolean hasMoreTiles()
+	private Point2D strToPoint2D(final String string)
 	{
-		return this.currentTileIndex < this.sequence.size();
-	}
-
-	@Override
-	public TileData currentTile()
-	{
-		return this.sequence.get(this.currentTileIndex);
-	}
-
-	@Override
-	public void nextTile()
-	{
-		this.currentTileIndex++;
-	}
-
-	@Override
-	public TileData getTileData(final Tile tile)
-	{
-		for (TileData tileData : this.tiles)
-		{
-			if (tileData.getTile() == tile)
-			{
-				return tileData;
-			}
-		}
-		
-		return null;
+		final String[] cs = string.split(":");
+		final double x = Double.parseDouble(cs[0]);
+		final double y = Double.parseDouble(cs[1]);
+		return new Point2D.Double(x, y);
 	}
 }

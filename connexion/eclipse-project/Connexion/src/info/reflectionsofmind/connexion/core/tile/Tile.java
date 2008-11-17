@@ -13,6 +13,7 @@ public class Tile
 	private final Multi<Tile, Section> sections = new Multi<Tile, Section>(this);
 	private final Map<String, Section> sectionIds;
 	private final Multi<Tile, Side> sides = new Multi<Tile, Side>(this);
+	private final String code;
 
 	/**
 	 * <p>
@@ -28,6 +29,7 @@ public class Tile
 	 */
 	public Tile(final String code) throws TileCodeFormatException
 	{
+		this.code = code;
 		final String[] subCodes = code.split("\\|");
 
 		if (subCodes.length != 3) throw new TileCodeFormatException(code, "There was [" + subCodes.length + "] subcodes in the tile code. Must be [3].");
@@ -57,5 +59,12 @@ public class Tile
 	public Multi<Tile, Side> getSidesLink()
 	{
 		return this.sides;
+	}
+	
+	
+	@Override
+	public String toString()
+	{
+		return "Tile@" + hashCode() + ": " + code;
 	}
 }

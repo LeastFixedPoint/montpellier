@@ -1,45 +1,38 @@
 package info.reflectionsofmind.connexion.core.game;
 
 import info.reflectionsofmind.connexion.core.board.Board;
-import info.reflectionsofmind.connexion.core.board.InvalidLocationException;
+import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
-import info.reflectionsofmind.connexion.core.tile.Section;
+import info.reflectionsofmind.connexion.core.game.exception.NotYourTurnException;
+import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
-import info.reflectionsofmind.connexion.tilelist.ITileGenerator;
-import info.reflectionsofmind.connexion.tilelist.DoublePoint;
-import info.reflectionsofmind.connexion.tilelist.TileData;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Game
 {
-	private final ITileGenerator generator;
+	private final ITileSequence sequence;
 	private final List<Player> players = new ArrayList<Player>();
 	private final int currentPlayerIndex = 0;
 	private final Board board;
+	private Tile currentTile;
 
-	public Game(final ITileGenerator generator, final List<Player> players)
+	public Game(final ITileSequence sequence, final List<Player> players)
 	{
 		this.players.addAll(players);
-		this.generator = generator;
-		this.board = new Board(new Geometry(), generator.currentTile().getTile());
-		generator.nextTile();
+		this.sequence = sequence;
+		this.board = new Board(new Geometry(), sequence.nextTile());
+		this.currentTile = sequence.nextTile();
 	}
 	
 	public Tile getCurrentTile()
 	{
-		return generator.currentTile().getTile();
-	}
-	
-	public TileData getTileData(final Tile tile)
-	{
-		return generator.getTileData(tile);
+		return this.currentTile;
 	}
 
-	public void doTurn(final Turn turn) throws NotYourTurnException, InvalidLocationException
+	public void doTurn(final Turn turn) throws NotYourTurnException, InvalidTileLocationException
 	{
 		if (turn.getPlayer() != getCurrentPlayer())
 		{
@@ -48,9 +41,9 @@ public class Game
 
 		getBoard().placeTile(turn.getTile(), turn.getLocation(), turn.getDirection());
 
-		if (generator.hasMoreTiles())
+		if (sequence.hasMoreTiles())
 		{
-			generator.nextTile();
+			this.currentTile = sequence.nextTile();
 		}
 	}
 
