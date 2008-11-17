@@ -1,28 +1,33 @@
 package info.reflectionsofmind.connexion.core.board.geometry.rectangular;
 
-import java.util.AbstractList;
-import java.util.List;
-
+import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
-import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.IncompartibleGeometryException;
+import info.reflectionsofmind.connexion.core.util.Loop;
+
+import java.util.Arrays;
+import java.util.List;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
 
 public class Geometry implements IGeometry
 {
+	private final List<IDirection> DIRECTIONS = Arrays.<IDirection>asList( //
+			new Direction(this, 0), new Direction(this, 1), new Direction(this, 2), new Direction(this, 3));
+
 	// ============================================================================================
 	// === IMPLEMENTATION
 	// ============================================================================================
-	
+
 	@Override
 	public int getNumberOfDirections()
 	{
 		return 4;
 	}
-	
+
 	@Override
 	public Location getInitialLocation()
 	{
@@ -30,29 +35,9 @@ public class Geometry implements IGeometry
 	}
 
 	@Override
-	public Direction getNthDirection(int n)
+	public Loop<IDirection> getDirections()
 	{
-		return newDirection(n % getNumberOfDirections());
-	}
-	
-	@Override
-	public List<IDirection> getDirections()
-	{
-		return new AbstractList<IDirection>()
-		{
-			@Override
-			public IDirection get(int index)
-			{
-				return getNthDirection(index);
-			}
-
-			@Override
-			public int size()
-			{
-				return getNumberOfDirections();
-			}
-			
-		};
+		return new Loop<IDirection>(DIRECTIONS);
 	}
 
 	// ============================================================================================
@@ -95,19 +80,19 @@ public class Geometry implements IGeometry
 	{
 		Direction direction = getInitialDirection();
 
-		direction = direction.next();
+		direction = (Direction) direction.next();
 		Assert.assertEquals(+1, direction.getDx());
 		Assert.assertEquals(0, direction.getDy());
 
-		direction = direction.next();
+		direction = (Direction) direction.next();
 		Assert.assertEquals(0, direction.getDx());
 		Assert.assertEquals(-1, direction.getDy());
 
-		direction = direction.next();
+		direction = (Direction) direction.next();
 		Assert.assertEquals(-1, direction.getDx());
 		Assert.assertEquals(0, direction.getDy());
 
-		direction = direction.next();
+		direction = (Direction) direction.next();
 		Assert.assertEquals(0, direction.getDx());
 		Assert.assertEquals(+1, direction.getDy());
 	}

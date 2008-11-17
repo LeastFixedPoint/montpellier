@@ -1,12 +1,12 @@
 package info.reflectionsofmind.connexion.core.game;
 
-import java.net.URL;
-
 import info.reflectionsofmind.connexion.core.tile.Tile;
+
+import java.awt.image.BufferedImage;
 
 public interface ITileGenerator
 {
 	boolean hasMoreTiles();
 	Tile nextTile();
-	URL getImage(Tile tile);
+	BufferedImage getTileImage(Tile tile);
 }

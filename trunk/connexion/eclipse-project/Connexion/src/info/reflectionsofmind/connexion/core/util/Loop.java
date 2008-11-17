@@ -1,24 +1,37 @@
 package info.reflectionsofmind.connexion.core.util;
 
+import java.util.AbstractList;
 import java.util.List;
 
-public class Loop<E>
+public class Loop<E> extends AbstractList<E>
 {
 	private final List<E> list;
-	private int index = 0;
 	
 	public Loop(List<E> list)
 	{
 		this.list = list;
 	}
 
-	public void advance()
+	@Override
+	public E get(int index)
 	{
-		index = (index >= list.size()) ? 0 : (index + 1);
+		final int actualIndex;
+		
+		if (index < 0)
+		{
+			actualIndex = list.size() + (index % list.size());
+		}
+		else
+		{
+			actualIndex = index % list.size();
+		}
+		
+		return list.get(actualIndex);
 	}
 
-	public E current()
+	@Override
+	public int size()
 	{
-		return list.get(index);
+		return list.size();
 	}
 }

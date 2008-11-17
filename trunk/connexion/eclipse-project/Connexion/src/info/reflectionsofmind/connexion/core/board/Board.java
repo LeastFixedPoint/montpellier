@@ -36,17 +36,17 @@ public class Board
 	{
 		final Placement placement = new Placement(this, initialTile,// 
 				getGeometry().getInitialLocation(), //
-				getGeometry().getNthDirection(0));
+				getGeometry().getDirections().get(0));
 
 		this.placements.add(placement);
 		this.features.addAll(createFeatures(initialTile));
 	}
 
-	public void placeTile(final Tile tile, final ILocation location, final IDirection direction)
+	public void placeTile(final Tile tile, final ILocation location, final IDirection direction) throws InvalidLocationException
 	{
 		final Placement placement = new Placement(this, tile, location, direction);
 
-		if (!isValidLocation(tile, location, direction)) throw new RuntimeException();
+		if (!isValidLocation(tile, location, direction)) throw new InvalidLocationException(placement);
 
 		this.placements.add(placement);
 		this.features.addAll(createFeatures(tile));

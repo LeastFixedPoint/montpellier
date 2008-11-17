@@ -12,7 +12,7 @@ public class Side
 
 	public Side(final Tile tile, final List<Section> sections)
 	{
-		this.tile.link(tile.getSides());
+		this.tile.link(tile.getSidesLink());
 		this.sections = Collections.unmodifiableList(sections);
 	}
 

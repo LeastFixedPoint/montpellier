@@ -1,18 +1,20 @@
 package info.reflectionsofmind.connexion.ui;
 
 import java.awt.Graphics;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
 public class StretchingImage extends JComponent
 {
 	private static final long serialVersionUID = 1L;
-	private ImageIcon icon;
+	private BufferedImage image;
 
-	public StretchingImage(final ImageIcon icon)
+	public StretchingImage(final BufferedImage image)
 	{
-		this.icon = icon;
+		this.image = image;
 	}
 
 	public StretchingImage()
@@ -24,20 +26,20 @@ public class StretchingImage extends JComponent
 	{
 		super.paintComponent(graphics);
 		
-		if (this.icon != null)
+		if (getImage() != null)
 		{
-			graphics.drawImage(getIcon().getImage(), 0, 0, getWidth(), getHeight(), null);
+			graphics.drawImage(getImage(), 0, 0, getWidth(), getHeight(), null);
 		}
 	}
-
-	public ImageIcon getIcon()
+	
+	public BufferedImage getImage()
 	{
-		return this.icon;
+		return this.image;
 	}
 
-	public void setIcon(final ImageIcon icon)
+	public void setImage(BufferedImage image)
 	{
-		this.icon = icon;
-		this.repaint();
+		this.image = image;
+		repaint();
 	}
 }

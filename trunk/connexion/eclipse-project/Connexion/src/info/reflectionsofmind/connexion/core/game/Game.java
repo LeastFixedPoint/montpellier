@@ -1,11 +1,11 @@
 package info.reflectionsofmind.connexion.core.game;
 
 import info.reflectionsofmind.connexion.core.board.Board;
+import info.reflectionsofmind.connexion.core.board.InvalidLocationException;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.tile.Tile;
-import info.reflectionsofmind.connexion.core.util.Loop;
 
-import java.net.URL;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +14,7 @@ public class Game
 {
 	private final ITileGenerator generator;
 	private final List<Player> players = new ArrayList<Player>();
-	private final Loop<Player> currentPlayer = new Loop<Player>(this.players);
+	private final int currentPlayerIndex = 0;
 	private final Board board;
 	private Tile currentTile;
 
@@ -31,12 +31,12 @@ public class Game
 		return this.currentTile;
 	}
 
-	public URL getTileImageURL(final Tile tile)
+	public BufferedImage getTileImage(final Tile tile)
 	{
-		return getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/resources/tile.png");
+		return generator.getTileImage(tile);
 	}
 
-	public void doTurn(final Turn turn) throws NotYourTurnException
+	public void doTurn(final Turn turn) throws NotYourTurnException, InvalidLocationException
 	{
 		if (turn.getPlayer() != getCurrentPlayer())
 		{
@@ -53,7 +53,7 @@ public class Game
 
 	public Player getCurrentPlayer()
 	{
-		return this.currentPlayer.current();
+		return getPlayers().get(currentPlayerIndex);
 	}
 
 	public Board getBoard()
