@@ -1,5 +1,9 @@
 package info.reflectionsofmind.connexion.ui;
 
+import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
+import static java.awt.geom.AffineTransform.getScaleInstance;
+import static java.awt.geom.AffineTransform.getTranslateInstance;
+import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.game.Game;
@@ -47,8 +51,13 @@ class CurrentTilePanel extends JPanel
 	{
 		if (getImage() != null)
 		{
-			final AffineTransform at = AffineTransform.getQuadrantRotateInstance(getRotation().getIndex(),// 
-					getImage().getWidth() / 2, getImage().getHeight() / 2);
+			final int w = getImage().getWidth();
+			final int h = getImage().getHeight();
+			final int d = this.rotation.getIndex();
+
+			final AffineTransform at = getTranslateInstance(0, h);
+			at.concatenate(getScaleInstance(1, -1));
+			at.concatenate(getQuadrantRotateInstance(-d, w / 2, h / 2));
 
 			final AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 
@@ -62,7 +71,7 @@ class CurrentTilePanel extends JPanel
 	{
 		if (getGame() != null)
 		{
-			return getGame().getTileImage(getGame().getCurrentTile());
+			return getGame().getTileData(getGame().getCurrentTile()).getImage();
 		}
 		else
 		{
@@ -70,9 +79,9 @@ class CurrentTilePanel extends JPanel
 		}
 	}
 
-	public IDirection getRotation()
+	public OrientedTile getOrientedTile()
 	{
-		return this.rotation;
+		return new OrientedTile(getGame().getCurrentTile(), this.rotation);
 	}
 
 	private LocalGuiClient getClient()

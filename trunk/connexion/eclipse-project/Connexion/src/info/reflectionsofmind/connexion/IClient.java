@@ -8,5 +8,6 @@ public interface IClient
 {
 	void onTurn(Turn turn);
 	void onStart(Game game, Player player);
+	void onEnd();
 	String getName();
 }

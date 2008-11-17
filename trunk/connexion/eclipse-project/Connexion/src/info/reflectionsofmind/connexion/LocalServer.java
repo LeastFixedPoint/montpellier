@@ -4,8 +4,8 @@ import info.reflectionsofmind.connexion.core.board.InvalidLocationException;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.NotYourTurnException;
 import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.core.game.SimpleTileGenerator;
 import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.tilelist.DefaultTileGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class LocalServer implements IServer
 
 		try
 		{
-			final SimpleTileGenerator generator = new SimpleTileGenerator(
+			final DefaultTileGenerator generator = new DefaultTileGenerator(
 					getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/tilelist/DefaultTileList.properties"));
 			this.game = new Game(generator, players);
 		}
@@ -71,6 +71,14 @@ public class LocalServer implements IServer
 		for (IClient client : getClients())
 		{
 			client.onTurn(turn);
+		}
+		
+		if (this.game.getCurrentTile() == null)
+		{
+			for (IClient client : getClients())
+			{
+				client.onEnd();
+			}
 		}
 	}
 }

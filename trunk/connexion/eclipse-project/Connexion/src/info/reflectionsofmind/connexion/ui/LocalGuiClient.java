@@ -3,7 +3,6 @@ package info.reflectionsofmind.connexion.ui;
 import info.reflectionsofmind.connexion.IClient;
 import info.reflectionsofmind.connexion.IServer;
 import info.reflectionsofmind.connexion.ServerException;
-import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
@@ -80,6 +79,12 @@ public class LocalGuiClient extends JFrame implements IClient
 
 		updateInterface();
 	}
+	
+	@Override
+	public void onEnd()
+	{
+		JOptionPane.showMessageDialog(this, "Game Over", "Connexion", JOptionPane.INFORMATION_MESSAGE);
+	}
 
 	public Player getPlayer()
 	{
@@ -135,10 +140,15 @@ public class LocalGuiClient extends JFrame implements IClient
 	{
 		return this.server;
 	}
-
-	public IDirection getDirection()
+	
+	public CurrentTilePanel getCurrentTilePanel()
 	{
-		return this.currentTilePanel.getRotation();
+		return this.currentTilePanel;
+	}
+	
+	public GameBoardPanel getGameBoardPanel()
+	{
+		return this.gameBoardPanel;
 	}
 
 	class PlayerStatusPanel extends JPanel
