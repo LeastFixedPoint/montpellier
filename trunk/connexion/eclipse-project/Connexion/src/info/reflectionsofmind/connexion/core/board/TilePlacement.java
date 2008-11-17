@@ -9,13 +9,13 @@ import info.reflectionsofmind.connexion.core.util.Loop;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Placement
+public class TilePlacement
 {
 	private final Board board;
 	private final OrientedTile orientedTile;
 	private final ILocation location;
 
-	public Placement(final Board board, final OrientedTile orientedTile, final ILocation location)
+	public TilePlacement(final Board board, final OrientedTile orientedTile, final ILocation location)
 	{
 		this.board = board;
 		this.orientedTile = orientedTile;

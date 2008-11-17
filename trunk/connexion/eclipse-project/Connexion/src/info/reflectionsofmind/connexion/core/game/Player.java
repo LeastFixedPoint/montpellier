@@ -7,8 +7,9 @@ public class Player
 {
 	private final String name;
 	private final Multi<Player, Meeple> meeples = new Multi<Player, Meeple>(this);
+	private int score = 0;
 
-	public Player(String name)
+	public Player(final String name)
 	{
 		this.name = name;
 	}
@@ -21,5 +22,15 @@ public class Player
 	public Multi<Player, Meeple> getMeeples()
 	{
 		return this.meeples;
+	}
+
+	public void addScore(final int bonus)
+	{
+		this.score += bonus;
+	}
+
+	public int getScore()
+	{
+		return this.score;
 	}
 }
