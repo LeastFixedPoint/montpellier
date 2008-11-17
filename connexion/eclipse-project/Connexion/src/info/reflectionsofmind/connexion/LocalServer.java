@@ -1,12 +1,12 @@
 package info.reflectionsofmind.connexion;
 
+import info.reflectionsofmind.connexion.core.board.InvalidLocationException;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.NotYourTurnException;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.SimpleTileGenerator;
 import info.reflectionsofmind.connexion.core.game.Turn;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,17 +57,20 @@ public class LocalServer implements IServer
 			client.onStart(this.game, this.players.get(client));
 		}
 	}
+	
+	public List<IClient> getClients()
+	{
+		return this.clients;
+	}
 
 	@Override
-	public void sendTurn(final Turn turn) throws ServerException
+	public void sendTurn(final Turn turn) throws InvalidLocationException, NotYourTurnException
 	{
-		try
+		this.game.doTurn(turn);
+		
+		for (IClient client : getClients())
 		{
-			this.game.doTurn(turn);
-		}
-		catch (NotYourTurnException exception)
-		{
-			throw new ServerException(exception);
+			client.onTurn(turn);
 		}
 	}
 }

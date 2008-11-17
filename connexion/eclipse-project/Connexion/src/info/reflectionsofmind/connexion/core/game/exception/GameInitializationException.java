@@ -3,6 +3,8 @@ package info.reflectionsofmind.connexion.core.game.exception;
 public class GameInitializationException extends Exception
 {
 
+	private static final long serialVersionUID = 1L;
+
 	public GameInitializationException()
 	{
 		super();

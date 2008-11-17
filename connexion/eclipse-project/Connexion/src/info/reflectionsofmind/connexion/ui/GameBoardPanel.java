@@ -1,128 +1,134 @@
 package info.reflectionsofmind.connexion.ui;
 
-import info.reflectionsofmind.connexion.ServerException;
+import info.reflectionsofmind.connexion.core.board.InvalidLocationException;
 import info.reflectionsofmind.connexion.core.board.Placement;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Location;
+import info.reflectionsofmind.connexion.core.game.Game;
+import info.reflectionsofmind.connexion.core.game.NotYourTurnException;
 import info.reflectionsofmind.connexion.core.game.Turn;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputListener;
 
-class GameBoardPanel extends JPanel
+class GameBoardPanel extends JPanel implements MouseInputListener
 {
 	private static final long serialVersionUID = 1L;
 
 	private final LocalGuiClient localGuiClient;
-	private Location locationUnderMouse = null;
-	
-	public GameBoardPanel(LocalGuiClient localGuiClient)
+	private Location mouseLocation = null;
+
+	public GameBoardPanel(final LocalGuiClient localGuiClient)
 	{
 		this.localGuiClient = localGuiClient;
 		setBorder(BorderFactory.createLineBorder(Color.RED));
-		
-		final GameBoardMouseListener listener = new GameBoardMouseListener();
-		addMouseListener(listener);
-		addMouseMotionListener(listener);
+
+		addMouseListener(this);
+		addMouseMotionListener(this);
 	}
 
-	private void drawPlacement(Graphics g, Placement placement)
+	private Game getGame()
 	{
-		final int ts = getTileSide();
-		final int cx = (getWidth() / 2 - ts / 2);
-		final int cy = (getHeight() / 2 - ts / 2);
+		return getClient().getGame();
+	}
 
-		final Image image = new ImageIcon(this.localGuiClient.getGame().getTileImageURL(placement.getTile())).getImage();
+	private void drawPlacement(final Graphics g, final Placement placement)
+	{
+		final BufferedImage image = getGame().getTileImage(placement.getTile());
+		
+		final AffineTransform at = AffineTransform.getQuadrantRotateInstance(placement.getDirection().getIndex(),// 
+				image.getWidth() / 2, image.getHeight() / 2);
+		
+		final AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+		
 		final Location location = (Location) placement.getLocation();
 
-		final int dx1 = cx + location.getX() * ts;
-		final int dx2 = dx1 + ts;
+		final int dx1 = getTileLeft(location.getX());
+		final int dx2 = getTileLeft(location.getX() + 1);
 
-		final int dy1 = cy - location.getY() * ts;
-		final int dy2 = dy1 + ts;
+		final int dy1 = getTileTop(location.getY());
+		final int dy2 = getTileTop(location.getY() - 1);
 
 		final int iw = image.getWidth(null);
 		final int ih = image.getHeight(null);
 
-		g.drawImage(image, dx1, dy1, dx2, dy2, 0, 0, iw, ih, null);
+		g.drawImage(op.filter(image, null), dx1, dy1, dx2, dy2, 0, 0, iw, ih, null);
 	}
 
-	private void drawAllowedMarker(Graphics g, Location location)
+	private void drawAllowedMarker(final Graphics g, final Location location)
 	{
-		for (IDirection direction : this.localGuiClient.getGame().getBoard().getGeometry().getDirections())
+		final int ts = getTileSide();
+		final int x = getTileLeft(location.getX()) + ts / 4;
+		final int y = getTileTop(location.getY()) + ts / 4;
+
+		if (getGame().getBoard().isValidLocation(getGame().getCurrentTile(), location, getClient().getDirection()))
 		{
-			final int ts = getTileSide();
-			final int cx = (getWidth() / 2 - ts / 2);
-			final int cy = (getHeight() / 2 - ts / 2);
-
-			final int x = cx + location.getX() * ts + ts / 4;
-			final int w = ts / 2;
-
-			final int y = cy - location.getY() * ts + ts / 4;
-			final int h = ts / 2;
-
-			if (this.localGuiClient.getGame().getBoard().isValidLocation(this.localGuiClient.getGame().getCurrentTile(), location, direction))
-			{
-				g.drawOval(x, y, w, h);
-			}
-
-			g.drawString(location.toString(), x, y);
+			g.drawOval(x, y, ts / 2, ts / 2);
 		}
+
+		g.drawString(location.toString(), x, y);
+	}
+
+	private void drawMouseMarker(final Graphics g)
+	{
+		if (getMouseLocation() == null) return;
+	
+		final int ts = getTileSide();
+		final int x = getTileLeft(getMouseLocation().getX());
+		final int y = getTileTop(getMouseLocation().getY());
+	
+		g.drawRect(x, y, ts, ts);
 	}
 
 	@Override
-	protected void paintComponent(Graphics g)
+	protected void paintComponent(final Graphics g)
 	{
 		super.paintComponent(g);
 
-		for (Placement placement : this.localGuiClient.getGame().getBoard().getPlacements())
+		for (final Placement placement : getGame().getBoard().getPlacements())
 		{
 			drawPlacement(g, placement);
 		}
 
-		for (Placement placement : this.localGuiClient.getGame().getBoard().getPlacements())
+		for (final Placement placement : getGame().getBoard().getPlacements())
 		{
-			for (IDirection direction : this.localGuiClient.getGame().getBoard().getGeometry().getDirections())
+			for (final IDirection direction : getGame().getBoard().getGeometry().getDirections())
 			{
 				final Location location = (Location) placement.getLocation().shift(direction);
 				drawAllowedMarker(g, location);
 			}
 		}
-		
+
 		drawMouseMarker(g);
 	}
 
-	private void drawMouseMarker(Graphics g)
+	private int getTileTop(final int y)
 	{
-		if (locationUnderMouse == null) return;
-
 		final int ts = getTileSide();
-		final int cx = (getWidth() / 2 - ts / 2);
-		final int cy = (getHeight() / 2 - ts / 2);
-
-		final int x = cx + locationUnderMouse.getX() * ts;
-		final int w = ts;
-
-		final int y = cy - locationUnderMouse.getY() * ts;
-		final int h = ts;
-		
-		g.drawRect(x, y, w, h);
+		return getHeight() / 2 - ts / 2 - ts * y;
 	}
 
-	int getTileSide()
+	private int getTileLeft(final int x)
+	{
+		final int ts = getTileSide();
+		return getWidth() / 2 - ts / 2 + ts * x;
+	}
+
+	private int getTileSide()
 	{
 		int minX = 0, maxX = 0, minY = 0, maxY = 0;
 
-		for (Placement placement : this.localGuiClient.getGame().getBoard().getPlacements())
+		for (final Placement placement : getGame().getBoard().getPlacements())
 		{
 			final Location location = (Location) placement.getLocation();
 			minX = Math.min(location.getX(), minX);
@@ -131,67 +137,105 @@ class GameBoardPanel extends JPanel
 			maxY = Math.max(location.getY(), maxY);
 		}
 
-		int tileSideW = (getWidth() / 4) / (maxX - minX + 1);
-		int tileSideH = (getHeight() / 4) / (maxY - minY + 1);
+		final int tileSideW = getWidth() / 4 / (maxX - minX + 1);
+		final int tileSideH = getHeight() / 4 / (maxY - minY + 1);
 		return Math.min(tileSideH, tileSideW);
 	}
 
-	class GameBoardMouseListener extends MouseAdapter
+	private Location getLocation(final int x, final int y)
 	{
-		@Override
-		public void mouseClicked(MouseEvent event)
+		final int ts = getTileSide();
+		final int cx = getWidth() / 2 - ts / 2;
+		final int cy = getHeight() / 2 - ts / 2;
+
+		final Geometry geometry = (Geometry) getGame().getBoard().getGeometry();
+
+		return new Location(geometry,// 
+				-1 - (int) Math.floor((0.0 + cx - x) / ts),// 
+				+1 + (int) Math.floor((0.0 + cy - y) / ts));
+	}
+
+	private LocalGuiClient getClient()
+	{
+		return this.localGuiClient;
+	}
+
+	private void setMouseLocation(final Location mouseLocation)
+	{
+		this.mouseLocation= mouseLocation;
+	}
+
+	private Location getMouseLocation()
+	{
+		return this.mouseLocation;
+	}
+
+	// =============================================================================================
+	// === MOUSE LISTENER
+	// =============================================================================================
+
+	@Override
+	public void mouseClicked(final MouseEvent event)
+	{
+		if (getClient().isTurnMode())
 		{
-			if (localGuiClient.isTurnMode())
+			final Location location = getLocation(event.getX(), event.getY());
+
+			final Turn turn = new Turn(getClient().getPlayer(), getGame().getCurrentTile(), // 
+					location, getClient().getDirection(), null, null);
+
+			try
 			{
-				final Location location = getLocation(event.getX(), event.getY());
-
-				final Turn turn = new Turn(localGuiClient.getPlayer(), localGuiClient.getGame().getCurrentTile(), // 
-						location, localGuiClient.getGame().getBoard().getGeometry().getNthDirection(0), // 
-						null, null);
-
-				try
-				{
-					localGuiClient.getServer().sendTurn(turn);
-				}
-				catch (ServerException exception)
-				{
-					exception.printStackTrace();
-					JOptionPane.showMessageDialog(localGuiClient, "Server error.", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-
-				localGuiClient.updateInterface();
+				getClient().getServer().sendTurn(turn);
 			}
-			else
+			catch (final NotYourTurnException exception)
 			{
-				JOptionPane.showMessageDialog(localGuiClient, "It's not your turn!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "It's not your turn!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
-		}
-		
-		@Override
-		public void mouseMoved(MouseEvent event)
-		{
-			locationUnderMouse = getLocation(event.getX(), event.getY());
-			GameBoardPanel.this.repaint();
-		}
-		
-		@Override
-		public void mouseExited(MouseEvent e)
-		{
-			locationUnderMouse = null;
-			GameBoardPanel.this.repaint();
-		}
+			catch (InvalidLocationException exception)
+			{
+				JOptionPane.showMessageDialog(this, "Invalid location!", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 
-		private Location getLocation(int x, int y)
-		{
-			int ts = getTileSide();
-			final int cx = (getWidth() / 2 - ts / 2);
-			final int cy = (getHeight() / 2 - ts / 2);
-
-			final Geometry geometry = (Geometry) localGuiClient.getGame().getBoard().getGeometry();
-
-			return new Location(geometry,// 
-					-1 - (int) Math.floor((0.0 + cx - x) / ts),// 
-					+1 + (int) Math.floor((0.0 + cy - y) / ts));
+			getClient().updateInterface();
 		}
+		else
+		{
+			JOptionPane.showMessageDialog(this.localGuiClient, "It's not your turn!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	@Override
+	public void mouseMoved(final MouseEvent event)
+	{
+		setMouseLocation(getLocation(event.getX(), event.getY()));
+		repaint();
+	}
+
+	@Override
+	public void mouseExited(final MouseEvent e)
+	{
+		setMouseLocation(null);
+		repaint();
+	}
+
+	@Override
+	public void mouseDragged(final MouseEvent e)
+	{
+	}
+
+	@Override
+	public void mouseEntered(final MouseEvent e)
+	{
+	}
+
+	@Override
+	public void mousePressed(final MouseEvent e)
+	{
+	}
+
+	@Override
+	public void mouseReleased(final MouseEvent e)
+	{
 	}
 }

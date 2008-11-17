@@ -2,6 +2,7 @@ package info.reflectionsofmind.connexion.core.tile;
 
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeParser;
+import info.reflectionsofmind.connexion.core.util.Loop;
 import info.reflectionsofmind.connexion.core.util.Multi;
 
 import java.util.List;
@@ -48,7 +49,12 @@ public class Tile
 		return this.sections;
 	}
 
-	public Multi<Tile, Side> getSides()
+	public Loop<Side> getSides()
+	{
+		return new Loop<Side>(this.sides);
+	}
+
+	public Multi<Tile, Side> getSidesLink()
 	{
 		return this.sides;
 	}

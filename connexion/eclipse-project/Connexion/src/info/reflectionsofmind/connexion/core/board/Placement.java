@@ -4,9 +4,9 @@ import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.core.tile.Side;
 import info.reflectionsofmind.connexion.core.tile.Tile;
+import info.reflectionsofmind.connexion.core.util.Loop;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Placement
@@ -21,6 +21,12 @@ public class Placement
 		this.board = board;
 		this.tile = tile;
 		this.location = location;
+		
+		if (direction == null)
+		{
+			throw new RuntimeException("OMGLOL");
+		}
+		
 		this.direction = direction;
 	}
 
@@ -44,19 +50,26 @@ public class Placement
 		return this.board;
 	}
 
-	public List<Side> getSides()
+	public Loop<Side> getSides()
 	{
 		final List<Side> sides = new ArrayList<Side>();
 
-		final int d = getDirection().getIndex();
+		final IDirection direction = getDirection();
+		
+		if (direction == null)
+		{
+			throw new RuntimeException("Ooops");
+		}
+		
+		final int d = direction.getIndex();
 		final int n = getBoard().getGeometry().getNumberOfDirections();
 
 		for (int i = 0; i < n; i++)
 		{
-			sides.add(getTile().getSides().get((i + d) % n));
+			sides.add(getTile().getSides().get(i + d));
 		}
 
-		return Collections.unmodifiableList(sides);
+		return new Loop<Side>(sides);
 	}
 
 	public Side getSide(final IDirection direction)
@@ -67,7 +80,7 @@ public class Placement
 
 	public IDirection getDirectionOfSide(final Side side)
 	{
-		return getBoard().getGeometry().getNthDirection(getSides().indexOf(side));
+		return getBoard().getGeometry().getDirections().get(getSides().indexOf(side));
 	}
 
 	public Side getSideForDirection(final IDirection direction)

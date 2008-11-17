@@ -5,5 +5,5 @@ public interface IDirection
 	IGeometry getGeometry();
 	int getIndex();
 	IDirection next();
-	IDirection add(IDirection direction);
+	IDirection prev();
 }

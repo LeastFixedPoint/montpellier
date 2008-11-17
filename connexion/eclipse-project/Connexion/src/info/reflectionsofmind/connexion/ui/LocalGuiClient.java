@@ -3,8 +3,8 @@ package info.reflectionsofmind.connexion.ui;
 import info.reflectionsofmind.connexion.IClient;
 import info.reflectionsofmind.connexion.IServer;
 import info.reflectionsofmind.connexion.ServerException;
+import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.game.Game;
-import info.reflectionsofmind.connexion.core.game.NotYourTurnException;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
 
@@ -59,7 +59,7 @@ public class LocalGuiClient extends JFrame implements IClient
 		{
 			this.server.register(this);
 		}
-		catch (ServerException exception)
+		catch (final ServerException exception)
 		{
 			JOptionPane.showMessageDialog(null, "Cannot register on server.", "Error", JOptionPane.ERROR_MESSAGE);
 		}
@@ -108,38 +108,37 @@ public class LocalGuiClient extends JFrame implements IClient
 
 	public void onTurn(final Turn turn)
 	{
-		this.currentTilePanel.updateInterface();
-
-		try
-		{
-			getGame().doTurn(turn);
-		}
-		catch (final NotYourTurnException exception)
-		{
-			JOptionPane.showMessageDialog(this, "It's not your turn!", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-
+		this.currentTilePanel.reset();
 		updateInterface();
 	}
 
 	public void updateInterface()
 	{
 		this.currentTilePanel.updateInterface();
-		this.gameBoardPanel.repaint();
 
-		if (getGame().getCurrentPlayer() == getPlayer())
+		if (getGame() != null)
 		{
-			setTurnMode();
+			if (getGame().getCurrentPlayer() == getPlayer())
+			{
+				setTurnMode();
+			}
+			else
+			{
+				setWaitingMode();
+			}
 		}
-		else
-		{
-			setWaitingMode();
-		}
+		
+		repaint();
 	}
 
 	public IServer getServer()
 	{
 		return this.server;
+	}
+
+	public IDirection getDirection()
+	{
+		return this.currentTilePanel.getRotation();
 	}
 
 	class PlayerStatusPanel extends JPanel

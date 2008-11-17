@@ -1,11 +1,10 @@
 package info.reflectionsofmind.connexion.core.board.geometry;
 
-import java.util.List;
+import info.reflectionsofmind.connexion.core.util.Loop;
 
 public interface IGeometry
 {
 	ILocation getInitialLocation();
 	int getNumberOfDirections();
-	IDirection getNthDirection(int n);
-	List<IDirection> getDirections();
+	Loop<IDirection> getDirections();
 }

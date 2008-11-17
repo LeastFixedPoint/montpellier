@@ -3,6 +3,7 @@ package info.reflectionsofmind.connexion.core.game;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,9 +15,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 public class SimpleTileGenerator implements ITileGenerator
 {
-	private final Map<Tile, URL> images = new HashMap<Tile, URL>();
+	private final Map<Tile, BufferedImage> images = new HashMap<Tile, BufferedImage>();
 	private final List<Tile> sequence = new ArrayList<Tile>();
 	private final Iterator<Tile> iterator;
 
@@ -30,7 +33,7 @@ public class SimpleTileGenerator implements ITileGenerator
 			final String tileCode = reader.readLine();
 
 			final Tile tile = new Tile(tileCode);
-			this.images.put(tile, new URL(imageUrl));
+			this.images.put(tile, ImageIO.read(new URL(imageUrl)));
 		}
 
 		this.sequence.addAll(this.images.keySet());
@@ -53,7 +56,7 @@ public class SimpleTileGenerator implements ITileGenerator
 	}
 
 	@Override
-	public URL getImage(final Tile tile)
+	public BufferedImage getTileImage(final Tile tile)
 	{
 		return this.images.get(tile);
 	}

@@ -37,15 +37,15 @@ public class Direction implements IDirection
 	}
 
 	@Override
-	public Direction next()
+	public IDirection next()
 	{
-		return getGeometry().newDirection(getIndex() + 1);
+		return getGeometry().getDirections().get(getIndex() + 1);
 	}
 
 	@Override
-	public IDirection add(IDirection direction)
+	public IDirection prev()
 	{
-		return getGeometry().getNthDirection(getIndex() + direction.getIndex());
+		return getGeometry().getDirections().get(getIndex() - 1);
 	}
 
 	// ============================================================================================
