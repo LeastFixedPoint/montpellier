@@ -1,5 +1,6 @@
-package info.reflectionsofmind.connexion;
+package info.reflectionsofmind.connexion.server;
 
+import info.reflectionsofmind.connexion.client.IClient;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Turn;
@@ -8,9 +9,14 @@ import info.reflectionsofmind.connexion.tilelist.ITileSource;
 
 public interface IServer
 {
-	void register(IClient client) throws ServerException;
+	void startGame();
+
+	void register(IClient client);
+	void disconnect(IClient client);
 	void sendTurn(Turn turn) throws InvalidTileLocationException, NotYourTurnException;
-	void startGame() throws ServerException;
+	
 	Game getGame();
-	ITileSource getTileSource(); 
+	ITileSource getTileSource();
+	
+	void addServerListener(IServerListener listener);
 }

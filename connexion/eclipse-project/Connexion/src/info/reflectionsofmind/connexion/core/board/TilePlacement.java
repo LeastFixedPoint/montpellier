@@ -6,9 +6,6 @@ import info.reflectionsofmind.connexion.core.tile.Side;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.util.Loop;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class TilePlacement
 {
 	private final Board board;

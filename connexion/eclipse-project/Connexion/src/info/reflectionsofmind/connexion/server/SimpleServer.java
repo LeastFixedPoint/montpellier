@@ -1,5 +1,6 @@
-package info.reflectionsofmind.connexion;
+package info.reflectionsofmind.connexion.server;
 
+import info.reflectionsofmind.connexion.client.IClient;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
@@ -18,8 +19,10 @@ import java.util.List;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-public class LocalServer implements IServer
+public class SimpleServer implements IServer
 {
+	private final List<IServerListener> listeners = new ArrayList<IServerListener>();
+	
 	private final List<IClient> clients = new ArrayList<IClient>();
 	private final BiMap<IClient, Player> players = new HashBiMap<IClient, Player>();
 
@@ -37,10 +40,15 @@ public class LocalServer implements IServer
 	{
 		if (this.gameStarted) throw new RuntimeException("Game already started.");
 		this.clients.add(client);
+		
+		for (IServerListener listener : this.listeners)
+		{
+			listener.onClientConnect(client);
+		}
 	}
 
 	@Override
-	public void startGame() throws ServerException
+	public void startGame()
 	{
 		this.gameStarted = true;
 
@@ -57,9 +65,9 @@ public class LocalServer implements IServer
 		{
 			this.tileSource = new DefaultTileSource(getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/tilelist/DefaultTileList.properties"));
 
-			final  List<Tile> tiles = new ArrayList<Tile>();
+			final List<Tile> tiles = new ArrayList<Tile>();
 
-			for (TileData tileData : this.tileSource.getTiles())
+			for (final TileData tileData : this.tileSource.getTiles())
 			{
 				tiles.add(tileData.getTile());
 			}
@@ -68,27 +76,32 @@ public class LocalServer implements IServer
 
 			this.game = new Game(sequence, players);
 		}
-		catch (Exception exception)
+		catch (final Exception exception)
 		{
-			throw new ServerException(exception);
+			throw new RuntimeException(exception);
 		}
 
 		for (final IClient client : this.clients)
 		{
 			client.onStart(this.players.get(client));
 		}
+	
+		for (IServerListener listener : this.listeners)
+		{
+			listener.onGameStart();
+		}
 	}
 
 	@Override
 	public Game getGame()
 	{
-		return this.gameStarted ?  this.game : null;
+		return this.gameStarted ? this.game : null;
 	}
-	
+
 	@Override
 	public ITileSource getTileSource()
 	{
-		return this.gameStarted ?  this.tileSource : null;
+		return this.gameStarted ? this.tileSource : null;
 	}
 
 	@Override
@@ -96,24 +109,52 @@ public class LocalServer implements IServer
 	{
 		this.game.doTurn(turn);
 
-		for (IClient client : getClients())
+		for (final IClient client : getClients())
 		{
 			client.onTurn(turn);
+		}
+		
+		for (IServerListener listener : this.listeners)
+		{
+			listener.onTurn(turn);
 		}
 
 		if (this.game.getCurrentTile() == null)
 		{
-			for (IClient client : getClients())
+			for (final IClient client : getClients())
 			{
 				client.onEnd();
 			}
+
+			for (IServerListener listener : this.listeners)
+			{
+				listener.onGameEnd();
+			}
 		}
+	}
+
+	@Override
+	public void disconnect(final IClient client)
+	{
+		this.clients.remove(client);
+		this.players.remove(client);
+	
+		for (IServerListener listener : this.listeners)
+		{
+			listener.onClientDisconnect(client);
+		}
+	}
+	
+	@Override
+	public void addServerListener(IServerListener listener)
+	{
+		this.listeners.add(listener);
 	}
 
 	// ====================================================================================================
 	// === UTILITY
 	// ====================================================================================================
-	
+
 	public List<IClient> getClients()
 	{
 		return this.clients;
