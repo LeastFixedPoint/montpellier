@@ -5,17 +5,14 @@ import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocation
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
-import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Side;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.collect.BiMap;

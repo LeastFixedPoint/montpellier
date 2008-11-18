@@ -1,12 +1,10 @@
 package info.reflectionsofmind.connexion;
 
+import info.reflectionsofmind.connexion.server.ServerUI;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
-import info.reflectionsofmind.connexion.ui.LocalGuiClient;
-
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 public class Application
@@ -29,11 +27,8 @@ public class Application
 					e.printStackTrace();
 				}
 			});
-			final IServer server = new LocalServer();
-			
-			new LocalGuiClient(server);
-			
-			server.startGame();
+
+			new ServerUI().setVisible(true);
 		}
 		catch (final Exception exception)
 		{
