@@ -3,6 +3,7 @@ package info.reflectionsofmind.connexion.client.ui;
 import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
+import info.reflectionsofmind.connexion.client.ui.ClientUI.State;
 import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
@@ -25,49 +26,69 @@ import net.miginfocom.swing.MigLayout;
 class CurrentTilePanel extends JPanel
 {
 	private static final long serialVersionUID = 1L;
+	private static final BufferedImage FINISHED_IMAGE = new BufferedImage(64, 64, BufferedImage.TYPE_BYTE_GRAY);
 
 	private final ClientUI localGuiClient;
-	private final StretchingImage tileImage;
 	private IDirection rotation = new Geometry().getDirections().get(0);
+
+	private final StretchingImage tileImage;
+	private final JButton rotateRightButton;
+	private final JButton rotateLeftButton;
 
 	public CurrentTilePanel(final ClientUI localGuiClient)
 	{
 		this.localGuiClient = localGuiClient;
-		setBorder(BorderFactory.createLineBorder(Color.RED));
-		setLayout(new MigLayout("", "[50]6[50]", "[100]6[12]"));
+		setLayout(new MigLayout("", "[45!]6[45!]", "[96!]6[30!]"));
+		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		this.tileImage = new StretchingImage(getImage());
-		add(this.tileImage, "grow, spanx, wrap");
+		add(this.tileImage, "grow, span");
 
-		final JButton rotateRightButton = new JButton(new RotateRightAction("<"));
+		rotateRightButton = new JButton(new RotateRightAction("<"));
 		rotateRightButton.setFocusable(false);
 		add(rotateRightButton, "grow");
 
-		final JButton rotateLeftButton = new JButton(new RotateLeftAction(">"));
+		rotateLeftButton = new JButton(new RotateLeftAction(">"));
 		rotateLeftButton.setFocusable(false);
 		add(rotateLeftButton, "grow");
 	}
 
 	public void updateInterface()
 	{
-		final int w = getImage().getWidth();
-		final int h = getImage().getHeight();
-		final int d = this.rotation.getIndex();
+		final State turnMode = this.localGuiClient.getTurnMode();
 
-		final AffineTransform at = getTranslateInstance(0, h);
-		at.concatenate(getScaleInstance(1, -1));
-		at.concatenate(getQuadrantRotateInstance(-d, w / 2, h / 2));
-
-		final AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-
-		this.tileImage.setImage(op.filter(getImage(), null));
+		if (turnMode == State.TURN || turnMode == State.WAITING)
+		{
+			final int w = getImage().getWidth();
+			final int h = getImage().getHeight();
+			final int d = this.rotation.getIndex();
+	
+			final AffineTransform at = getTranslateInstance(0, h);
+			at.concatenate(getScaleInstance(1, -1));
+			at.concatenate(getQuadrantRotateInstance(-d, w / 2, h / 2));
+	
+			final AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+	
+			this.tileImage.setImage(op.filter(getImage(), null));
+		}
+		else
+		{
+			this.rotateLeftButton.setEnabled(false);
+			this.rotateRightButton.setEnabled(false);
+			this.tileImage.setImage(getFinishedImage());
+		}
 
 		repaint();
 	}
 
+	private BufferedImage getFinishedImage()
+	{
+		return FINISHED_IMAGE;
+	}
+
 	private BufferedImage getImage()
 	{
-		return TileSourceUtil.getTileData(getClient().getServer().getTileSource(), getGame().getCurrentTile()).getImage();
+		return TileSourceUtil.getTileData(this.localGuiClient.getServer().getTileSource(), getGame().getCurrentTile()).getImage();
 	}
 
 	public OrientedTile getOrientedTile()
@@ -75,14 +96,9 @@ class CurrentTilePanel extends JPanel
 		return new OrientedTile(getGame().getCurrentTile(), this.rotation);
 	}
 
-	private ClientUI getClient()
-	{
-		return this.localGuiClient;
-	}
-
 	private Game getGame()
 	{
-		return getClient().getServer().getGame();
+		return this.localGuiClient.getServer().getGame();
 	}
 
 	public void reset()
@@ -103,7 +119,7 @@ class CurrentTilePanel extends JPanel
 		public void actionPerformed(final ActionEvent event)
 		{
 			CurrentTilePanel.this.rotation = CurrentTilePanel.this.rotation.prev();
-			getClient().updateInterface();
+			CurrentTilePanel.this.localGuiClient.updateInterface();
 		}
 	}
 
@@ -120,7 +136,7 @@ class CurrentTilePanel extends JPanel
 		public void actionPerformed(final ActionEvent event)
 		{
 			CurrentTilePanel.this.rotation = CurrentTilePanel.this.rotation.next();
-			getClient().updateInterface();
+			CurrentTilePanel.this.localGuiClient.updateInterface();
 		}
 	}
 }

@@ -3,6 +3,7 @@ package info.reflectionsofmind.connexion.client.ui;
 import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
+import info.reflectionsofmind.connexion.client.ui.ClientUI.State;
 import info.reflectionsofmind.connexion.core.board.Board;
 import info.reflectionsofmind.connexion.core.board.BoardUtil;
 import info.reflectionsofmind.connexion.core.board.Feature;
@@ -46,8 +47,9 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	public GameBoardPanel(final ClientUI localGuiClient)
 	{
 		this.localGuiClient = localGuiClient;
-		setBorder(BorderFactory.createLineBorder(Color.RED));
 
+		setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
@@ -55,6 +57,35 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	// ============================================================================================
 	// === DRAWING METHODS
 	// ============================================================================================
+
+	@Override
+	protected void paintComponent(final Graphics g)
+	{
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		super.paintComponent(g);
+
+		for (final TilePlacement placement : this.localGuiClient.getServer().getGame().getBoard().getPlacements())
+		{
+			drawPlacement(g, placement);
+		}
+
+		final State turnMode = localGuiClient.getTurnMode();
+
+		if (turnMode == ClientUI.State.TURN || turnMode == ClientUI.State.WAITING)
+		{
+			for (final TilePlacement placement : this.localGuiClient.getServer().getGame().getBoard().getPlacements())
+			{
+				for (final IDirection direction : this.localGuiClient.getServer().getGame().getBoard().getGeometry().getDirections())
+				{
+					final Location location = (Location) placement.getLocation().shift(direction);
+					drawAllowedMarker(g, location);
+				}
+			}
+		}
+
+		drawMouseMarker(g);
+	}
 
 	private void drawPlacement(final Graphics g, final TilePlacement placement)
 	{
@@ -105,16 +136,20 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 		if (this.mousePoint == null) return;
 
 		final Location mouseLocation = getBoardLocation(this.mousePoint);
-		final Point p = getLocationPoint(mouseLocation);
-		final int ls = getLocationSide();
-
 		final Board board = this.localGuiClient.getServer().getGame().getBoard();
-		final OrientedTile orientedTile = this.localGuiClient.getCurrentTilePanel().getOrientedTile();
 
-		if (board.isValidLocation(orientedTile, mouseLocation))
+		if (localGuiClient.getTurnMode() == ClientUI.State.TURN)
 		{
-			g.setColor(Color.black);
-			g.drawOval(p.x + 4 + ls / 4, p.y + 4 + ls / 4, ls / 2 - 8, ls / 2 - 8);
+			final Point p = getLocationPoint(mouseLocation);
+			final int ls = getLocationSide();
+
+			final OrientedTile orientedTile = this.localGuiClient.getCurrentTilePanel().getOrientedTile();
+
+			if (board.isValidLocation(orientedTile, mouseLocation))
+			{
+				g.setColor(Color.black);
+				g.drawOval(p.x + 4 + ls / 4, p.y + 4 + ls / 4, ls / 2 - 8, ls / 2 - 8);
+			}
 		}
 
 		final TilePlacement placement = board.getPlacementAt(mouseLocation);
@@ -150,30 +185,6 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 		}
 
 		((Graphics2D) g).setStroke(oldStroke);
-	}
-
-	@Override
-	protected void paintComponent(final Graphics g)
-	{
-		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-		super.paintComponent(g);
-
-		for (final TilePlacement placement : this.localGuiClient.getServer().getGame().getBoard().getPlacements())
-		{
-			drawPlacement(g, placement);
-		}
-
-		for (final TilePlacement placement : this.localGuiClient.getServer().getGame().getBoard().getPlacements())
-		{
-			for (final IDirection direction : this.localGuiClient.getServer().getGame().getBoard().getGeometry().getDirections())
-			{
-				final Location location = (Location) placement.getLocation().shift(direction);
-				drawAllowedMarker(g, location);
-			}
-		}
-
-		drawMouseMarker(g);
 	}
 
 	// ============================================================================================
@@ -274,33 +285,30 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	@Override
 	public void mouseClicked(final MouseEvent event)
 	{
-		if (this.localGuiClient.isTurnMode())
+		if (this.localGuiClient.getTurnMode() != ClientUI.State.TURN) return;
+
+		final Location location = getBoardLocation(event.getPoint());
+		final OrientedTile orientedTile = this.localGuiClient.getCurrentTilePanel().getOrientedTile();
+
+		if (!this.localGuiClient.getServer().getGame().getBoard().isValidLocation(orientedTile, location)) return;
+
+		final Turn turn = new Turn(this.localGuiClient.getPlayer(), //
+				orientedTile, location, null, null);
+
+		try
 		{
-			final Location location = getBoardLocation(event.getPoint());
-
-			final Turn turn = new Turn(this.localGuiClient.getPlayer(), //
-					this.localGuiClient.getCurrentTilePanel().getOrientedTile(), // 
-					location, null, null);
-
-			try
-			{
-				this.localGuiClient.getServer().sendTurn(turn);
-			}
-			catch (final NotYourTurnException exception)
-			{
-				JOptionPane.showMessageDialog(this, "It's not your turn!", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-			catch (final InvalidTileLocationException exception)
-			{
-				JOptionPane.showMessageDialog(this, "Invalid location!", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-
-			this.localGuiClient.updateInterface();
+			this.localGuiClient.getServer().sendTurn(turn);
 		}
-		else
+		catch (final NotYourTurnException exception)
 		{
-			JOptionPane.showMessageDialog(this.localGuiClient, "It's not your turn!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "It's not your turn!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
+		catch (final InvalidTileLocationException exception)
+		{
+			JOptionPane.showMessageDialog(this, "Invalid location!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+
+		this.localGuiClient.updateInterface();
 	}
 
 	@Override

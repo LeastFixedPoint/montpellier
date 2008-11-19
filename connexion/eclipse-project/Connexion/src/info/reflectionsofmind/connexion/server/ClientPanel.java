@@ -60,7 +60,7 @@ class ClientPanel extends JPanel implements ItemListener
 
 		try
 		{
-			this.client = clientType.connect(this.serverUI.server);
+			this.client = clientType.connect(this.serverUI.getServer());
 			this.statusLabel.setText("Connected as [" + this.client.getName() + "].");
 			this.connectButton.setAction(new DisconnectAction());
 		}
@@ -84,6 +84,24 @@ class ClientPanel extends JPanel implements ItemListener
 		}
 	}
 
+	public void onDisconnect(DisconnectReason reason)
+	{
+		this.client = null;
+		this.statusLabel.setText("Disconnected.");
+		
+		if (this.serverUI.getServer().getGame() == null)
+		{
+			this.connectButton.setAction(new ConnectAction());
+			this.clientTypeCombo.setEnabled(true);
+		}
+	}
+	
+	public void disable()
+	{
+		this.connectButton.setEnabled(false);
+		this.clientTypeCombo.setEnabled(false);
+	}
+
 	public IClient getClient()
 	{
 		return this.client;
@@ -101,7 +119,8 @@ class ClientPanel extends JPanel implements ItemListener
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-
+			ClientPanel.this.serverUI.getServer().disconnect(getClient(), DisconnectReason.SERVER_REQUEST);
+			onDisconnect(DisconnectReason.SERVER_REQUEST);
 		}
 	}
 
@@ -117,12 +136,8 @@ class ClientPanel extends JPanel implements ItemListener
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			ClientPanel.this.client.onDisconnect();
-			ClientPanel.this.client = null;
-
-			statusLabel.setText("Disconnected on server request.");
-			connectButton.setAction(new ConnectAction());
-			clientTypeCombo.setEnabled(true);
+			ClientPanel.this.serverUI.getServer().disconnect(getClient(), DisconnectReason.SERVER_REQUEST);
+			onDisconnect(DisconnectReason.SERVER_REQUEST);
 		}
 	}
 

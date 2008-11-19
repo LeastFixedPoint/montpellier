@@ -7,7 +7,7 @@ public interface IServerListener
 {
 	void onGameStart();
 	void onGameEnd();
-	void onClientConnect(IClient client);
-	void onClientDisconnect(IClient client);
+	void onClientRegister(IClient client);
+	void onClientDisconnect(IClient client, DisconnectReason reason);
 	void onTurn(Turn turn);
 }

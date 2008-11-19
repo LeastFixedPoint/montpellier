@@ -8,6 +8,7 @@ public class Player
 	private final String name;
 	private final Multi<Player, Meeple> meeples = new Multi<Player, Meeple>(this);
 	private int score = 0;
+	private boolean disconnected = false;
 
 	public Player(final String name)
 	{
@@ -32,5 +33,10 @@ public class Player
 	public int getScore()
 	{
 		return this.score;
+	}
+	
+	public boolean isDisconnected()
+	{
+		return this.disconnected;
 	}
 }

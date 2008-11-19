@@ -15,21 +15,18 @@ public class Game
 {
 	private final ITileSequence sequence;
 	private final List<Player> players = new ArrayList<Player>();
-	private final int currentPlayerIndex = 0;
+	private int currentPlayerIndex = 0;
 	private final Board board;
 	private Tile currentTile;
+	private final String name;
 
-	public Game(final ITileSequence sequence, final List<Player> players)
+	public Game(final String name, final ITileSequence sequence, final List<Player> players)
 	{
+		this.name = name;
 		this.players.addAll(players);
 		this.sequence = sequence;
 		this.board = new Board(new Geometry(), sequence.nextTile());
 		this.currentTile = sequence.nextTile();
-	}
-	
-	public Tile getCurrentTile()
-	{
-		return this.currentTile;
 	}
 
 	public void doTurn(final Turn turn) throws NotYourTurnException, InvalidTileLocationException
@@ -41,15 +38,40 @@ public class Game
 
 		getBoard().placeTile(turn.getTile(), turn.getLocation(), turn.getDirection());
 
-		if (sequence.hasMoreTiles())
+		if (this.sequence.hasMoreTiles())
 		{
-			this.currentTile = sequence.nextTile();
+			this.currentTile = this.sequence.nextTile();
+			this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
 		}
+		else
+		{
+			this.currentTile = null;
+			this.currentPlayerIndex = -1;
+		}
+	}
+
+	public void removePlayer(final Player player)
+	{
+		final int index = this.players.indexOf(player);
+
+		if (this.currentPlayerIndex > index)
+		{
+			this.currentPlayerIndex--;
+		}
+
+		this.currentPlayerIndex = this.currentPlayerIndex % this.players.size();
+
+		this.players.remove(index);
+	}
+
+	public Tile getCurrentTile()
+	{
+		return this.currentTile;
 	}
 
 	public Player getCurrentPlayer()
 	{
-		return getPlayers().get(currentPlayerIndex);
+		return getPlayers().get(this.currentPlayerIndex);
 	}
 
 	public Board getBoard()
@@ -60,5 +82,10 @@ public class Game
 	public List<Player> getPlayers()
 	{
 		return Collections.unmodifiableList(this.players);
+	}
+
+	public String getName()
+	{
+		return this.name;
 	}
 }

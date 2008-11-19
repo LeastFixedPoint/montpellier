@@ -9,10 +9,10 @@ import info.reflectionsofmind.connexion.tilelist.ITileSource;
 
 public interface IServer
 {
-	void startGame();
+	Game startGame(String name);
 
 	void register(IClient client);
-	void disconnect(IClient client);
+	void disconnect(IClient client, DisconnectReason reason);
 	void sendTurn(Turn turn) throws InvalidTileLocationException, NotYourTurnException;
 	
 	Game getGame();
