@@ -43,15 +43,13 @@ public class SimpleServer implements IServer
 		
 		for (IServerListener listener : this.listeners)
 		{
-			listener.onClientConnect(client);
+			listener.onClientRegister(client);
 		}
 	}
 
 	@Override
-	public void startGame()
+	public Game startGame(final String name)
 	{
-		this.gameStarted = true;
-
 		final List<Player> players = new ArrayList<Player>();
 
 		for (final IClient client : this.clients)
@@ -74,7 +72,8 @@ public class SimpleServer implements IServer
 
 			final ITileSequence sequence = new RandomTileSequence(tiles);
 
-			this.game = new Game(sequence, players);
+			this.game = new Game(name, sequence, players);
+			this.gameStarted = true;
 		}
 		catch (final Exception exception)
 		{
@@ -90,6 +89,8 @@ public class SimpleServer implements IServer
 		{
 			listener.onGameStart();
 		}
+		
+		return this.game;
 	}
 
 	@Override
@@ -121,11 +122,6 @@ public class SimpleServer implements IServer
 
 		if (this.game.getCurrentTile() == null)
 		{
-			for (final IClient client : getClients())
-			{
-				client.onEnd();
-			}
-
 			for (IServerListener listener : this.listeners)
 			{
 				listener.onGameEnd();
@@ -134,14 +130,20 @@ public class SimpleServer implements IServer
 	}
 
 	@Override
-	public void disconnect(final IClient client)
+	public void disconnect(final IClient clientToDisconnect, final DisconnectReason reason)
 	{
-		this.clients.remove(client);
-		this.players.remove(client);
+		this.clients.remove(clientToDisconnect);
+		this.game.removePlayer(this.players.get(clientToDisconnect));
+		this.players.remove(clientToDisconnect);
 	
+		for (IClient client : this.clients)
+		{
+			client.onDisconnect(clientToDisconnect, reason);
+		}
+		
 		for (IServerListener listener : this.listeners)
 		{
-			listener.onClientDisconnect(client);
+			listener.onClientDisconnect(clientToDisconnect, reason);
 		}
 	}
 	

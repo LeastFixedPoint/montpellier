@@ -4,12 +4,12 @@ import info.reflectionsofmind.connexion.client.IClient;
 import info.reflectionsofmind.connexion.client.ui.ClientUI;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.server.DisconnectReason;
 import info.reflectionsofmind.connexion.server.IServer;
 
 import java.awt.Label;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -25,7 +25,7 @@ public class LocalClient implements IClient
 		this.server = server;
 		this.name = name;
 
-		this.waitingFrame = new WaitingFrame();
+		this.waitingFrame = new WaitingFrame(name);
 		this.waitingFrame.setVisible(true);
 		this.server.register(this);
 	}
@@ -37,37 +37,38 @@ public class LocalClient implements IClient
 	}
 
 	@Override
-	public void onEnd()
-	{
-		if (this.clientUI == null) throw new RuntimeException("Server sent end, but start notification has not been received!");
-	}
-
-	@Override
 	public void onStart(final Player player)
 	{
+		this.clientUI = new ClientUI(this.server, this, player);
 		this.waitingFrame.dispose();
-		this.clientUI = new ClientUI(this.server, player);
 	}
 
 	@Override
 	public void onTurn(final Turn turn)
 	{
-		if (this.clientUI == null) throw new RuntimeException("Server sent turn, but start notification has not been received!");
+		this.clientUI.onTurn(turn);
 	}
-	
+
 	@Override
-	public void onDisconnect()
+	public void onDisconnect(IClient client, DisconnectReason reason)
 	{
-		JOptionPane.showMessageDialog(null, "Disconnected on server request.", "Error", JOptionPane.ERROR_MESSAGE);
+		if (this.clientUI != null)
+		{
+			this.clientUI.onDisconnect(client, reason);
+		}
+		else if (client == this)
+		{
+			this.waitingFrame.dispose();
+		}
 	}
 
 	private final class WaitingFrame extends JFrame
 	{
 		private static final long serialVersionUID = 1L;
 
-		public WaitingFrame()
+		public WaitingFrame(final String playerName)
 		{
-			super("Connexion Client");
+			super("Connexion " + playerName);
 
 			setLocationRelativeTo(null);
 			setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -76,6 +77,17 @@ public class LocalClient implements IClient
 
 			add(new Label("Waiting for the game to start..."), "span");
 			pack();
+		}
+		
+		@Override
+		public void dispose()
+		{
+			if (server.getGame() == null)
+			{
+				server.disconnect(LocalClient.this, DisconnectReason.CLIENT_REQUEST);
+			}
+			
+			super.dispose();
 		}
 	}
 }
