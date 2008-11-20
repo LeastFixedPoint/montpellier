@@ -4,19 +4,16 @@ import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
 import info.reflectionsofmind.connexion.client.gui.ClientUI.State;
-import info.reflectionsofmind.connexion.client.remote.RemoteServerException;
-import info.reflectionsofmind.connexion.client.remote.ServerConnectionException;
 import info.reflectionsofmind.connexion.core.board.Board;
 import info.reflectionsofmind.connexion.core.board.BoardUtil;
 import info.reflectionsofmind.connexion.core.board.Feature;
 import info.reflectionsofmind.connexion.core.board.Meeple;
-import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.TilePlacement;
-import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Location;
-import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.core.game.Game;
+import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
@@ -68,18 +65,31 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 		super.paintComponent(g);
 
-		for (final TilePlacement placement : getClientUI().getClient().getGame().getBoard().getPlacements())
+		final Game game = getClientUI().getClient().getGame();
+
+		for (final TilePlacement placement : game.getBoard().getPlacements())
 		{
 			drawPlacement(g, placement);
+		}
+
+		for (final Player player : game.getPlayers())
+		{
+			for (final Meeple meeple : game.getPlayerMeeples(player))
+			{
+				if (game.getBoard().getMeepleSection(meeple) != null)
+				{
+					drawMeeple(g, player, meeple);
+				}
+			}
 		}
 
 		final State turnMode = getClientUI().getTurnMode();
 
 		if (turnMode == ClientUI.State.PLACE_TILE || turnMode == ClientUI.State.WAITING)
 		{
-			for (final TilePlacement placement : getClientUI().getClient().getGame().getBoard().getPlacements())
+			for (final TilePlacement placement : game.getBoard().getPlacements())
 			{
-				for (final IDirection direction : getClientUI().getClient().getGame().getBoard().getGeometry().getDirections())
+				for (final IDirection direction : game.getBoard().getGeometry().getDirections())
 				{
 					final Location location = (Location) placement.getLocation().shift(direction);
 					drawAllowedMarker(g, location);
@@ -88,6 +98,20 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 		}
 
 		drawMouseMarker(g);
+	}
+
+	private void drawMeeple(final Graphics g, final Player player, final Meeple meeple)
+	{
+		final Section section = getClientUI().getClient().getGame().getBoard().getMeepleSection(meeple);
+		final Point p = getSectionPoint(section);
+
+		final int n = getClientUI().getClient().getGame().getPlayers().size();
+		final int i = getClientUI().getClient().getGame().getPlayers().indexOf(player);
+
+		g.setColor(Color.getHSBColor(1.0f * i / (n + 1), 1.0f, 1.0f));
+		g.drawOval(p.x - 8, p.y - 8, 16, 16);
+		g.drawRect(p.x - 6, p.y - 6, 12, 12);
+
 	}
 
 	private void drawPlacement(final Graphics g, final TilePlacement placement)
@@ -127,9 +151,10 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 		final int ls = getLocationSide();
 		final Point p = getLocationPoint(location);
 
-		final OrientedTile orientedTile = getClientUI().getCurrentTilePanel().getOrientedTile();
+		final IDirection direction = getClientUI().getCurrentTilePanel().getDirection();
+		final Game game = getClientUI().getClient().getGame();
 
-		if (BoardUtil.isValidLocation(getClientUI().getClient().getGame().getBoard(), orientedTile, location))
+		if (BoardUtil.isValidLocation(game.getBoard(), game.getCurrentTile(), direction, location))
 		{
 			g.setColor(Color.black);
 			g.drawOval(p.x + ls / 4, p.y + ls / 4, ls / 2, ls / 2);
@@ -148,9 +173,10 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 			final Point p = getLocationPoint(mouseLocation);
 			final int ls = getLocationSide();
 
-			final OrientedTile orientedTile = getClientUI().getCurrentTilePanel().getOrientedTile();
+			final IDirection direction = getClientUI().getCurrentTilePanel().getDirection();
+			final Game game = getClientUI().getClient().getGame();
 
-			if (BoardUtil.isValidLocation(board, orientedTile, mouseLocation))
+			if (BoardUtil.isValidLocation(game.getBoard(), game.getCurrentTile(), direction, mouseLocation))
 			{
 				g.setColor(Color.black);
 				g.drawOval(p.x + 4 + ls / 4, p.y + 4 + ls / 4, ls / 2 - 8, ls / 2 - 8);
@@ -199,33 +225,23 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	private void placeTile(final Point clickPoint)
 	{
 		final Location location = getLocationByPoint(clickPoint);
-		final OrientedTile orientedTile = getClientUI().getCurrentTilePanel().getOrientedTile();
+		final IDirection direction = getClientUI().getCurrentTilePanel().getDirection();
+		final Game game = getClientUI().getClient().getGame();
 
-		if (!BoardUtil.isValidLocation(getClientUI().getClient().getGame().getBoard(), orientedTile, location)) return;
+		if (!BoardUtil.isValidLocation(game.getBoard(), game.getCurrentTile(), direction, location)) return;
 
-		final Turn turn = new Turn(location, orientedTile.getDirection(), null, null);
-		
-		try
-		{
-			getClientUI().getClient().getServer().sendTurn(turn);
-		}
-		catch (final RemoteServerException exception)
-		{
-			JOptionPane.showMessageDialog(this, "Server refused turn.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-		catch (ServerConnectionException exception)
-		{
-			JOptionPane.showMessageDialog(this, "Cannot connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
+		getClientUI().placeTile(location, direction);
 	}
 
 	private void placeMeeple(final Point clickPoint)
 	{
 		Meeple freeMeeple = null;
 
-		for (final Meeple meeple : getClientUI().getClient().getPlayer().getMeeples())
+		final Game game = getClientUI().getClient().getGame();
+
+		for (final Meeple meeple : game.getPlayerMeeples(getClientUI().getClient().getPlayer()))
 		{
-			if (getClientUI().getClient().getGame().getBoard().getMeepleSection(meeple) == null)
+			if (game.getBoard().getMeepleSection(meeple) == null)
 			{
 				freeMeeple = meeple;
 			}
@@ -234,18 +250,14 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 		if (freeMeeple == null)
 		{
 			JOptionPane.showMessageDialog(this, "You have no free meeples.", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
 		}
 
 		final Section section = getSectionByPoint(clickPoint);
 
-		try
-		{
-			getClientUI().getClient().getGame().getBoard().placeMeeple(freeMeeple, section);
-		}
-		catch (final FeatureTakenException exception)
-		{
-			JOptionPane.showMessageDialog(this, "This feature is already occupied.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
+		if (section == null) return;
+
+		getClientUI().placeMeeple(freeMeeple, section);
 	}
 
 	// ============================================================================================
@@ -285,7 +297,8 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 	private Point getSectionPoint(final Section section)
 	{
-		final TilePlacement placement = BoardUtil.getPlacementOf(getClientUI().getClient().getGame().getBoard(), section.getTile());
+		final Game game = getClientUI().getClient().getGame();
+		final TilePlacement placement = BoardUtil.getPlacementOf(game.getBoard(), section.getTile());
 		final Location location = (Location) placement.getLocation();
 
 		final ITileSource tileSource = getClientUI().getClient().getTileSource();
@@ -357,8 +370,14 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	@Override
 	public void mouseClicked(final MouseEvent event)
 	{
-		if (getClientUI().getTurnMode() == ClientUI.State.PLACE_TILE) placeTile(event.getPoint());
-		if (getClientUI().getTurnMode() == ClientUI.State.PLACE_MEEPLE) placeMeeple(event.getPoint());
+		if (getClientUI().getTurnMode() == ClientUI.State.PLACE_TILE)
+		{
+			placeTile(event.getPoint());
+		}
+		else if (getClientUI().getTurnMode() == ClientUI.State.PLACE_MEEPLE)
+		{
+			placeMeeple(event.getPoint());
+		}
 
 		getClientUI().updateInterface();
 	}

@@ -37,15 +37,11 @@ public class Board
 
 	public void placeTile(final Tile tile, final ILocation location, final IDirection direction) throws InvalidTileLocationException
 	{
-		final OrientedTile orientedTile = new OrientedTile(tile, direction);
-		final TilePlacement placement = new TilePlacement(this, orientedTile, location);
+		final TilePlacement placement = new TilePlacement(this, tile, direction, location);
 
-		System.out.println("New: " + placement);
-		
 		if (!getPlacements().isEmpty())
 		{
-			System.out.println("Old: " + getPlacements().get(0));
-			if (!BoardUtil.isValidLocation(this, orientedTile, location)) throw new InvalidTileLocationException(placement);
+			if (!BoardUtil.isValidLocation(this, tile, direction, location)) throw new InvalidTileLocationException(placement);
 		}
 
 		this.placements.add(placement);
@@ -60,6 +56,19 @@ public class Board
 				joinSides(side, opposingSide);
 			}
 		}
+	}
+
+	public void placeMeeple(final Meeple meeple, final Section section) throws FeatureTakenException
+	{
+		for (Section featureSection : BoardUtil.getFeatureOf(this, section).getSections())
+		{
+			if (this.meeples.inverse().containsKey(featureSection))
+			{
+				throw new FeatureTakenException();
+			}
+		}
+	
+		this.meeples.put(meeple, section);
 	}
 
 	private List<Feature> createFeatures(final Tile tile)
@@ -124,28 +133,9 @@ public class Board
 						featureMeeples.add(entry.getKey());
 					}
 				}
-				
-				
 			}
 		}
 	}
-
-	public void placeMeeple(final Meeple meeple, final Section section) throws FeatureTakenException
-	{
-		for (Section featureSection : BoardUtil.getFeatureOf(this, section).getSections())
-		{
-			if (this.meeples.inverse().containsKey(featureSection))
-			{
-				throw new FeatureTakenException();
-			}
-		}
-
-		this.meeples.put(meeple, section);
-	}
-
-	// ============================================================================================
-	// === GETTERS
-	// ============================================================================================
 
 	public IGeometry getGeometry()
 	{

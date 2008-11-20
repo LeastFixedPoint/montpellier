@@ -22,11 +22,9 @@ public class DefaultTileSource implements ITileSource
 
 	public DefaultTileSource(final URL url) throws IOException, TileCodeFormatException
 	{
-		System.out.println("Loading tiles from " + url + "...");
 		final Properties tileList = new Properties();
 		tileList.load(new InputStreamReader(url.openStream()));
 		loadTiles(tileList);
-		System.out.println("Finished");
 	}
 	
 	private void loadTiles(Properties tileList) throws TileCodeFormatException, IOException
@@ -51,17 +49,13 @@ public class DefaultTileSource implements ITileSource
 
 		for (String tileName : codes.keySet())
 		{
-			System.out.println("Loading tile [" + tileName + "]...");
-			
 			if (images.get(tileName) == null)
 			{
-				System.out.println("Error loading tile [" + tileName + "]: no image specified.");
 				continue;
 			}
 
 			if (points.get(tileName) == null)
 			{
-				System.out.println("Error loading tile [" + tileName + "]: no section points specified.");
 				continue;
 			}
 
@@ -75,8 +69,6 @@ public class DefaultTileSource implements ITileSource
 			}
 
 			this.tiles.add(tileData);
-			
-			System.out.println("Ok");
 		}
 	}
 	

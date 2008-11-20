@@ -29,6 +29,18 @@ public class Loop<E> extends AbstractList<E>
 		return list.get(actualIndex);
 	}
 
+	public Loop<E> roll(final int offset)
+	{
+		return new Loop<E>(this)
+		{
+			@Override
+			public E get(int index)
+			{
+				return super.get(index + offset);
+			}
+		};
+	}
+
 	@Override
 	public int size()
 	{

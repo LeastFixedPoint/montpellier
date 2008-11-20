@@ -139,11 +139,11 @@ public class BoardUtil
 		return sections;
 	}
 
-	public static boolean isValidLocation(final Board board, final OrientedTile orientedTile, final ILocation location)
+	public static boolean isValidLocation(final Board board, final Tile tile, final IDirection direction, final ILocation location)
 	{
 		if (BoardUtil.getPlacementAt(board, location) != null) return false;
 		if (!BoardUtil.hasNeighbouringTiles(board, location)) return false;
-		if (!BoardUtil.compartibleSides(board, orientedTile, location)) return false;
+		if (!BoardUtil.compartibleSides(board, tile, direction, location)) return false;
 
 		return true;
 	}
@@ -159,9 +159,9 @@ public class BoardUtil
 		return false;
 	}
 
-	private static boolean compartibleSides(final Board board, final OrientedTile orientedTile, final ILocation location)
+	private static boolean compartibleSides(final Board board, final Tile tile, final IDirection direction, final ILocation location)
 	{
-		final TilePlacement placement = new TilePlacement(board, orientedTile, location);
+		final TilePlacement placement = new TilePlacement(board, tile, direction, location);
 
 		for (final Side currentSide : placement.getSides())
 		{

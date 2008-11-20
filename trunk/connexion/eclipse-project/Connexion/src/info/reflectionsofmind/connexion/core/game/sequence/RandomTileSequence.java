@@ -10,12 +10,16 @@ import java.util.List;
 public class RandomTileSequence implements ITileSequence
 {
 	private final Iterator<Tile> iterator;
+	private final int totalNumberOfTiles;
+	private Tile currentTile = null;
 
 	public RandomTileSequence(final List<Tile> tiles)
 	{
 		final List<Tile> shuffledTiles = new ArrayList<Tile>(tiles);
 		Collections.shuffle(shuffledTiles);
 		this.iterator = shuffledTiles.iterator();
+		this.totalNumberOfTiles = shuffledTiles.size();
+		this.currentTile = iterator.next();
 	}
 
 	@Override
@@ -25,9 +29,20 @@ public class RandomTileSequence implements ITileSequence
 	}
 
 	@Override
-	public Tile nextTile()
+	public void nextTile()
 	{
-		return this.iterator.next();
+		this.currentTile = iterator.next();
+	}
+	
+	@Override
+	public Tile getCurrentTile()
+	{
+		return currentTile;
 	}
 
+	@Override
+	public Integer getTotalNumberOfTiles()
+	{
+		return this.totalNumberOfTiles;
+	}
 }
