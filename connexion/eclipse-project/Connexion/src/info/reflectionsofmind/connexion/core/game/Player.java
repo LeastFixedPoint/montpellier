@@ -1,12 +1,14 @@
 package info.reflectionsofmind.connexion.core.game;
 
 import info.reflectionsofmind.connexion.core.board.Meeple;
-import info.reflectionsofmind.connexion.core.util.Multi;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Player
 {
 	private final String name;
-	private final Multi<Player, Meeple> meeples = new Multi<Player, Meeple>(this);
+	private final List<Meeple> meeples = new ArrayList<Meeple>();
 	private int score = 0;
 	private boolean disconnected = false;
 
@@ -20,7 +22,7 @@ public class Player
 		return this.name;
 	}
 
-	public Multi<Player, Meeple> getMeeples()
+	public List<Meeple> getMeeples()
 	{
 		return this.meeples;
 	}

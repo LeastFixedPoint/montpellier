@@ -13,7 +13,7 @@ public final class TileSourceUtil
 	{
 		for (final TileData tileData : tileSource.getTiles())
 		{
-			if (tileData.getTile() == tile) return tileData;
+			if (tile.equals(tileData.getTile())) return tileData;
 		}
 
 		return null;

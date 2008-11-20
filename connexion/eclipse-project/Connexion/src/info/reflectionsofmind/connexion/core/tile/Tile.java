@@ -61,10 +61,20 @@ public class Tile
 		return this.sides;
 	}
 	
+	public String getCode()
+	{
+		return this.code;
+	}
 	
 	@Override
 	public String toString()
 	{
 		return "Tile@" + hashCode() + ": " + code;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof Tile) && ((Tile)obj).code.equals(this.code);
 	}
 }

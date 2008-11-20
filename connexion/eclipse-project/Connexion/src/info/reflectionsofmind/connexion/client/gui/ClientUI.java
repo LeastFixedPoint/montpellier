@@ -1,10 +1,8 @@
-package info.reflectionsofmind.connexion.client.ui;
+package info.reflectionsofmind.connexion.client.gui;
 
 import info.reflectionsofmind.connexion.client.IClient;
-import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.server.DisconnectReason;
-import info.reflectionsofmind.connexion.server.IServer;
+import info.reflectionsofmind.connexion.client.local.DesynhronizationException;
+import info.reflectionsofmind.connexion.transport.ServerTurnEvent;
 
 import java.awt.Dimension;
 
@@ -18,13 +16,11 @@ public class ClientUI extends JFrame
 {
 	public enum State
 	{
-		WAITING, TURN, DISCONNECTED, FINISHED
+		WAITING, PLACE_TILE, PLACE_MEEPLE, DISCONNECTED, FINISHED, ERROR
 	};
 
 	private static final long serialVersionUID = 1L;
 
-	private final IServer server;
-	private final Player player;
 	private final IClient client;
 
 	private final CurrentTilePanel currentTilePanel;
@@ -33,13 +29,11 @@ public class ClientUI extends JFrame
 
 	private State turnMode = State.WAITING;
 
-	public ClientUI(final IServer server, final IClient client, final Player player)
+	public ClientUI(final IClient client)
 	{
-		super("Connexion " + player.getName() + " at " + server.getGame().getName());
+		super("Connexion :: Client :: " + client.getGame().getName() + " :: "+ client.getPlayer().getName());
 
 		this.client = client;
-		this.server = server;
-		this.player = player;
 
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -62,19 +56,14 @@ public class ClientUI extends JFrame
 		updateInterface();
 	}
 
-	public Player getPlayer()
-	{
-		return this.player;
-	}
-
 	public State getTurnMode()
 	{
 		return this.turnMode;
 	}
 
-	public void onTurn(final Turn turn)
+	public void onTurn(final ServerTurnEvent event)
 	{
-		if (getServer().getGame().getCurrentTile() == null)
+		if (getClient().getGame().getCurrentTile() == null)
 		{
 			this.turnMode = State.FINISHED;
 		}
@@ -83,35 +72,16 @@ public class ClientUI extends JFrame
 		updateInterface();
 	}
 
-	public void onDisconnect(IClient client, DisconnectReason reason)
-	{
-		if (client == this.client)
-		{
-			if (reason != DisconnectReason.CLIENT_REQUEST)
-			{
-				JOptionPane.showMessageDialog(this, "You have been disconnected. Reason: " + reason, "Error", JOptionPane.ERROR_MESSAGE);
-			}
-	
-			this.turnMode = State.DISCONNECTED;
-		}
-		else
-		{
-			JOptionPane.showMessageDialog(this, client.getName() + " have been disconnected. Reason: " + reason, "Information", JOptionPane.INFORMATION_MESSAGE);
-		}
-
-		updateInterface();
-	}
-
 	public void updateInterface()
 	{
 		this.currentTilePanel.updateInterface();
 		this.informationPanel.updateInterface();
 		
-		if (this.turnMode == State.TURN || this.turnMode == State.WAITING)
+		if (this.turnMode == State.PLACE_TILE || this.turnMode == State.WAITING)
 		{
-			if (getServer().getGame().getCurrentPlayer() == getPlayer())
+			if (getClient().getGame().getCurrentPlayer() == getClient().getPlayer())
 			{
-				this.turnMode = State.TURN;
+				this.turnMode = State.PLACE_TILE;
 			}
 			else
 			{
@@ -126,12 +96,6 @@ public class ClientUI extends JFrame
 	public void dispose()
 	{
 		super.dispose();
-		getServer().disconnect(this.client, DisconnectReason.CLIENT_REQUEST);
-	}
-
-	public IServer getServer()
-	{
-		return this.server;
 	}
 	
 	public IClient getClient()
@@ -147,5 +111,11 @@ public class ClientUI extends JFrame
 	public GameBoardPanel getGameBoardPanel()
 	{
 		return this.gameBoardPanel;
+	}
+
+	public void onDesync(DesynhronizationException desynhronizationcException)
+	{
+		JOptionPane.showMessageDialog(this, "Desynchronization occured, game cannot continue.", "Error", JOptionPane.ERROR_MESSAGE);
+		this.turnMode = State.ERROR;
 	}
 }

@@ -25,43 +25,28 @@ public class Game
 		this.name = name;
 		this.players.addAll(players);
 		this.sequence = sequence;
-		this.board = new Board(new Geometry(), sequence.nextTile());
+		this.board = new Board(new Geometry());
 		this.currentTile = sequence.nextTile();
 	}
 
 	public void doTurn(final Turn turn) throws NotYourTurnException, InvalidTileLocationException
 	{
-		if (turn.getPlayer() != getCurrentPlayer())
-		{
-			throw new NotYourTurnException(getCurrentPlayer(), turn.getPlayer());
-		}
-
-		getBoard().placeTile(turn.getTile(), turn.getLocation(), turn.getDirection());
+		getBoard().placeTile(getCurrentTile(), turn.getLocation(), turn.getDirection());
 
 		if (this.sequence.hasMoreTiles())
 		{
 			this.currentTile = this.sequence.nextTile();
-			this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
+			
+			if (!turn.isNonPlayer())
+			{
+				this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
+			}
 		}
 		else
 		{
 			this.currentTile = null;
 			this.currentPlayerIndex = -1;
 		}
-	}
-
-	public void removePlayer(final Player player)
-	{
-		final int index = this.players.indexOf(player);
-
-		if (this.currentPlayerIndex > index)
-		{
-			this.currentPlayerIndex--;
-		}
-
-		this.currentPlayerIndex = this.currentPlayerIndex % this.players.size();
-
-		this.players.remove(index);
 	}
 
 	public Tile getCurrentTile()

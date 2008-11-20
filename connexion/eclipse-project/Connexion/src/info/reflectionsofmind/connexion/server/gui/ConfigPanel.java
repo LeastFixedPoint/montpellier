@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.server;
+package info.reflectionsofmind.connexion.server.gui;
 
 import java.awt.HeadlessException;
 

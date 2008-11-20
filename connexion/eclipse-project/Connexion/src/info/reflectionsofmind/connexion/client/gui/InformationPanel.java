@@ -1,6 +1,6 @@
-package info.reflectionsofmind.connexion.client.ui;
+package info.reflectionsofmind.connexion.client.gui;
 
-import info.reflectionsofmind.connexion.client.ui.ClientUI.State;
+import info.reflectionsofmind.connexion.client.gui.ClientUI.State;
 import info.reflectionsofmind.connexion.core.game.Player;
 
 import java.awt.Color;
@@ -25,9 +25,14 @@ class InformationPanel extends JPanel
 		setLayout(new MigLayout("", "[180]6[180]6[180]6[180]6[180]", "[]"));
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		for (final Player player : this.clientUI.getServer().getGame().getPlayers())
+		final int n = this.clientUI.getClient().getGame().getPlayers().size();
+		int hueIndex = 0;
+		
+		for (final Player player : this.clientUI.getClient().getGame().getPlayers())
 		{
 			final PlayerStatusPanel panel = new PlayerStatusPanel(player);
+			panel.setBorder(BorderFactory.createLineBorder(Color.getHSBColor((1.0f*hueIndex)/n, 0.5f, 1.0f), 3));
+			hueIndex++;
 			this.panels.put(player, panel);
 			add(panel, "grow");
 		}
@@ -35,14 +40,14 @@ class InformationPanel extends JPanel
 
 	public void updateInterface()
 	{
-		for (Player player : this.clientUI.getServer().getGame().getPlayers())
+		for (Player player : this.clientUI.getClient().getGame().getPlayers())
 		{
 			this.panels.get(player).setBackground(Color.WHITE);
 		}
 
-		if (this.clientUI.getTurnMode() == State.TURN || this.clientUI.getTurnMode() == State.WAITING)
+		if (this.clientUI.getTurnMode() == State.PLACE_TILE || this.clientUI.getTurnMode() == State.WAITING)
 		{
-			final Player currentPlayer = this.clientUI.getServer().getGame().getCurrentPlayer();
+			final Player currentPlayer = this.clientUI.getClient().getGame().getCurrentPlayer();
 			this.panels.get(currentPlayer).setBackground(Color.LIGHT_GRAY);
 		}
 	}
@@ -57,7 +62,7 @@ class InformationPanel extends JPanel
 
 			final JLabel nameLabel = new JLabel(player.getName());
 			
-			if (clientUI.getPlayer() == player)
+			if (clientUI.getClient().getPlayer() == player)
 			{
 				nameLabel.setForeground(Color.RED);
 				nameLabel.setText(nameLabel.getText() + " (You)");

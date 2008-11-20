@@ -1,8 +1,9 @@
-package info.reflectionsofmind.connexion.server;
+package info.reflectionsofmind.connexion.server.gui;
 
 import info.reflectionsofmind.connexion.client.ClientType;
 import info.reflectionsofmind.connexion.client.ConnectionFailedException;
-import info.reflectionsofmind.connexion.client.IClient;
+import info.reflectionsofmind.connexion.server.local.DisconnectReason;
+import info.reflectionsofmind.connexion.server.remote.IRemoteClient;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -27,7 +28,7 @@ class ClientPanel extends JPanel implements ItemListener
 	private final JButton connectButton;
 	private final JLabel statusLabel;
 
-	private IClient client;
+	private IRemoteClient client;
 
 	public ClientPanel(final ServerUI serverUI, final int index)
 	{
@@ -46,6 +47,11 @@ class ClientPanel extends JPanel implements ItemListener
 		add(this.clientTypeCombo, "grow");
 		add(this.connectButton, "grow");
 		add(this.statusLabel, "grow");
+		
+		if (index == 0)
+		{
+			this.clientTypeCombo.setSelectedIndex(1);
+		}
 
 		this.serverUI.pack();
 	}
@@ -54,22 +60,21 @@ class ClientPanel extends JPanel implements ItemListener
 	{
 		final ClientType clientType = ServerUI.CLIENT_TYPES.get(this.clientTypeCombo.getSelectedItem());
 
-		this.connectButton.setAction(new CancelAction());
 		this.clientTypeCombo.setEnabled(false);
+		this.connectButton.setEnabled(false);
 		this.statusLabel.setText("Connecting...");
 
 		try
 		{
 			this.client = clientType.connect(this.serverUI.getServer());
-			this.statusLabel.setText("Connected as [" + this.client.getName() + "].");
-			this.connectButton.setAction(new DisconnectAction());
+			this.statusLabel.setText("Connected as [" + getClient().getName() + "].");
 		}
 		catch (final ConnectionFailedException exception)
 		{
 			JOptionPane.showMessageDialog(this, "Connection failed. Reason:\n" + exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			this.statusLabel.setText("Connection failed.");
-			this.connectButton.setAction(new ConnectAction());
 			this.clientTypeCombo.setEnabled(true);
+			this.connectButton.setEnabled(true);
 		}
 
 		this.serverUI.updateStartButton();
@@ -102,43 +107,9 @@ class ClientPanel extends JPanel implements ItemListener
 		this.clientTypeCombo.setEnabled(false);
 	}
 
-	public IClient getClient()
+	public IRemoteClient getClient()
 	{
 		return this.client;
-	}
-
-	private class DisconnectAction extends AbstractAction
-	{
-		private static final long serialVersionUID = 1L;
-
-		public DisconnectAction()
-		{
-			super("Disconnect");
-		}
-
-		@Override
-		public void actionPerformed(final ActionEvent event)
-		{
-			ClientPanel.this.serverUI.getServer().disconnect(getClient(), DisconnectReason.SERVER_REQUEST);
-			onDisconnect(DisconnectReason.SERVER_REQUEST);
-		}
-	}
-
-	private class CancelAction extends AbstractAction
-	{
-		private static final long serialVersionUID = 1L;
-
-		public CancelAction()
-		{
-			super("Cancel");
-		}
-
-		@Override
-		public void actionPerformed(final ActionEvent event)
-		{
-			ClientPanel.this.serverUI.getServer().disconnect(getClient(), DisconnectReason.SERVER_REQUEST);
-			onDisconnect(DisconnectReason.SERVER_REQUEST);
-		}
 	}
 
 	private class ConnectAction extends AbstractAction

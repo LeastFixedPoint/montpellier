@@ -44,8 +44,8 @@ public class Feature
 	{
 		for (final Side side : section.getTile().getSides())
 		{
-			final TilePlacement placement = getBoard().getPlacementOf(side.getTile());
-			final Side opposingSide = getBoard().getOpposingSide(placement, side);
+			final TilePlacement placement = BoardUtil.getPlacementOf(getBoard(), side.getTile());
+			final Side opposingSide = BoardUtil.getOpposingSide(getBoard(), placement, side);
 			if (side.getSections().contains(section) && opposingSide == null)
 			{
 				return true;
