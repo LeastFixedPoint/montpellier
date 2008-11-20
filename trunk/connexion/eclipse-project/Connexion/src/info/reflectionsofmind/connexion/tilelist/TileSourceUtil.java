@@ -1,6 +1,5 @@
 package info.reflectionsofmind.connexion.tilelist;
 
-import info.reflectionsofmind.connexion.core.tile.Tile;
 
 public final class TileSourceUtil
 {
@@ -9,11 +8,11 @@ public final class TileSourceUtil
 		throw new UnsupportedOperationException();
 	}
 
-	public static TileData getTileData(final ITileSource tileSource, final Tile tile)
+	public static TileData getTileData(final ITileSource tileSource, final String code)
 	{
 		for (final TileData tileData : tileSource.getTiles())
 		{
-			if (tile.equals(tileData.getTile())) return tileData;
+			if (code.equals(tileData.getCode())) return tileData;
 		}
 
 		return null;

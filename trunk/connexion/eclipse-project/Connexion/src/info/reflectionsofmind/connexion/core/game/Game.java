@@ -3,7 +3,6 @@ package info.reflectionsofmind.connexion.core.game;
 import info.reflectionsofmind.connexion.core.board.Board;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
-import info.reflectionsofmind.connexion.core.game.exception.NotYourTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 
@@ -19,6 +18,7 @@ public class Game
 	private final Board board;
 	private Tile currentTile;
 	private final String name;
+	private boolean finished = false;
 
 	public Game(final String name, final ITileSequence sequence, final List<Player> players)
 	{
@@ -29,21 +29,22 @@ public class Game
 		this.currentTile = sequence.nextTile();
 	}
 
-	public void doTurn(final Turn turn) throws NotYourTurnException, InvalidTileLocationException
+	public void doTurn(final Turn turn) throws InvalidTileLocationException
 	{
 		getBoard().placeTile(getCurrentTile(), turn.getLocation(), turn.getDirection());
+
+		if (!turn.isNonPlayer())
+		{
+			this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
+		}
 
 		if (this.sequence.hasMoreTiles())
 		{
 			this.currentTile = this.sequence.nextTile();
-			
-			if (!turn.isNonPlayer())
-			{
-				this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
-			}
 		}
 		else
 		{
+			this.finished = true;
 			this.currentTile = null;
 			this.currentPlayerIndex = -1;
 		}
@@ -56,7 +57,14 @@ public class Game
 
 	public Player getCurrentPlayer()
 	{
-		return getPlayers().get(this.currentPlayerIndex);
+		if (this.currentPlayerIndex != -1)
+		{
+			return getPlayers().get(this.currentPlayerIndex);
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	public Board getBoard()
@@ -72,5 +80,10 @@ public class Game
 	public String getName()
 	{
 		return this.name;
+	}
+	
+	public boolean isFinished()
+	{
+		return this.finished;
 	}
 }

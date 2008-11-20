@@ -1,5 +1,6 @@
-package info.reflectionsofmind.connexion.client;
+package info.reflectionsofmind.connexion.server.gui;
 
+import info.reflectionsofmind.connexion.client.ConnectionFailedException;
 import info.reflectionsofmind.connexion.client.local.DefaultGuiClient;
 import info.reflectionsofmind.connexion.client.remote.HotSeatTransport;
 import info.reflectionsofmind.connexion.server.local.IServer;

@@ -7,7 +7,6 @@ import info.reflectionsofmind.connexion.tilelist.ITileSource;
 public interface IServer extends IRemoteClient.IListener
 {
 	void startGame(String name);
-	void register(IRemoteClient client);
 	Game getGame();
 	ITileSource getTileSource();
 }

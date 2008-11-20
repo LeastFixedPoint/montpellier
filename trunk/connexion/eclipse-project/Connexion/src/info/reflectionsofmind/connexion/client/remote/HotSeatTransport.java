@@ -19,7 +19,7 @@ public class HotSeatTransport
 	{
 		this.remoteServer = new RemoteServer(server);
 	}
-	
+
 	public void setClient(IClient client)
 	{
 		this.remoteClient = new RemoteClient(client);
@@ -28,7 +28,7 @@ public class HotSeatTransport
 	public IRemoteClient getRemoteClient()
 	{
 		if (this.remoteClient == null) throw new RuntimeException("Client is not set yet.");
-			
+
 		return this.remoteClient;
 	}
 
@@ -42,7 +42,7 @@ public class HotSeatTransport
 	private class RemoteClient extends AbstractRemoteClient
 	{
 		private final IClient client;
-		
+
 		public RemoteClient(IClient client)
 		{
 			this.client = client;
@@ -53,13 +53,13 @@ public class HotSeatTransport
 		{
 			client.onStart(event);
 		}
-		
+
 		@Override
 		public void sendTurn(ServerTurnEvent event) throws ClientConnectionException
 		{
 			client.onTurn(event);
 		}
-		
+
 		@Override
 		public String getName()
 		{
@@ -70,12 +70,12 @@ public class HotSeatTransport
 	private class RemoteServer extends AbstractRemoteServer
 	{
 		private final IServer server;
-		
+
 		public RemoteServer(IServer server)
 		{
 			this.server = server;
 		}
-		
+
 		@Override
 		public void connect(IClient client) throws ServerConnectionException, RemoteServerException
 		{

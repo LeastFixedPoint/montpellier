@@ -1,6 +1,5 @@
 package info.reflectionsofmind.connexion.server.gui;
 
-import info.reflectionsofmind.connexion.client.ClientType;
 import info.reflectionsofmind.connexion.client.ConnectionFailedException;
 import info.reflectionsofmind.connexion.server.local.DisconnectReason;
 import info.reflectionsofmind.connexion.server.remote.IRemoteClient;
@@ -47,7 +46,7 @@ class ClientPanel extends JPanel implements ItemListener
 		add(this.clientTypeCombo, "grow");
 		add(this.connectButton, "grow");
 		add(this.statusLabel, "grow");
-		
+
 		if (index == 0)
 		{
 			this.clientTypeCombo.setSelectedIndex(1);
@@ -67,6 +66,7 @@ class ClientPanel extends JPanel implements ItemListener
 		try
 		{
 			this.client = clientType.connect(this.serverUI.getServer());
+			this.serverUI.getServer().add(getClient());
 			this.statusLabel.setText("Connected as [" + getClient().getName() + "].");
 		}
 		catch (final ConnectionFailedException exception)
@@ -89,18 +89,19 @@ class ClientPanel extends JPanel implements ItemListener
 		}
 	}
 
-	public void onDisconnect(DisconnectReason reason)
+	public void onDisconnect(final DisconnectReason reason)
 	{
 		this.client = null;
 		this.statusLabel.setText("Disconnected.");
-		
+
 		if (this.serverUI.getServer().getGame() == null)
 		{
 			this.connectButton.setAction(new ConnectAction());
 			this.clientTypeCombo.setEnabled(true);
 		}
 	}
-	
+
+	@Override
 	public void disable()
 	{
 		this.connectButton.setEnabled(false);

@@ -23,12 +23,12 @@ public class TilePlacement
 	{
 		return this.orientedTile;
 	}
-	
+
 	public Tile getTile()
 	{
 		return getOrientedTile().getTile();
 	}
-	
+
 	public IDirection getDirection()
 	{
 		return getOrientedTile().getDirection();
@@ -43,7 +43,7 @@ public class TilePlacement
 	{
 		return this.board;
 	}
-	
+
 	public Loop<Side> getSides()
 	{
 		return getOrientedTile().getSides();
@@ -63,5 +63,11 @@ public class TilePlacement
 	public Side getSideForDirection(final IDirection direction)
 	{
 		return getSides().get(direction.getIndex());
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Placement@" + hashCode() + ": [" + getTile() + "], [" + getLocation() + "], [" + getDirection() + "]";
 	}
 }
