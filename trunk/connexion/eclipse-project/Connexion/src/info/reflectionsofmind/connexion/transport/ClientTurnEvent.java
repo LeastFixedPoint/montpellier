@@ -1,53 +1,49 @@
-package info.reflectionsofmind.connexion.core.game;
+package info.reflectionsofmind.connexion.transport;
 
 import info.reflectionsofmind.connexion.core.board.Meeple;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.core.tile.Section;
+import info.reflectionsofmind.connexion.server.remote.IRemoteClient;
 
-public class Turn
+public class ClientTurnEvent
 {
+	private final IRemoteClient client;
+
 	private final IDirection direction;
 	private final ILocation location;
 	private final Meeple meeple;
 	private final Section section;
-	private final boolean nonPlayer;
 
-	public Turn( //
-			final IDirection direction, // 
-			final ILocation location, //
-			final Meeple meeple, //
-			final Section section, //
-			final boolean nonPlayer)
-	{
-		this.direction = direction;
-		this.location = location;
-		this.meeple = meeple;
-		this.section = section;
-		this.nonPlayer = nonPlayer;
-	}
-	
-
-	public Turn( //
-			final IDirection direction, // 
+	public ClientTurnEvent( //
+			final IRemoteClient client, //
+			final IDirection direction, //
 			final ILocation location, //
 			final Meeple meeple, //
 			final Section section)
 	{
-		this(direction, location, meeple, section, false);
-	}
-
-	
-	public ILocation getLocation()
-	{
-		return this.location;
+		this.client = client;
+		this.direction = direction;
+		this.location = location;
+		this.meeple = meeple;
+		this.section = section;
 	}
 
 	public IDirection getDirection()
 	{
 		return this.direction;
 	}
-	
+
+	public IRemoteClient getClient()
+	{
+		return this.client;
+	}
+
+	public ILocation getLocation()
+	{
+		return this.location;
+	}
+
 	public Meeple getMeeple()
 	{
 		return this.meeple;
@@ -57,9 +53,5 @@ public class Turn
 	{
 		return this.section;
 	}
-	
-	public boolean isNonPlayer()
-	{
-		return this.nonPlayer;
-	}
+
 }

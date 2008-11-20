@@ -1,13 +1,15 @@
 package info.reflectionsofmind.connexion.client;
 
+import info.reflectionsofmind.connexion.client.remote.IRemoteServer;
+import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.server.DisconnectReason;
+import info.reflectionsofmind.connexion.tilelist.ITileSource;
 
-public interface IClient
+public interface IClient extends IRemoteServer.IListener
 {
-	void onTurn(Turn turn);
-	void onStart(Player player);
-	void onDisconnect(IClient client, DisconnectReason reason);
 	String getName();
+	Game getGame();
+	Player getPlayer();
+	ITileSource getTileSource();
+	IRemoteServer getServer();
 }

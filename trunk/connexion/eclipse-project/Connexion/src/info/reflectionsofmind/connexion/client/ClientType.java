@@ -1,7 +1,9 @@
 package info.reflectionsofmind.connexion.client;
 
-import info.reflectionsofmind.connexion.client.local.LocalClient;
-import info.reflectionsofmind.connexion.server.IServer;
+import info.reflectionsofmind.connexion.client.local.DefaultGuiClient;
+import info.reflectionsofmind.connexion.client.remote.HotSeatTransport;
+import info.reflectionsofmind.connexion.server.local.IServer;
+import info.reflectionsofmind.connexion.server.remote.IRemoteClient;
 
 import javax.swing.JOptionPane;
 
@@ -10,7 +12,7 @@ public enum ClientType
 	NONE
 	{
 		@Override
-		public IClient connect(final IServer arg0) throws ConnectionFailedException
+		public IRemoteClient connect(final IServer arg0) throws ConnectionFailedException
 		{
 			throw new ConnectionFailedException("Client type not selected.");
 		}
@@ -19,21 +21,27 @@ public enum ClientType
 	LOCAL
 	{
 		@Override
-		public IClient connect(final IServer server) throws ConnectionFailedException
+		public IRemoteClient connect(final IServer server) throws ConnectionFailedException
 		{
 			final String name = JOptionPane.showInputDialog("Enter name:", "Client #" + localClientsNumber);
 			localClientsNumber++;
 
 			if (name == null) throw new ConnectionFailedException("Client cancelled.");
 
-			return new LocalClient(server, name);
+			final HotSeatTransport transport = new HotSeatTransport();
+			transport.setServer(server);
+			
+			final DefaultGuiClient client = new DefaultGuiClient(transport.getRemoteServer(), name);
+			transport.setClient(client);
+			
+			return transport.getRemoteClient();
 		}
 	},
 
 	BOT
 	{
 		@Override
-		public IClient connect(final IServer server) throws ConnectionFailedException
+		public IRemoteClient connect(final IServer server) throws ConnectionFailedException
 		{
 			throw new ConnectionFailedException("AI not implemented yet.");
 		}
@@ -42,7 +50,7 @@ public enum ClientType
 	SPECTATOR
 	{
 		@Override
-		public IClient connect(final IServer server) throws ConnectionFailedException
+		public IRemoteClient connect(final IServer server) throws ConnectionFailedException
 		{
 			throw new ConnectionFailedException("Spectation not implemented yet.");
 		}
@@ -51,7 +59,7 @@ public enum ClientType
 	JABBER
 	{
 		@Override
-		public IClient connect(final IServer server) throws ConnectionFailedException
+		public IRemoteClient connect(final IServer server) throws ConnectionFailedException
 		{
 			throw new ConnectionFailedException("Game over XMPP not implemented yet.");
 		}
@@ -60,7 +68,7 @@ public enum ClientType
 	ONLINE
 	{
 		@Override
-		public IClient connect(final IServer arg0) throws ConnectionFailedException
+		public IRemoteClient connect(final IServer arg0) throws ConnectionFailedException
 		{
 			throw new ConnectionFailedException("Online game not implemented yet.");
 		}
@@ -68,5 +76,5 @@ public enum ClientType
 
 	private static int localClientsNumber = 1;
 
-	public abstract IClient connect(IServer server) throws ConnectionFailedException;
+	public abstract IRemoteClient connect(IServer server) throws ConnectionFailedException;
 }

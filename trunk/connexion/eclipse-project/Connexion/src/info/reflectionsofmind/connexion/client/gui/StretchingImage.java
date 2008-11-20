@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.client.ui;
+package info.reflectionsofmind.connexion.client.gui;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;

@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion;
 
-import info.reflectionsofmind.connexion.server.ServerUI;
+import info.reflectionsofmind.connexion.server.gui.ServerUI;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 

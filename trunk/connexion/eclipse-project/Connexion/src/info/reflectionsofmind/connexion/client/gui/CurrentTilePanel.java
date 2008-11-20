@@ -1,9 +1,9 @@
-package info.reflectionsofmind.connexion.client.ui;
+package info.reflectionsofmind.connexion.client.gui;
 
 import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
-import info.reflectionsofmind.connexion.client.ui.ClientUI.State;
+import info.reflectionsofmind.connexion.client.gui.ClientUI.State;
 import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
@@ -28,7 +28,7 @@ class CurrentTilePanel extends JPanel
 	private static final long serialVersionUID = 1L;
 	private static final BufferedImage FINISHED_IMAGE = new BufferedImage(64, 64, BufferedImage.TYPE_BYTE_GRAY);
 
-	private final ClientUI localGuiClient;
+	private final ClientUI clientUI;
 	private IDirection rotation = new Geometry().getDirections().get(0);
 
 	private final StretchingImage tileImage;
@@ -37,7 +37,7 @@ class CurrentTilePanel extends JPanel
 
 	public CurrentTilePanel(final ClientUI localGuiClient)
 	{
-		this.localGuiClient = localGuiClient;
+		this.clientUI = localGuiClient;
 		setLayout(new MigLayout("", "[45!]6[45!]", "[96!]6[30!]"));
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -55,9 +55,9 @@ class CurrentTilePanel extends JPanel
 
 	public void updateInterface()
 	{
-		final State turnMode = this.localGuiClient.getTurnMode();
+		final State turnMode = this.clientUI.getTurnMode();
 
-		if (turnMode == State.TURN || turnMode == State.WAITING)
+		if (turnMode == State.PLACE_TILE || turnMode == State.WAITING)
 		{
 			final int w = getImage().getWidth();
 			final int h = getImage().getHeight();
@@ -88,7 +88,7 @@ class CurrentTilePanel extends JPanel
 
 	private BufferedImage getImage()
 	{
-		return TileSourceUtil.getTileData(this.localGuiClient.getServer().getTileSource(), getGame().getCurrentTile()).getImage();
+		return TileSourceUtil.getTileData(this.clientUI.getClient().getTileSource(), getGame().getCurrentTile()).getImage();
 	}
 
 	public OrientedTile getOrientedTile()
@@ -98,7 +98,7 @@ class CurrentTilePanel extends JPanel
 
 	private Game getGame()
 	{
-		return this.localGuiClient.getServer().getGame();
+		return this.clientUI.getClient().getGame();
 	}
 
 	public void reset()
@@ -119,7 +119,7 @@ class CurrentTilePanel extends JPanel
 		public void actionPerformed(final ActionEvent event)
 		{
 			CurrentTilePanel.this.rotation = CurrentTilePanel.this.rotation.prev();
-			CurrentTilePanel.this.localGuiClient.updateInterface();
+			CurrentTilePanel.this.clientUI.updateInterface();
 		}
 	}
 
@@ -136,7 +136,7 @@ class CurrentTilePanel extends JPanel
 		public void actionPerformed(final ActionEvent event)
 		{
 			CurrentTilePanel.this.rotation = CurrentTilePanel.this.rotation.next();
-			CurrentTilePanel.this.localGuiClient.updateInterface();
+			CurrentTilePanel.this.clientUI.updateInterface();
 		}
 	}
 }

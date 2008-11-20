@@ -10,6 +10,7 @@ import info.reflectionsofmind.connexion.core.tile.Side;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -25,38 +26,31 @@ public class Board
 	private final BiMap<Meeple, Section> meeples = new HashBiMap<Meeple, Section>();
 	private final List<Feature> features = new ArrayList<Feature>();
 
-	public Board(final IGeometry geometry, final Tile initialTile)
+	public Board(final IGeometry geometry)
 	{
 		this.geometry = geometry;
-		placeInitialTile(initialTile);
 	}
 
 	// ============================================================================================
 	// === TILE PLACEMENT
 	// ============================================================================================
 
-	private void placeInitialTile(final Tile initialTile)
-	{
-		final OrientedTile orientedTile = new OrientedTile(initialTile, getGeometry().getDirections().get(0));
-		final TilePlacement placement = new TilePlacement(this, orientedTile, getGeometry().getInitialLocation());
-
-		this.placements.add(placement);
-		this.features.addAll(createFeatures(initialTile));
-	}
-
 	public void placeTile(final Tile tile, final ILocation location, final IDirection direction) throws InvalidTileLocationException
 	{
 		final OrientedTile orientedTile = new OrientedTile(tile, direction);
 		final TilePlacement placement = new TilePlacement(this, orientedTile, location);
 
-		if (!isValidLocation(orientedTile, location)) throw new InvalidTileLocationException(placement);
+		if (!getPlacements().isEmpty())
+		{
+			if (!BoardUtil.isValidLocation(this, orientedTile, location)) throw new InvalidTileLocationException(placement);
+		}
 
 		this.placements.add(placement);
 		this.features.addAll(createFeatures(tile));
 
 		for (final Side side : placement.getSides())
 		{
-			final Side opposingSide = getOpposingSide(placement, side);
+			final Side opposingSide = BoardUtil.getOpposingSide(this, placement, side);
 
 			if (opposingSide != null)
 			{
@@ -86,8 +80,8 @@ public class Board
 
 		while (currentSectionIterator.hasNext() && adjacentSectionIterator.hasPrevious())
 		{
-			final Feature currentFeature = getFeatureOf(currentSectionIterator.next());
-			final Feature adjacentFeature = getFeatureOf(adjacentSectionIterator.previous());
+			final Feature currentFeature = BoardUtil.getFeatureOf(this, currentSectionIterator.next());
+			final Feature adjacentFeature = BoardUtil.getFeatureOf(this, adjacentSectionIterator.previous());
 
 			mergeFeatures(currentFeature, adjacentFeature);
 		}
@@ -133,13 +127,9 @@ public class Board
 		}
 	}
 
-	// ============================================================================================
-	// === MEEPLE PLACEMENT
-	// ============================================================================================
-
 	public void placeMeeple(final Meeple meeple, final Section section) throws FeatureTakenException
 	{
-		for (Section featureSection : getFeatureOf(section).getSections())
+		for (Section featureSection : BoardUtil.getFeatureOf(this, section).getSections())
 		{
 			if (this.meeples.inverse().containsKey(featureSection))
 			{
@@ -148,113 +138,6 @@ public class Board
 		}
 
 		this.meeples.put(meeple, section);
-	}
-
-	// ============================================================================================
-	// === TILE PLACEMENT VALIDATION
-	// ============================================================================================
-
-	public boolean isValidLocation(final OrientedTile orientedTile, final ILocation location)
-	{
-		if (getPlacementAt(location) != null) return false;
-		if (!hasNeighbouringTiles(location)) return false;
-		if (!compartibleSides(orientedTile, location)) return false;
-
-		return true;
-	}
-
-	private boolean hasNeighbouringTiles(final ILocation location)
-	{
-		for (final IDirection direction : getGeometry().getDirections())
-		{
-			final ILocation neighbour = location.shift(direction);
-			if (getPlacementAt(neighbour) != null) return true;
-		}
-
-		return false;
-	}
-
-	private boolean compartibleSides(final OrientedTile orientedTile, final ILocation location)
-	{
-		final TilePlacement placement = new TilePlacement(this, orientedTile, location);
-
-		for (final Side currentSide : placement.getSides())
-		{
-			final Side adjacentSide = getOpposingSide(placement, currentSide);
-
-			if (adjacentSide != null)
-			{
-				final Iterator<Section> currentSectionIterator = currentSide.getSections().iterator();
-				final ListIterator<Section> adjacentSectionIterator = adjacentSide.getSections().listIterator(adjacentSide.getSections().size());
-
-				while (currentSectionIterator.hasNext() && adjacentSectionIterator.hasPrevious())
-				{
-					if (currentSectionIterator.next().getType() != adjacentSectionIterator.previous().getType()) return false;
-				}
-
-				if (currentSectionIterator.hasNext() || adjacentSectionIterator.hasPrevious())
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	// ============================================================================================
-	// === GET...OF... METHODS
-	// ============================================================================================
-
-	public Feature getFeatureOf(final Section section)
-	{
-		for (final Feature feature : this.features)
-		{
-			if (feature.getSections().contains(section))
-			{
-				return feature;
-			}
-		}
-
-		return null;
-	}
-
-	public ILocation getLocationOf(final Tile tile)
-	{
-		for (final TilePlacement placement : getPlacements())
-		{
-			if (placement.getTile() == tile) return placement.getLocation();
-		}
-
-		return null;
-	}
-
-	public TilePlacement getPlacementAt(final ILocation location)
-	{
-		for (final TilePlacement placement : getPlacements())
-		{
-			if (placement.getLocation().equals(location)) return placement;
-		}
-
-		return null;
-	}
-
-	public TilePlacement getPlacementOf(final Tile tile)
-	{
-		for (final TilePlacement placement : getPlacements())
-		{
-			if (placement.getTile() == tile) return placement;
-		}
-
-		return null;
-	}
-
-	public Side getOpposingSide(final TilePlacement placement, final Side side)
-	{
-		final IDirection direction = placement.getDirectionOfSide(side);
-		final IDirection opposingDirection = placement.getLocation().getOpposingDirection(direction);
-		final TilePlacement opposingPlacement = getPlacementAt(placement.getLocation().shift(direction));
-		return opposingPlacement == null ? null : opposingPlacement.getSideForDirection(opposingDirection);
 	}
 
 	// ============================================================================================
@@ -268,44 +151,16 @@ public class Board
 
 	public List<Feature> getFeatures()
 	{
-		return this.features;
+		return Collections.unmodifiableList(this.features);
 	}
 
 	public List<TilePlacement> getPlacements()
 	{
-		return this.placements;
+		return Collections.unmodifiableList(this.placements);
 	}
-
-	public List<Section> getAdjacentSections(Section section)
+	
+	public Section getMeepleSection(Meeple meeple)
 	{
-		final List<Section> sections = new ArrayList<Section>();
-
-		for (Side currentSide : section.getTile().getSides())
-		{
-			if (currentSide.getSections().contains(section))
-			{
-				final Side oppositeSide = getOpposingSide(getPlacementOf(section.getTile()), currentSide);
-
-				if (oppositeSide != null)
-				{
-					final Iterator<Section> currentSectionIterator = currentSide.getSections().iterator();
-					final ListIterator<Section> oppositeSectionIterator = oppositeSide.getSections().listIterator(oppositeSide.getSections().size());
-
-					while (currentSectionIterator.hasNext() && oppositeSectionIterator.hasPrevious())
-					{
-						if (currentSectionIterator.next() == section)
-						{
-							sections.add(oppositeSectionIterator.previous());
-						}
-						else
-						{
-							oppositeSectionIterator.next();
-						}
-					}
-				}
-			}
-		}
-
-		return sections;
+		return this.meeples.get(meeple);
 	}
 }

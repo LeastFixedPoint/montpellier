@@ -1,8 +1,8 @@
-package info.reflectionsofmind.connexion.server;
+package info.reflectionsofmind.connexion.server.gui;
 
 import info.reflectionsofmind.connexion.client.ClientType;
-import info.reflectionsofmind.connexion.client.IClient;
-import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.server.local.DefaultGuiServer;
+import info.reflectionsofmind.connexion.server.local.IServer;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
 
-public class ServerUI extends JFrame implements IServerListener
+public class ServerUI extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	private final static int MAX_CLIENTS = 5;
@@ -44,10 +44,9 @@ public class ServerUI extends JFrame implements IServerListener
 
 	public ServerUI()
 	{
-		super("Connexion Server");
+		super("Connexion :: Server");
 
-		this.server = new SimpleServer();
-		this.server.addServerListener(this);
+		this.server = new DefaultGuiServer(this);
 
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -74,19 +73,10 @@ public class ServerUI extends JFrame implements IServerListener
 
 		pack();
 	}
-
-	@Override
-	public void dispose()
+	
+	public void updateInterface()
 	{
-		for (final ClientPanel panel : this.panels)
-		{
-			if (panel.getClient() != null)
-			{
-				this.server.disconnect(panel.getClient(), DisconnectReason.SERVER_SHUTDOWN);
-			}
-		}
-
-		super.dispose();
+		
 	}
 
 	void updateStartButton()
@@ -130,41 +120,5 @@ public class ServerUI extends JFrame implements IServerListener
 			
 			configPanel.disable();
 		}
-	}
-
-	// ============================================================================================
-	// === SERVER LISTENER METHODS
-	// ============================================================================================
-
-	@Override
-	public void onClientRegister(final IClient client)
-	{
-	}
-
-	@Override
-	public void onClientDisconnect(final IClient client, final DisconnectReason reason)
-	{
-		for (final ClientPanel panel : this.panels)
-		{
-			if (panel.getClient() == client)
-			{
-				panel.onDisconnect(reason);
-			}
-		}
-	}
-
-	@Override
-	public void onGameEnd()
-	{
-	}
-
-	@Override
-	public void onGameStart()
-	{
-	}
-
-	@Override
-	public void onTurn(final Turn turn)
-	{
 	}
 }
