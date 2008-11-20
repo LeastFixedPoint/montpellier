@@ -6,7 +6,9 @@ import info.reflectionsofmind.connexion.client.remote.IRemoteServer;
 import info.reflectionsofmind.connexion.client.remote.RemoteServerException;
 import info.reflectionsofmind.connexion.client.remote.ServerConnectionException;
 import info.reflectionsofmind.connexion.core.board.Meeple;
+import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
+import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
@@ -21,8 +23,6 @@ import info.reflectionsofmind.connexion.transport.StartEvent;
 
 import java.awt.Label;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 import javax.swing.JFrame;
 
@@ -59,7 +59,7 @@ public class DefaultGuiClient implements IClient
 		{
 			throw new RuntimeException(exception);
 		}
-		
+
 		this.conectionFrame = new ConnectionFrame(name);
 		this.conectionFrame.setVisible(true);
 	}
@@ -72,23 +72,29 @@ public class DefaultGuiClient implements IClient
 	public void onStart(final StartEvent event)
 	{
 		this.player = event.getClientPlayer();
-		this.sequence = new RemoteTileSequence();
-		this.sequence.push(event.getInitialTile());
-		this.sequence.push(event.getCurrentTile());
+		this.sequence = new RemoteTileSequence(event.getTotalNumberOfTiles());
+		this.sequence.set(event.getInitialTile());
 		this.game = new Game(event.getGameName(), this.sequence, event.getPlayers());
 
 		try
 		{
-			this.game.doTurn(new Turn(//
-					this.game.getBoard().getGeometry().getInitialLocation(), //
-					this.game.getBoard().getGeometry().getDirections().get(0),
-					(Meeple)null, (Section)null, true));
+			final Turn turn = new Turn(true);
+			final IGeometry geometry = this.game.getBoard().getGeometry();
+			turn.addTilePlacement(geometry.getInitialLocation(), geometry.getDirections().get(0));
+			turn.addMeeplePlacement((Meeple) null, (Section) null);
+
+			this.game.doTurn(turn);
+			this.sequence.set(event.getCurrentTile());
 		}
 		catch (InvalidTileLocationException exception)
 		{
-			throw new RuntimeException("Invalid initial location.");
+			throw new RuntimeException("Invalid initial tile location.");
 		}
-		
+		catch (FeatureTakenException exception)
+		{
+			throw new RuntimeException("Invalid initial meeple location.");
+		}
+
 		this.conectionFrame.dispose();
 
 		this.clientUI = new ClientUI(this);
@@ -97,40 +103,35 @@ public class DefaultGuiClient implements IClient
 	@Override
 	public void onTurn(final ServerTurnEvent event)
 	{
-		if (this.sequence.currentTile() != null && this.sequence.currentTile() != event.getOrientedTile().getTile())
+		if (event.getCurrentTile() == null)
 		{
-			this.clientUI.onDesync(new DesynhronizationException(new RuntimeException("Tile sequence desync.")));
+			this.sequence.setNoMoreTiles();
+		}
+
+		if (event.getTurn() != null) // Do not double-process our own turns.
+		{
+			try
+			{
+				this.game.doTurn(event.getTurn());
+			}
+			catch (InvalidTileLocationException exception)
+			{
+				exception.printStackTrace();
+				this.clientUI.onDesync(new DesynchronizationException(exception));
+			}
+			catch (FeatureTakenException exception)
+			{
+				exception.printStackTrace();
+				this.clientUI.onDesync(new DesynchronizationException(exception));
+			}
 		}
 
 		if (event.getCurrentTile() != null)
 		{
-			this.sequence.push(event.getCurrentTile());
-		}
-		else
-		{
-			this.sequence.setNoMoreTiles();
+			this.sequence.set(event.getCurrentTile());
 		}
 		
-		try
-		{
-			this.game.doTurn(new Turn( //
-					event.getLocation(), //
-					event.getOrientedTile().getDirection(), // 
-					event.getMeeple(), //
-					event.getSection(), //
-					false));
-		}
-		catch (InvalidTileLocationException exception)
-		{
-			this.clientUI.onDesync(new DesynhronizationException(exception));
-		}
-		
-		if (event.getCurrentPlayer() != null && event.getCurrentPlayer() != getGame().getCurrentPlayer())
-		{
-			this.clientUI.onDesync(new DesynhronizationException(new RuntimeException("Player sequence desync.")));
-		}
-
-		this.clientUI.onTurn(event);
+		this.clientUI.onTurn();
 	}
 
 	// ============================================================================================
@@ -154,13 +155,13 @@ public class DefaultGuiClient implements IClient
 	{
 		return this.game;
 	}
-	
+
 	@Override
 	public ITileSource getTileSource()
 	{
 		return this.tileSource;
 	}
-	
+
 	@Override
 	public IRemoteServer getServer()
 	{
@@ -173,34 +174,47 @@ public class DefaultGuiClient implements IClient
 
 	private final class RemoteTileSequence implements ITileSequence
 	{
-		private final Deque<Tile> queue = new ArrayDeque<Tile>(1);
+		private Tile currentTile = null;
 		private boolean hasMoreTiles = true;
+		private final Integer totalNumberOfTiles;
 
-		public void push(final Tile tile)
+		public RemoteTileSequence(Integer totalNumberOfTiles)
 		{
-			this.queue.addFirst(tile);
+			this.totalNumberOfTiles = totalNumberOfTiles;
+		}
+
+		public void set(final Tile tile)
+		{
+			this.currentTile = tile;
 		}
 
 		public void setNoMoreTiles()
 		{
 			this.hasMoreTiles = false;
 		}
-
-		public Tile currentTile()
+		
+		@Override
+		public Tile getCurrentTile()
 		{
-			return this.queue.peekLast();
+			return this.currentTile;
 		}
 
 		@Override
-		public Tile nextTile()
+		public void nextTile()
 		{
-			return this.queue.removeLast();
+			this.currentTile = null;
 		}
 
 		@Override
 		public boolean hasMoreTiles()
 		{
 			return this.hasMoreTiles;
+		}
+
+		@Override
+		public Integer getTotalNumberOfTiles()
+		{
+			return this.totalNumberOfTiles;
 		}
 	}
 

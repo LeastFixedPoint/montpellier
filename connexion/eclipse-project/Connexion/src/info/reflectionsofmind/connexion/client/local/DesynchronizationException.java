@@ -1,10 +1,10 @@
 package info.reflectionsofmind.connexion.client.local;
 
-public class DesynhronizationException extends Exception
+public class DesynchronizationException extends Exception
 {
 	private static final long serialVersionUID = 1L;
 
-	public DesynhronizationException(final Throwable cause)
+	public DesynchronizationException(final Throwable cause)
 	{
 		super(cause);
 	}

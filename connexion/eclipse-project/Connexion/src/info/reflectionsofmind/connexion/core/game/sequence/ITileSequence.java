@@ -4,6 +4,8 @@ import info.reflectionsofmind.connexion.core.tile.Tile;
 
 public interface ITileSequence
 {
-	Tile nextTile();
+	Tile getCurrentTile();
+	void nextTile();
 	boolean hasMoreTiles();
+	Integer getTotalNumberOfTiles();
 }

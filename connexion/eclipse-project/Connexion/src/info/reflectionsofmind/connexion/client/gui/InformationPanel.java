@@ -22,7 +22,7 @@ class InformationPanel extends JPanel
 	public InformationPanel(ClientUI clientUI)
 	{
 		this.clientUI = clientUI;
-		setLayout(new MigLayout("", "[180]6[180]6[180]6[180]6[180]", "[]"));
+		setLayout(new MigLayout("", "[120]6[120]6[120]6[120]6[120]", "[]"));
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		final int n = this.clientUI.getClient().getGame().getPlayers().size();

@@ -4,7 +4,6 @@ import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
 import info.reflectionsofmind.connexion.client.gui.ClientUI.State;
-import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.game.Game;
@@ -27,7 +26,7 @@ import net.miginfocom.swing.MigLayout;
 class CurrentTilePanel extends JPanel
 {
 	private static final long serialVersionUID = 1L;
-	private static final BufferedImage FINISHED_IMAGE = new BufferedImage(64, 64, BufferedImage.TYPE_BYTE_GRAY);
+	private static final BufferedImage EMPTY_IMAGE = new BufferedImage(64, 64, BufferedImage.TYPE_BYTE_GRAY);
 
 	private final ClientUI clientUI;
 	private IDirection rotation = new Geometry().getDirections().get(0);
@@ -43,7 +42,7 @@ class CurrentTilePanel extends JPanel
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		this.tileImage = new StretchingImage(getImage());
-		add(this.tileImage, "grow, span");
+		add(this.tileImage, "span, grow");
 
 		rotateRightButton = new JButton(new RotateRightAction("<"));
 		rotateRightButton.setFocusable(false);
@@ -58,7 +57,7 @@ class CurrentTilePanel extends JPanel
 	{
 		final State turnMode = this.clientUI.getTurnMode();
 
-		if (turnMode == State.PLACE_TILE || turnMode == State.WAITING)
+		if ((turnMode == State.PLACE_TILE) || (turnMode == State.WAITING && getImage() != null))
 		{
 			final int w = getImage().getWidth();
 			final int h = getImage().getHeight();
@@ -70,34 +69,38 @@ class CurrentTilePanel extends JPanel
 	
 			final AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 	
+			this.rotateLeftButton.setEnabled(true);
+			this.rotateRightButton.setEnabled(true);
 			this.tileImage.setImage(op.filter(getImage(), null));
 		}
 		else
 		{
 			this.rotateLeftButton.setEnabled(false);
 			this.rotateRightButton.setEnabled(false);
-			this.tileImage.setImage(getFinishedImage());
+			this.tileImage.setImage(getEmptyImage());
 		}
 
 		repaint();
 	}
 
-	private BufferedImage getFinishedImage()
+	private BufferedImage getEmptyImage()
 	{
-		return FINISHED_IMAGE;
+		return EMPTY_IMAGE;
 	}
 
 	private BufferedImage getImage()
 	{
+		if (getGame().getCurrentTile() == null) return null;
+		
 		final String code = getGame().getCurrentTile().getCode();
 		final ITileSource tileSource = this.clientUI.getClient().getTileSource();
 		
 		return TileSourceUtil.getTileData(tileSource, code).getImage();
 	}
 
-	public OrientedTile getOrientedTile()
+	public IDirection getDirection()
 	{
-		return new OrientedTile(getGame().getCurrentTile(), this.rotation);
+		return this.rotation;
 	}
 
 	private Game getGame()

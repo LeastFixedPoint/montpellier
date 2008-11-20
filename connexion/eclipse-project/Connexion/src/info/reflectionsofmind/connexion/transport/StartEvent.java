@@ -12,13 +12,15 @@ public class StartEvent
 	private final String gameName;
 	private final Tile initialTile;
 	private final Tile currentTile;
+	private final Integer totalTiles;
 
 	public StartEvent( //
 			final String gameName, // 
 			final List<Player> players, // 
 			final Player clientPlayer, // 
 			final Tile initialTile, //
-			final Tile currentTile)
+			final Tile currentTile,
+			final Integer totalTiles)
 	{
 		super();
 		this.gameName = gameName;
@@ -26,6 +28,7 @@ public class StartEvent
 		this.clientPlayer = clientPlayer;
 		this.initialTile = initialTile;
 		this.currentTile = currentTile;
+		this.totalTiles = totalTiles;
 	}
 
 	public Player getClientPlayer()
@@ -51,5 +54,10 @@ public class StartEvent
 	public Tile getCurrentTile()
 	{
 		return this.currentTile;
+	}
+	
+	public Integer getTotalNumberOfTiles()
+	{
+		return this.totalTiles;
 	}
 }

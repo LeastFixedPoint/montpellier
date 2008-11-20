@@ -9,29 +9,26 @@ import info.reflectionsofmind.connexion.core.util.Loop;
 public class TilePlacement
 {
 	private final Board board;
-	private final OrientedTile orientedTile;
+	private final Tile tile;
+	private final IDirection direction;
 	private final ILocation location;
 
-	public TilePlacement(final Board board, final OrientedTile orientedTile, final ILocation location)
+	public TilePlacement(final Board board, final Tile tile, final IDirection direction, final ILocation location)
 	{
 		this.board = board;
-		this.orientedTile = orientedTile;
+		this.direction = direction;
 		this.location = location;
-	}
-
-	public OrientedTile getOrientedTile()
-	{
-		return this.orientedTile;
+		this.tile = tile;
 	}
 
 	public Tile getTile()
 	{
-		return getOrientedTile().getTile();
+		return this.tile;
 	}
 
 	public IDirection getDirection()
 	{
-		return getOrientedTile().getDirection();
+		return this.direction;
 	}
 
 	public ILocation getLocation()
@@ -46,7 +43,7 @@ public class TilePlacement
 
 	public Loop<Side> getSides()
 	{
-		return getOrientedTile().getSides();
+		return getTile().getSides().roll(getDirection().getIndex());
 	}
 
 	public Side getSide(final IDirection direction)
