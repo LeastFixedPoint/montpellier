@@ -8,6 +8,7 @@ import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.game.Game;
+import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileSourceUtil;
 
 import java.awt.Color;
@@ -88,7 +89,10 @@ class CurrentTilePanel extends JPanel
 
 	private BufferedImage getImage()
 	{
-		return TileSourceUtil.getTileData(this.clientUI.getClient().getTileSource(), getGame().getCurrentTile()).getImage();
+		final String code = getGame().getCurrentTile().getCode();
+		final ITileSource tileSource = this.clientUI.getClient().getTileSource();
+		
+		return TileSourceUtil.getTileData(tileSource, code).getImage();
 	}
 
 	public OrientedTile getOrientedTile()

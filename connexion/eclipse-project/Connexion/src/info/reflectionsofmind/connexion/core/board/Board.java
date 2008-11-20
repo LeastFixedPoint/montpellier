@@ -40,8 +40,11 @@ public class Board
 		final OrientedTile orientedTile = new OrientedTile(tile, direction);
 		final TilePlacement placement = new TilePlacement(this, orientedTile, location);
 
+		System.out.println("New: " + placement);
+		
 		if (!getPlacements().isEmpty())
 		{
+			System.out.println("Old: " + getPlacements().get(0));
 			if (!BoardUtil.isValidLocation(this, orientedTile, location)) throw new InvalidTileLocationException(placement);
 		}
 

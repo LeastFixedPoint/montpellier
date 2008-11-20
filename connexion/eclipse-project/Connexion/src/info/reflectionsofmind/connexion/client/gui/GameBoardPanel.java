@@ -18,6 +18,7 @@ import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Location;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Section;
+import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.tilelist.TileSourceUtil;
 
@@ -91,7 +92,9 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 	private void drawPlacement(final Graphics g, final TilePlacement placement)
 	{
-		final TileData tileData = TileSourceUtil.getTileData(getClientUI().getClient().getTileSource(), placement.getTile());
+		final ITileSource tileSource = getClientUI().getClient().getTileSource();
+		final String code = placement.getTile().getCode();
+		final TileData tileData = TileSourceUtil.getTileData(tileSource, code);
 		final BufferedImage image = tileData.getImage();
 
 		final int d = placement.getDirection().getIndex();
@@ -111,7 +114,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 		g.drawImage(op.filter(image, null), p.x, p.y, p.x + ls, p.y + ls, 0, 0, w, h, null);
 
-		for (final Section section : tileData.getTile().getSections())
+		for (final Section section : placement.getTile().getSections())
 		{
 			final Point sectionPoint = getSectionPoint(section);
 
@@ -200,11 +203,8 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 		if (!BoardUtil.isValidLocation(getClientUI().getClient().getGame().getBoard(), orientedTile, location)) return;
 
-		final Turn turn = new Turn( //
-				orientedTile.getDirection(), // 
-				location, //
-				null, null);
-
+		final Turn turn = new Turn(location, orientedTile.getDirection(), null, null);
+		
 		try
 		{
 			getClientUI().getClient().getServer().sendTurn(turn);
@@ -287,8 +287,12 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	{
 		final TilePlacement placement = BoardUtil.getPlacementOf(getClientUI().getClient().getGame().getBoard(), section.getTile());
 		final Location location = (Location) placement.getLocation();
-		final TileData tileData = TileSourceUtil.getTileData(getClientUI().getClient().getTileSource(), section.getTile());
-		final Point2D point = tileData.getSectionPoint(section);
+
+		final ITileSource tileSource = getClientUI().getClient().getTileSource();
+		final String code = section.getTile().getCode();
+		final TileData tileData = TileSourceUtil.getTileData(tileSource, code);
+		final int sectionIndex = placement.getTile().getSections().indexOf(section);
+		final Point2D point = tileData.getSectionPoint(sectionIndex);
 
 		final Point p = getLocationPoint(location);
 		final int ls = getLocationSide();

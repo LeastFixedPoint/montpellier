@@ -14,8 +14,8 @@ public class Turn
 	private final boolean nonPlayer;
 
 	public Turn( //
-			final IDirection direction, // 
 			final ILocation location, //
+			final IDirection direction, // 
 			final Meeple meeple, //
 			final Section section, //
 			final boolean nonPlayer)
@@ -29,12 +29,12 @@ public class Turn
 	
 
 	public Turn( //
-			final IDirection direction, // 
 			final ILocation location, //
+			final IDirection direction, // 
 			final Meeple meeple, //
 			final Section section)
 	{
-		this(direction, location, meeple, section, false);
+		this(location, direction, meeple, section, false);
 	}
 
 	

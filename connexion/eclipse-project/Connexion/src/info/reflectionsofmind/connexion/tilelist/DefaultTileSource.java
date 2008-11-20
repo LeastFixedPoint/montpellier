@@ -1,11 +1,7 @@
 package info.reflectionsofmind.connexion.tilelist;
 
-import info.reflectionsofmind.connexion.core.tile.Section;
-import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -14,7 +10,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -70,23 +65,13 @@ public class DefaultTileSource implements ITileSource
 				continue;
 			}
 
-			final Tile tile = new Tile(codes.get(tileName));
+			final String code = codes.get(tileName);
 			final BufferedImage image = ImageIO.read(Thread.currentThread().getContextClassLoader().getResourceAsStream(images.get(tileName)));
-			
-			final TileData tileData = new TileData(tile, image);
+			final TileData tileData = new TileData(code, image);
 
-			final String[] pts = points.get(tileName).split(",");
-			final Iterator<Section> sections = tile.getSections().iterator();
-			for (final String point : pts)
+			for (final String point : points.get(tileName).split(","))
 			{
-				if (sections.hasNext())
-				{
-					tileData.addSectionPoint(sections.next(), strToPoint2D(point));
-				}
-				else
-				{
-					throw new RuntimeException("There are more points than sections in tile [" + tileName + "].");
-				}
+				tileData.addSectionPoint(strToPoint2D(point));
 			}
 
 			this.tiles.add(tileData);

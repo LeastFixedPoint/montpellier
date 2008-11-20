@@ -1,39 +1,36 @@
 package info.reflectionsofmind.connexion.tilelist;
 
-import info.reflectionsofmind.connexion.core.tile.Section;
-import info.reflectionsofmind.connexion.core.tile.Tile;
-
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TileData
 {
-	private final Tile tile;
+	private final String code;
 	private final BufferedImage image;
-	private final Map<Section, Point2D> sectionPoints = new HashMap<Section, Point2D>();
+	private final List<Point2D> sectionPoints = new ArrayList<Point2D>();
 	
-	public TileData(Tile tile, BufferedImage image)
+	public TileData(String code, BufferedImage image)
 	{
 		super();
-		this.tile = tile;
+		this.code = code;
 		this.image = image;
 	}
 	
-	public void addSectionPoint(Section section, Point2D point)
+	public void addSectionPoint(Point2D point)
 	{
-		this.sectionPoints.put(section, point);
+		this.sectionPoints.add(point);
 	}
 	
-	public Point2D getSectionPoint(Section section)
+	public Point2D getSectionPoint(int sectionIndex)
 	{
-		return this.sectionPoints.get(section);
+		return this.sectionPoints.get(sectionIndex);
 	}
 
-	public Tile getTile()
+	public String getCode()
 	{
-		return this.tile;
+		return this.code;
 	}
 
 	public BufferedImage getImage()

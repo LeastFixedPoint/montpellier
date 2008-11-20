@@ -1,8 +1,6 @@
 package info.reflectionsofmind.connexion.server.gui;
 
-import info.reflectionsofmind.connexion.client.ClientType;
 import info.reflectionsofmind.connexion.server.local.DefaultGuiServer;
-import info.reflectionsofmind.connexion.server.local.IServer;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ public class ServerUI extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	private final static int MAX_CLIENTS = 5;
-	private final IServer server;
+	private final DefaultGuiServer server;
 
 	private final List<ClientPanel> panels = new ArrayList<ClientPanel>();
 
@@ -93,7 +91,7 @@ public class ServerUI extends JFrame
 		this.startButton.setEnabled(false);
 	}
 
-	public IServer getServer()
+	public DefaultGuiServer getServer()
 	{
 		return this.server;
 	}

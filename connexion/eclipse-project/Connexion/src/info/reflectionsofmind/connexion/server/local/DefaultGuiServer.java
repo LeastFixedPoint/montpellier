@@ -1,13 +1,14 @@
 package info.reflectionsofmind.connexion.server.local;
 
+import info.reflectionsofmind.connexion.core.board.Meeple;
 import info.reflectionsofmind.connexion.core.board.OrientedTile;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.core.game.exception.NotYourTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.game.sequence.RandomTileSequence;
+import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.server.gui.ServerUI;
@@ -46,17 +47,48 @@ public class DefaultGuiServer implements IServer
 	// === IMPLEMENTATION
 	// ====================================================================================================
 
-	@Override
-	public void register(final IRemoteClient client)
+	public void add(final IRemoteClient client)
 	{
 		if (this.gameStarted) throw new RuntimeException("Game already started.");
 		this.clients.add(client);
-		
+
 		this.serverUI.updateInterface();
 	}
 
 	@Override
 	public void startGame(final String name)
+	{
+		createGame(name);
+
+		final Tile initialTile = game.getCurrentTile();
+
+		placeInitialTile();
+
+		sendStartEvents(initialTile);
+
+		this.serverUI.updateInterface();
+	}
+
+	private void sendStartEvents(final Tile initialTile)
+	{
+		for (final IRemoteClient client : this.clients)
+		{
+			try
+			{
+				client.sendStart(new StartEvent( //
+						getGame().getName(), //
+						getGame().getPlayers(), //
+						this.players.get(client), //
+						initialTile, getGame().getCurrentTile()));
+			}
+			catch (final ClientConnectionException exception)
+			{
+				exception.printStackTrace();
+			}
+		}
+	}
+
+	private void createGame(final String name)
 	{
 		final List<Player> players = new ArrayList<Player>();
 
@@ -75,7 +107,7 @@ public class DefaultGuiServer implements IServer
 
 			for (final TileData tileData : this.tileSource.getTiles())
 			{
-				tiles.add(tileData.getTile());
+				tiles.add(new Tile(tileData.getCode()));
 			}
 
 			final ITileSequence sequence = new RandomTileSequence(tiles);
@@ -91,24 +123,20 @@ public class DefaultGuiServer implements IServer
 		{
 			throw new RuntimeException(exception);
 		}
+	}
 
-		for (final IRemoteClient client : this.clients)
+	private void placeInitialTile()
+	{
+		try
 		{
-			try
-			{
-				client.sendStart(new StartEvent( //
-						getGame().getName(), //
-						getGame().getPlayers(), //
-						this.players.get(client), //
-						getGame().getCurrentTile()));
-			}
-			catch (final ClientConnectionException exception)
-			{
-				exception.printStackTrace();
-			}
+			getGame().doTurn(new Turn(//
+					getGame().getBoard().getGeometry().getInitialLocation(), //
+					getGame().getBoard().getGeometry().getDirections().get(0), (Meeple) null, (Section) null, true));
 		}
-		
-		this.serverUI.updateInterface();
+		catch (InvalidTileLocationException exception)
+		{
+			throw new RuntimeException("Invalid initial tile placement.");
+		}
 	}
 
 	@Override
@@ -127,47 +155,42 @@ public class DefaultGuiServer implements IServer
 	public void onTurn(final ClientTurnEvent event)
 	{
 		final Tile placedTile = getGame().getCurrentTile();
-		
+
 		try
 		{
 			this.game.doTurn(new Turn( //
-					event.getDirection(), //
 					event.getLocation(), //
+					event.getDirection(), //
 					event.getMeeple(), //
 					event.getSection()));
-
-			for (final IRemoteClient client : getClients())
-			{
-				if (client != event.getClient())
-				{
-					try
-					{
-						client.sendTurn(new ServerTurnEvent( //
-								this.players.get(event.getClient()), //
-								new OrientedTile(placedTile, event.getDirection()), //
-								event.getLocation(), //
-								event.getMeeple(), //
-								event.getSection(), //
-								getGame().getCurrentPlayer(), //
-								getGame().getCurrentTile() //
-								));
-					}
-					catch (final ClientConnectionException exception)
-					{
-						exception.printStackTrace();
-					}
-				}
-			}
-		}
-		catch (final NotYourTurnException exception)
-		{
-			exception.printStackTrace();
 		}
 		catch (final InvalidTileLocationException exception)
 		{
+			// TODO Server doesn't care about client's problems?
 			exception.printStackTrace();
+			return;
 		}
-		
+
+		for (final IRemoteClient client : getClients())
+		{
+			try
+			{
+				client.sendTurn(new ServerTurnEvent( //
+						this.players.get(event.getClient()), //
+						new OrientedTile(placedTile, event.getDirection()), //
+						event.getLocation(), //
+						event.getMeeple(), //
+						event.getSection(), //
+						getGame().getCurrentPlayer(), //
+						getGame().getCurrentTile() //
+						));
+			}
+			catch (final ClientConnectionException exception)
+			{
+				exception.printStackTrace();
+			}
+		}
+
 		this.serverUI.updateInterface();
 	}
 
