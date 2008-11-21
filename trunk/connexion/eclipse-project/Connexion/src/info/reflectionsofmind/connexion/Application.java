@@ -2,10 +2,12 @@ package info.reflectionsofmind.connexion;
 
 import info.reflectionsofmind.connexion.server.gui.ServerUI;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+
+import org.jvnet.substance.skin.SubstanceBusinessLookAndFeel;
 
 public class Application
 {
@@ -18,17 +20,18 @@ public class Application
 	{
 		try
 		{
-			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler()
+			JFrame.setDefaultLookAndFeelDecorated(true);
+			UIManager.setLookAndFeel(new SubstanceBusinessLookAndFeel());
+
+			// UIManager.setLookAndFeel(org.jvnet.substance.SubstanceLookAndFeel.class.getName());
+
+			SwingUtilities.invokeLater(new Runnable()
 			{
-				@Override
-				public void uncaughtException(Thread t, Throwable e)
+				public void run()
 				{
-					e.printStackTrace();
+					new ServerUI().setVisible(true);
 				}
 			});
-
-			new ServerUI().setVisible(true);
 		}
 		catch (final Exception exception)
 		{

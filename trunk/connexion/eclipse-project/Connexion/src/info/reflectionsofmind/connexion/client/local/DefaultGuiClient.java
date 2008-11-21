@@ -5,15 +5,12 @@ import info.reflectionsofmind.connexion.client.gui.ClientUI;
 import info.reflectionsofmind.connexion.client.remote.IRemoteServer;
 import info.reflectionsofmind.connexion.client.remote.RemoteServerException;
 import info.reflectionsofmind.connexion.client.remote.ServerConnectionException;
-import info.reflectionsofmind.connexion.core.board.Meeple;
-import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
-import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
-import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
@@ -23,6 +20,8 @@ import info.reflectionsofmind.connexion.transport.StartEvent;
 
 import java.awt.Label;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -71,28 +70,31 @@ public class DefaultGuiClient implements IClient
 	@Override
 	public void onStart(final StartEvent event)
 	{
-		this.player = event.getClientPlayer();
+		final List<Player> players = new ArrayList<Player>();
+		
+		for (String name : event.getPlayers())
+		{
+			players.add(new Player(name));
+		}
+		
+		this.player = players.get(event.getClientPlayer());
 		this.sequence = new RemoteTileSequence(event.getTotalNumberOfTiles());
 		this.sequence.set(event.getInitialTile());
-		this.game = new Game(event.getGameName(), this.sequence, event.getPlayers());
+		this.game = new Game(event.getGameName(), this.sequence, players);
 
 		try
 		{
-			final Turn turn = new Turn(true);
+			final Turn turn = new Turn(false);
 			final IGeometry geometry = this.game.getBoard().getGeometry();
 			turn.addTilePlacement(geometry.getInitialLocation(), geometry.getDirections().get(0));
-			turn.addMeeplePlacement((Meeple) null, (Section) null);
+			turn.addMeeplePlacement(null, null);
 
 			this.game.doTurn(turn);
 			this.sequence.set(event.getCurrentTile());
 		}
-		catch (InvalidTileLocationException exception)
+		catch (GameTurnException exception)
 		{
-			throw new RuntimeException("Invalid initial tile location.");
-		}
-		catch (FeatureTakenException exception)
-		{
-			throw new RuntimeException("Invalid initial meeple location.");
+			throw new RuntimeException(exception);
 		}
 
 		this.conectionFrame.dispose();
@@ -114,16 +116,15 @@ public class DefaultGuiClient implements IClient
 			{
 				this.game.doTurn(event.getTurn());
 			}
-			catch (InvalidTileLocationException exception)
+			catch (GameTurnException exception)
 			{
 				exception.printStackTrace();
 				this.clientUI.onDesync(new DesynchronizationException(exception));
 			}
-			catch (FeatureTakenException exception)
-			{
-				exception.printStackTrace();
-				this.clientUI.onDesync(new DesynchronizationException(exception));
-			}
+		}
+		else
+		{
+			this.game.endTurn(true);
 		}
 
 		if (event.getCurrentTile() != null)

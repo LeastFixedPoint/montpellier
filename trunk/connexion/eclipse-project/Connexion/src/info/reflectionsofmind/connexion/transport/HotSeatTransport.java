@@ -1,14 +1,15 @@
-package info.reflectionsofmind.connexion.client.remote;
+package info.reflectionsofmind.connexion.transport;
 
 import info.reflectionsofmind.connexion.client.IClient;
+import info.reflectionsofmind.connexion.client.remote.AbstractRemoteServer;
+import info.reflectionsofmind.connexion.client.remote.IRemoteServer;
+import info.reflectionsofmind.connexion.client.remote.RemoteServerException;
+import info.reflectionsofmind.connexion.client.remote.ServerConnectionException;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.server.local.IServer;
 import info.reflectionsofmind.connexion.server.remote.AbstractRemoteClient;
 import info.reflectionsofmind.connexion.server.remote.ClientConnectionException;
 import info.reflectionsofmind.connexion.server.remote.IRemoteClient;
-import info.reflectionsofmind.connexion.transport.ClientTurnEvent;
-import info.reflectionsofmind.connexion.transport.ServerTurnEvent;
-import info.reflectionsofmind.connexion.transport.StartEvent;
 
 public class HotSeatTransport
 {
@@ -85,12 +86,7 @@ public class HotSeatTransport
 		@Override
 		public void sendTurn(final Turn turn) throws RemoteServerException
 		{
-			this.server.onTurn(new ClientTurnEvent( //
-					HotSeatTransport.this.remoteClient, //
-					turn.getDirection(), //
-					turn.getLocation(), //
-					turn.getMeeple(), // 
-					turn.getSection()));
+			this.server.onTurn(new ClientTurnEvent(HotSeatTransport.this.remoteClient, turn));
 		}
 	}
 }

@@ -5,10 +5,12 @@ import info.reflectionsofmind.connexion.client.local.DesynchronizationException;
 import info.reflectionsofmind.connexion.client.remote.RemoteServerException;
 import info.reflectionsofmind.connexion.client.remote.ServerConnectionException;
 import info.reflectionsofmind.connexion.core.board.Meeple;
-import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
-import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
+import info.reflectionsofmind.connexion.core.board.exception.MeeplePlacementException;
+import info.reflectionsofmind.connexion.core.board.exception.TilePlacementException;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
+import info.reflectionsofmind.connexion.core.game.Game;
+import info.reflectionsofmind.connexion.core.game.GameUtil;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Section;
 
@@ -24,7 +26,7 @@ public class ClientUI extends JFrame
 {
 	public enum State
 	{
-		WAITING, PLACE_TILE, PLACE_MEEPLE, DISCONNECTED, FINISHED, ERROR
+		WAITING, PLACE_TILE, PLACE_MEEPLE, DISCONNECTED, FINISHED, ERROR, CLOSED
 	};
 
 	private static final long serialVersionUID = 1L;
@@ -32,9 +34,10 @@ public class ClientUI extends JFrame
 	private final IClient client;
 
 	private final CurrentTilePanel currentTilePanel;
-	private final InformationPanel informationPanel;
+	private final PlayersPanel playersPanel;
 	private final GameBoardPanel gameBoardPanel;
 	private final GameInfoPanel gameInfoPanel;
+	private final StatusBarPanel statusBarPanel;
 
 	private State turnMode = State.WAITING;
 	private Turn turn = null;
@@ -47,10 +50,10 @@ public class ClientUI extends JFrame
 
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setSize(400, 400);
-		setMinimumSize(new Dimension(400, 400));
+		setSize(700, 500);
+		setMinimumSize(new Dimension(700, 500));
 		setExtendedState(MAXIMIZED_BOTH);
-		setLayout(new MigLayout("", "[]6[]6[grow]", "[114]6[grow]"));
+		setLayout(new MigLayout("", "[]6[]6[grow]", "[180]6[grow]6[30]"));
 
 		this.currentTilePanel = new CurrentTilePanel(this);
 		add(this.currentTilePanel, "grow");
@@ -58,11 +61,14 @@ public class ClientUI extends JFrame
 		this.gameInfoPanel = new GameInfoPanel(this);
 		add(this.gameInfoPanel, "grow");
 
-		this.informationPanel = new InformationPanel(this);
-		add(this.informationPanel, "wrap, grow");
+		this.playersPanel = new PlayersPanel(this);
+		add(this.playersPanel, "grow, wrap");
 
 		this.gameBoardPanel = new GameBoardPanel(this);
-		add(this.gameBoardPanel, "span, grow");
+		add(this.gameBoardPanel, "grow, span");
+
+		this.statusBarPanel = new StatusBarPanel(this);
+		add(this.statusBarPanel, "grow, span");
 
 		if (getClient().getGame().getCurrentPlayer() == getClient().getPlayer())
 		{
@@ -74,8 +80,8 @@ public class ClientUI extends JFrame
 
 		updateInterface();
 	}
-
-	public void placeTile(ILocation location, IDirection direction)
+	
+	public void placeTile(final ILocation location, final IDirection direction)
 	{
 		if (getTurnMode() != State.PLACE_TILE) JOptionPane.showMessageDialog(this, "Cannot place tile now.", "Error", JOptionPane.ERROR_MESSAGE);
 
@@ -83,7 +89,7 @@ public class ClientUI extends JFrame
 		{
 			getClient().getGame().getBoard().placeTile(getClient().getGame().getCurrentTile(), location, direction);
 		}
-		catch (InvalidTileLocationException exception)
+		catch (TilePlacementException exception)
 		{
 			JOptionPane.showMessageDialog(this, "Invalid tile location.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -93,21 +99,25 @@ public class ClientUI extends JFrame
 		this.turnMode = State.PLACE_MEEPLE;
 	}
 
-	public void placeMeeple(Meeple meeple, Section section)
+	public void placeMeeple(final Meeple.Type meepleType, final Section section)
 	{
 		if (getTurnMode() != State.PLACE_MEEPLE) JOptionPane.showMessageDialog(this, "Cannot place meeple now.", "Error", JOptionPane.ERROR_MESSAGE);
 
+		final Game game = getClient().getGame();
+		
+		final Meeple freeMeeple = GameUtil.getFreeMeepleOfType(game.getBoard(), game.getCurrentPlayer(), meepleType);
+		
 		try
 		{
-			getClient().getGame().getBoard().placeMeeple(meeple, section);
+			game.getBoard().placeMeeple(freeMeeple, section);
 		}
-		catch (FeatureTakenException exception)
+		catch (final MeeplePlacementException exception)
 		{
-			JOptionPane.showMessageDialog(this, "This feature is occupied.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, exception.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		
-		this.turn.addMeeplePlacement(meeple, section);
+
+		this.turn.addMeeplePlacement(meepleType, section);
 		endTurn();
 	}
 
@@ -115,7 +125,6 @@ public class ClientUI extends JFrame
 	{
 		try
 		{
-			getClient().getGame().endTurn();
 			this.turnMode = State.WAITING;
 			getClient().getServer().sendTurn(this.turn);
 		}
@@ -167,8 +176,9 @@ public class ClientUI extends JFrame
 		}
 
 		this.currentTilePanel.updateInterface();
-		this.informationPanel.updateInterface();
+		this.playersPanel.updateInterface();
 		this.gameInfoPanel.updateInterface();
+		this.statusBarPanel.updateInterface();
 
 		repaint();
 	}
@@ -176,6 +186,7 @@ public class ClientUI extends JFrame
 	@Override
 	public void dispose()
 	{
+		this.turnMode = State.CLOSED;
 		super.dispose();
 	}
 
@@ -192,6 +203,11 @@ public class ClientUI extends JFrame
 	public GameBoardPanel getGameBoardPanel()
 	{
 		return this.gameBoardPanel;
+	}
+	
+	public StatusBarPanel getStatusBarPanel()
+	{
+		return this.statusBarPanel;
 	}
 
 	public Turn getTurn()

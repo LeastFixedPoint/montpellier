@@ -1,24 +1,33 @@
 package info.reflectionsofmind.connexion.core.game;
 
 import info.reflectionsofmind.connexion.core.board.Board;
+import info.reflectionsofmind.connexion.core.board.BoardUtil;
+import info.reflectionsofmind.connexion.core.board.Feature;
 import info.reflectionsofmind.connexion.core.board.Meeple;
 import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
+import info.reflectionsofmind.connexion.core.board.exception.MeeplePlacementException;
+import info.reflectionsofmind.connexion.core.board.exception.NotLastTileMeepleException;
+import info.reflectionsofmind.connexion.core.board.exception.TilePlacementException;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
+import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
+import info.reflectionsofmind.connexion.core.game.exception.NoFreeMeeplesException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Game
 {
+	public final int MEEPLE_COUNT = 6;
+	
 	private final ITileSequence sequence;
 	private final List<Player> players = new ArrayList<Player>();
-	private final Map<Player, List<Meeple>> meeples = new HashMap<Player, List<Meeple>>();
 	private int currentPlayerIndex = 0;
 	private final Board board;
 	private final String name;
@@ -29,48 +38,114 @@ public class Game
 		this.name = name;
 		this.players.addAll(players);
 
-		for (Player player : getPlayers())
+		for (final Player player : getPlayers())
 		{
-			meeples.put(player, new ArrayList<Meeple>());
-			
-			for (int i = 0; i < 7; i++) 
+			for (int i = 0; i < 7; i++)
 			{
-				meeples.get(player).add(new Meeple());
+				player.addMeeple(new Meeple(Meeple.Type.MEEPLE, player));
 			}
 		}
 
 		this.sequence = sequence;
 		this.board = new Board(new Geometry());
 	}
-	
-	public void endTurn()
+
+	public void doTurn(final Turn turn) throws GameTurnException
+	{
+		try
+		{
+			getBoard().placeTile(getCurrentTile(), turn.getLocation(), turn.getDirection());
+		}
+		catch (TilePlacementException exception)
+		{
+			throw new GameTurnException(exception);
+		}
+
+		if (turn.getMeepleType() != null)
+		{
+			final Meeple freeMeeple = GameUtil.getFreeMeepleOfType(getBoard(), getCurrentPlayer(), turn.getMeepleType());
+			
+			if (freeMeeple == null)
+			{
+				throw new NoFreeMeeplesException();
+			}
+			
+			try
+			{
+				getBoard().placeMeeple(freeMeeple, turn.getSection());
+			}
+			catch (MeeplePlacementException exception)
+			{
+				throw new GameTurnException(exception);
+			}
+		}
+
+		endTurn(turn.isAdvancePlayer());
+	}
+
+	public void endTurn(final boolean advancePlayer)
 	{
 		if (this.sequence.hasMoreTiles())
 		{
 			this.sequence.nextTile();
+
+			if (advancePlayer)
+			{
+				this.currentPlayerIndex = (this.currentPlayerIndex + 1) % getPlayers().size();
+			}
 		}
 		else
 		{
 			this.finished = true;
 			this.currentPlayerIndex = -1;
 		}
+
+		scoreFeatures();
 	}
-	
-	public void doTurn(final Turn turn) throws InvalidTileLocationException, FeatureTakenException
+
+	private void scoreFeatures()
 	{
-		getBoard().placeTile(getCurrentTile(), turn.getLocation(), turn.getDirection());
+		final Set<Feature> scoredFeatures = new HashSet<Feature>();
 
-		if (turn.getMeeple() != null)
+		for (final Meeple meeple : getBoard().getMeeples())
 		{
-			getBoard().placeMeeple(turn.getMeeple(), turn.getSection());
+			final Feature feature = BoardUtil.getFeatureOf(getBoard(), getBoard().getMeepleSection(meeple));
+
+			if (feature.isCompleted())
+			{
+				scoredFeatures.add(feature);
+			}
 		}
 
-		if (!turn.isNonPlayer())
+		for (final Feature feature : scoredFeatures)
 		{
-			this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
+			scoreFeature(feature);
+		}
+	}
+
+	private void scoreFeature(final Feature feature)
+	{
+		final Map<Player, List<Meeple>> meeplesByPlayer = GameUtil.getMeeplesByPlayer(this, feature);
+
+		int max = 0;
+
+		for (final Player player : meeplesByPlayer.keySet())
+		{
+			max = Math.max(max, meeplesByPlayer.get(player).size());
 		}
 
-		endTurn();
+		for (final Player player : meeplesByPlayer.keySet())
+		{
+			if (meeplesByPlayer.get(player).size() == max)
+			{
+				player.addScore(feature.getCompletedScore());
+			}
+		}
+
+		for (final Meeple meeple : BoardUtil.getMeeplesOnFeature(getBoard(), feature))
+		{
+			getBoard().removeMeeple(meeple);
+		}
 	}
 
 	public Tile getCurrentTile()
@@ -89,7 +164,7 @@ public class Game
 			return null;
 		}
 	}
-	
+
 	public ITileSequence getSequence()
 	{
 		return this.sequence;
@@ -103,11 +178,6 @@ public class Game
 	public List<Player> getPlayers()
 	{
 		return Collections.unmodifiableList(this.players);
-	}
-	
-	public List<Meeple> getPlayerMeeples(Player player)
-	{
-		return Collections.unmodifiableList(this.meeples.get(player));
 	}
 
 	public String getName()

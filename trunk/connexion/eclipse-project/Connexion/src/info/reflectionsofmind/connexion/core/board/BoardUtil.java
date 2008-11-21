@@ -138,6 +138,21 @@ public class BoardUtil
 
 		return sections;
 	}
+	
+	public static List<Meeple> getMeeplesOnFeature(final Board board, Feature feature)
+	{
+		final List<Meeple> meeples = new ArrayList<Meeple>();
+		
+		for (Meeple meeple : board.getMeeples())
+		{
+			if (feature.getSections().contains(board.getMeepleSection(meeple)))
+			{
+				meeples.add(meeple);
+			}
+		}
+		
+		return meeples;
+	}
 
 	public static boolean isValidLocation(final Board board, final Tile tile, final IDirection direction, final ILocation location)
 	{

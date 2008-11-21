@@ -2,7 +2,7 @@ package info.reflectionsofmind.connexion.core.game.exception;
 
 import info.reflectionsofmind.connexion.core.game.Player;
 
-public class NotYourTurnException extends Exception
+public class NotYourTurnException extends GameTurnException
 {
 	private static final long serialVersionUID = 1L;
 	

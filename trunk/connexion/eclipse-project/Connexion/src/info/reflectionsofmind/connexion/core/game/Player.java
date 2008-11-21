@@ -1,15 +1,26 @@
 package info.reflectionsofmind.connexion.core.game;
 
+import info.reflectionsofmind.connexion.core.board.Meeple;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Player
 {
 	private final String name;
 	private int score = 0;
-	private boolean disconnected = false;
+	private final boolean disconnected = false;
+	private final List<Meeple> meeples = new ArrayList<Meeple>();
 
 	public Player(final String name)
 	{
 		this.name = name;
+	}
+
+	public void addMeeple(final Meeple meeple)
+	{
+		this.meeples.add(meeple);
 	}
 
 	public String getName()
@@ -26,9 +37,14 @@ public class Player
 	{
 		return this.score;
 	}
-	
+
 	public boolean isDisconnected()
 	{
 		return this.disconnected;
+	}
+
+	public List<Meeple> getMeeples()
+	{
+		return Collections.unmodifiableList(this.meeples);
 	}
 }

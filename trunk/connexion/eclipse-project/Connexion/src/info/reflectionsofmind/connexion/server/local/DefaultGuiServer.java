@@ -3,10 +3,13 @@ package info.reflectionsofmind.connexion.server.local;
 import info.reflectionsofmind.connexion.core.board.Meeple;
 import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
+import info.reflectionsofmind.connexion.core.board.exception.NotLastTileMeepleException;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
+import info.reflectionsofmind.connexion.core.game.exception.NoFreeMeeplesException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.game.sequence.RandomTileSequence;
 import info.reflectionsofmind.connexion.core.tile.Section;
@@ -74,12 +77,19 @@ public class DefaultGuiServer implements IServer
 	{
 		for (final IRemoteClient client : this.clients)
 		{
+			final List<String> playerNames = new ArrayList<String>();
+
+			for (Player player : getGame().getPlayers())
+			{
+				playerNames.add(player.getName());
+			}
+
 			try
 			{
 				client.sendStart(new StartEvent( //
 						getGame().getName(), //
-						getGame().getPlayers(), //
-						this.players.get(client), //
+						playerNames, //
+						getGame().getPlayers().indexOf(this.players.get(client)), //
 						initialTile, getGame().getCurrentTile(), //
 						getGame().getSequence().getTotalNumberOfTiles()));
 			}
@@ -131,20 +141,16 @@ public class DefaultGuiServer implements IServer
 	{
 		try
 		{
-			final Turn turn = new Turn(true);
+			final Turn turn = new Turn(false);
 			final IGeometry geometry = getGame().getBoard().getGeometry();
 			turn.addTilePlacement(geometry.getInitialLocation(), geometry.getDirections().get(0));
-			turn.addMeeplePlacement((Meeple) null, (Section) null);
+			turn.addMeeplePlacement(null, null);
 
 			getGame().doTurn(turn);
 		}
-		catch (final InvalidTileLocationException exception)
+		catch (GameTurnException exception)
 		{
-			throw new RuntimeException("Invalid initial tile placement.");
-		}
-		catch (final FeatureTakenException exception)
-		{
-			throw new RuntimeException("Invalid initial meeple location.");
+			throw new RuntimeException(exception);
 		}
 	}
 
@@ -165,19 +171,9 @@ public class DefaultGuiServer implements IServer
 	{
 		try
 		{
-			final Turn turn = new Turn();
-			turn.addTilePlacement(event.getLocation(), event.getDirection());
-			turn.addMeeplePlacement(event.getMeeple(), event.getSection());
-			
-			this.game.doTurn(turn);
+			this.game.doTurn(event.getTurn());
 		}
-		catch (final InvalidTileLocationException exception)
-		{
-			// TODO Server doesn't care about client's desync?
-			exception.printStackTrace();
-			return;
-		}
-		catch (final FeatureTakenException exception)
+		catch (final GameTurnException exception)
 		{
 			// TODO Server doesn't care about client's desync?
 			exception.printStackTrace();
@@ -188,19 +184,7 @@ public class DefaultGuiServer implements IServer
 		{
 			try
 			{
-				final Turn turn;
-				
-				if (client == event.getClient())
-				{
-					turn = null;
-				}
-				else
-				{
-					turn = new Turn();
-					turn.addTilePlacement(event.getLocation(), event.getDirection());
-					turn.addMeeplePlacement(event.getMeeple(), event.getSection());
-				}
-			
+				final Turn turn = (client == event.getClient()) ? null : event.getTurn();
 				client.sendTurn(new ServerTurnEvent(turn, getGame().getCurrentTile()));
 			}
 			catch (final ClientConnectionException exception)
