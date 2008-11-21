@@ -1,14 +1,13 @@
 package info.reflectionsofmind.connexion.transport;
 
-import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 
 import java.util.List;
 
 public class StartEvent
 {
-	private final List<Player> players;
-	private final Player clientPlayer;
+	private final List<String> players;
+	private final int clientPlayer;
 	private final String gameName;
 	private final Tile initialTile;
 	private final Tile currentTile;
@@ -16,8 +15,8 @@ public class StartEvent
 
 	public StartEvent( //
 			final String gameName, // 
-			final List<Player> players, // 
-			final Player clientPlayer, // 
+			final List<String> players, // 
+			final int clientPlayer, // 
 			final Tile initialTile, //
 			final Tile currentTile,
 			final Integer totalTiles)
@@ -31,12 +30,12 @@ public class StartEvent
 		this.totalTiles = totalTiles;
 	}
 
-	public Player getClientPlayer()
+	public int getClientPlayer()
 	{
 		return this.clientPlayer;
 	}
 
-	public List<Player> getPlayers()
+	public List<String> getPlayers()
 	{
 		return this.players;
 	}

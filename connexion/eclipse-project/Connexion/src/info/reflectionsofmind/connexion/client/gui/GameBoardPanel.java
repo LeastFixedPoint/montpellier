@@ -33,7 +33,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
@@ -52,6 +51,11 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 		addMouseListener(this);
 		addMouseMotionListener(this);
+	}
+	
+	public Section getSelectedSection()
+	{
+		return (mousePoint == null) ? null : getSectionByPoint(mousePoint);
 	}
 
 	// ============================================================================================
@@ -74,7 +78,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 		for (final Player player : game.getPlayers())
 		{
-			for (final Meeple meeple : game.getPlayerMeeples(player))
+			for (final Meeple meeple : player.getMeeples())
 			{
 				if (game.getBoard().getMeepleSection(meeple) != null)
 				{
@@ -235,29 +239,15 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 	private void placeMeeple(final Point clickPoint)
 	{
-		Meeple freeMeeple = null;
-
 		final Game game = getClientUI().getClient().getGame();
 
-		for (final Meeple meeple : game.getPlayerMeeples(getClientUI().getClient().getPlayer()))
-		{
-			if (game.getBoard().getMeepleSection(meeple) == null)
-			{
-				freeMeeple = meeple;
-			}
-		}
-
-		if (freeMeeple == null)
-		{
-			JOptionPane.showMessageDialog(this, "You have no free meeples.", "Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
 		final Section section = getSectionByPoint(clickPoint);
-
 		if (section == null) return;
+		
+		final TilePlacement lastPlacement = game.getBoard().getPlacements().get(game.getBoard().getPlacements().size()-1);
+		if (!lastPlacement.getTile().getSections().contains(section)) return;
 
-		getClientUI().placeMeeple(freeMeeple, section);
+		getClientUI().placeMeeple(Meeple.Type.MEEPLE, section);
 	}
 
 	// ============================================================================================
@@ -387,6 +377,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	{
 		this.mousePoint = event.getPoint();
 		repaint();
+		getClientUI().getStatusBarPanel().updateInterface();
 	}
 
 	@Override

@@ -42,7 +42,7 @@ class ClientPanel extends JPanel implements ItemListener
 
 		this.statusLabel = new JLabel("");
 
-		add(new JLabel("#" + index), "grow");
+		add(new JLabel("#" + (index + 1)), "grow");
 		add(this.clientTypeCombo, "grow");
 		add(this.connectButton, "grow");
 		add(this.statusLabel, "grow");

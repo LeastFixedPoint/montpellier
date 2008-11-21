@@ -2,6 +2,8 @@ package info.reflectionsofmind.connexion.core.board;
 
 import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Side;
+import info.reflectionsofmind.connexion.core.tile.Tile;
+import info.reflectionsofmind.connexion.core.tile.Type;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,5 +60,48 @@ public class Feature
 	public Board getBoard()
 	{
 		return this.board;
+	}
+
+	public int getCurrentScore()
+	{
+		int score = 0;
+		
+		if (getSections().get(0).getType() == Type.CASTLE)
+		{
+			final List<Tile> tiles = new ArrayList<Tile>();
+			
+			for (Section section : getSections())
+			{
+				if (tiles.contains(section.getTile())) continue; // Do not account two sections on same tile
+				tiles.add(section.getTile());
+				score += 1;
+			}
+		}
+		
+		return score;
+	}
+
+	public int getCompletedScore()
+	{
+		int score = 0;
+		
+		if (getType() == Type.CASTLE)
+		{
+			final List<Tile> tiles = new ArrayList<Tile>();
+			
+			for (Section section : getSections())
+			{
+				if (tiles.contains(section.getTile())) continue; // Do not account two sections on same tile
+				tiles.add(section.getTile());
+				score += 2;
+			}
+		}
+		
+		return score;
+	}
+
+	public Type getType()
+	{
+		return getSections().get(0).getType();
 	}
 }

@@ -7,21 +7,21 @@ import info.reflectionsofmind.connexion.core.tile.Section;
 
 public class Turn
 {
-	private final boolean nonPlayer;
+	private final boolean advancePlayer;
 
 	private IDirection direction;
 	private ILocation location;
-	private Meeple meeple;
+	private Meeple.Type meepleType;
 	private Section section;
 
 	public Turn()
 	{
-		this(false);
+		this(true);
 	}
 
-	public Turn(final boolean nonPlayer)
+	public Turn(final boolean advancePlayer)
 	{
-		this.nonPlayer = nonPlayer;
+		this.advancePlayer = advancePlayer;
 	}
 	
 	public void addTilePlacement(final ILocation location, final IDirection direction)
@@ -30,9 +30,9 @@ public class Turn
 		this.direction = direction;
 	}
 	
-	public void addMeeplePlacement(final Meeple meeple, final Section section)
+	public void addMeeplePlacement(final Meeple.Type meepleType, final Section section)
 	{
-		this.meeple = meeple;
+		this.meepleType = meepleType;
 		this.section = section;
 	}
 
@@ -47,9 +47,9 @@ public class Turn
 		return this.direction;
 	}
 	
-	public Meeple getMeeple()
+	public Meeple.Type getMeepleType()
 	{
-		return this.meeple;
+		return this.meepleType;
 	}
 
 	public Section getSection()
@@ -57,8 +57,8 @@ public class Turn
 		return this.section;
 	}
 	
-	public boolean isNonPlayer()
+	public boolean isAdvancePlayer()
 	{
-		return this.nonPlayer;
+		return this.advancePlayer;
 	}
 }

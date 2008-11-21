@@ -2,6 +2,9 @@ package info.reflectionsofmind.connexion.core.board;
 
 import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
+import info.reflectionsofmind.connexion.core.board.exception.MeeplePlacementException;
+import info.reflectionsofmind.connexion.core.board.exception.NotLastTileMeepleException;
+import info.reflectionsofmind.connexion.core.board.exception.TilePlacementException;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
@@ -35,7 +38,7 @@ public class Board
 	// === TILE PLACEMENT
 	// ============================================================================================
 
-	public void placeTile(final Tile tile, final ILocation location, final IDirection direction) throws InvalidTileLocationException
+	public void placeTile(final Tile tile, final ILocation location, final IDirection direction) throws TilePlacementException
 	{
 		final TilePlacement placement = new TilePlacement(this, tile, direction, location);
 
@@ -58,8 +61,13 @@ public class Board
 		}
 	}
 
-	public void placeMeeple(final Meeple meeple, final Section section) throws FeatureTakenException
+	public void placeMeeple(final Meeple meeple, final Section section) throws MeeplePlacementException
 	{
+		if (!getPlacements().get(getPlacements().size() - 1).getTile().getSections().contains(section))
+		{
+			throw new NotLastTileMeepleException();
+		}
+
 		for (Section featureSection : BoardUtil.getFeatureOf(this, section).getSections())
 		{
 			if (this.meeples.inverse().containsKey(featureSection))
@@ -67,8 +75,13 @@ public class Board
 				throw new FeatureTakenException();
 			}
 		}
-	
+
 		this.meeples.put(meeple, section);
+	}
+
+	public void removeMeeple(Meeple meeple)
+	{
+		this.meeples.remove(meeple);
 	}
 
 	private List<Feature> createFeatures(final Tile tile)
@@ -151,7 +164,12 @@ public class Board
 	{
 		return Collections.unmodifiableList(this.placements);
 	}
-	
+
+	public List<Meeple> getMeeples()
+	{
+		return Collections.unmodifiableList(new ArrayList<Meeple>(this.meeples.keySet()));
+	}
+
 	public Section getMeepleSection(Meeple meeple)
 	{
 		return this.meeples.get(meeple);
