@@ -85,15 +85,15 @@ public class HotSeatTransport
 		}
 
 		@Override
-		public void connect(IClient client) throws ServerConnectionException, RemoteServerException
-		{
-			this.server.onConnectionRequest(new ConnectionEvent(remoteClient));
-		}
-
-		@Override
 		public void sendTurn(final Turn turn) throws RemoteServerException
 		{
 			this.server.onTurn(new ClientTurnEvent(HotSeatTransport.this.remoteClient, turn));
+		}
+
+		@Override
+		public void connect(IClient client) throws ServerConnectionException, RemoteServerException
+		{
+			
 		}
 	}
 }

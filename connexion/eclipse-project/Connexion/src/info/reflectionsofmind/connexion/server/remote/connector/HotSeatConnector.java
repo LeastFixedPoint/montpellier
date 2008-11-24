@@ -18,25 +18,21 @@ public class HotSeatConnector extends AbstractClientConnector
 	}
 
 	@Override
-	public void listen()
+	public void startListening()
 	{
-		final String name = "Client #" + index;
-
 		index++;
-
-		if (name == null) return; // throw new ConnectionFailedException("Client cancelled.");
 
 		this.transport = new HotSeatTransport();
 		this.transport.setServer(this.server);
 
-		final DefaultGuiClient client = new DefaultGuiClient(this.transport.getRemoteServer(), "Client");
+		final DefaultGuiClient client = new DefaultGuiClient(this.transport.getRemoteServer(), "Client #" + index);
 		this.transport.setClient(client);
 
 		fireConnected(this.transport.getRemoteClient());
 	}
 
 	@Override
-	public void disconnect()
+	public void stopListening()
 	{
 		try
 		{
