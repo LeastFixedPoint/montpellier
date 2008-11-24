@@ -16,7 +16,6 @@ import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.transport.ClientTurnEvent;
-import info.reflectionsofmind.connexion.transport.ConnectionEvent;
 import info.reflectionsofmind.connexion.transport.ServerTurnEvent;
 import info.reflectionsofmind.connexion.transport.StartEvent;
 
@@ -50,6 +49,14 @@ public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 	{
 		if (this.gameStarted) throw new RuntimeException("Game already started.");
 		this.clients.add(client);
+
+		this.serverUI.updateInterface();
+	}
+
+	public void remove(final IRemoteClient client)
+	{
+		if (this.gameStarted) throw new RuntimeException("Game already started.");
+		this.clients.remove(client);
 
 		this.serverUI.updateInterface();
 	}
@@ -191,12 +198,6 @@ public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 		this.serverUI.updateInterface();
 	}
 	
-	@Override
-	public void onConnectionRequest(ConnectionEvent event)
-	{
-		add(event.getClient());
-	}
-
 	// ====================================================================================================
 	// === UTILITY
 	// ====================================================================================================

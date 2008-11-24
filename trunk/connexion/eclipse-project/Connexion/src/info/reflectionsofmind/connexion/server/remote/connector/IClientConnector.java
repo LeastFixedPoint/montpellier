@@ -5,8 +5,8 @@ import info.reflectionsofmind.connexion.server.remote.IRemoteClient;
 /** Clients interact through this interface to establish connection. */
 public interface IClientConnector
 {
-	void listen();
-	void disconnect();
+	void startListening();
+	void stopListening();
 	
 	void addListener(IListener listener);
 

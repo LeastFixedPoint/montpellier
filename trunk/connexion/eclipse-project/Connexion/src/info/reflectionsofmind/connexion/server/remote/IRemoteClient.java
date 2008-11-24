@@ -25,8 +25,5 @@ public interface IRemoteClient
 	{
 		/** Client calls this when it makes a turn. */
 		void onTurn(ClientTurnEvent event);
-
-		/** Client calls this when it wants to connect. */
-		void onConnectionRequest(ConnectionEvent event);
 	}
 }

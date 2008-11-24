@@ -12,12 +12,12 @@ public class BotConnector extends AbstractClientConnector
 	}
 	
 	@Override
-	public void listen()
+	public void startListening()
 	{
 	}
 	
 	@Override
-	public void disconnect()
+	public void stopListening()
 	{
 	}
 }

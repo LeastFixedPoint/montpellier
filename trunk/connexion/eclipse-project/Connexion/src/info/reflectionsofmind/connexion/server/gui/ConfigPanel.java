@@ -29,8 +29,8 @@ public class ConfigPanel extends JPanel
 		return this.nameField.getText();
 	}
 	
-	public void disable()
+	public void fade()
 	{
-		this.nameField.setEnabled(false);
+		this.nameField.setEditable(false);
 	}
 }
