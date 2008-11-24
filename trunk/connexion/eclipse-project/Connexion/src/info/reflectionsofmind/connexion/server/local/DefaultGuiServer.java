@@ -1,18 +1,12 @@
 package info.reflectionsofmind.connexion.server.local;
 
-import info.reflectionsofmind.connexion.core.board.Meeple;
-import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
-import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
-import info.reflectionsofmind.connexion.core.board.exception.NotLastTileMeepleException;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
-import info.reflectionsofmind.connexion.core.game.exception.NoFreeMeeplesException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.game.sequence.RandomTileSequence;
-import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.server.gui.ServerUI;
@@ -22,6 +16,7 @@ import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.transport.ClientTurnEvent;
+import info.reflectionsofmind.connexion.transport.ConnectionEvent;
 import info.reflectionsofmind.connexion.transport.ServerTurnEvent;
 import info.reflectionsofmind.connexion.transport.StartEvent;
 
@@ -32,7 +27,7 @@ import java.util.List;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-public class DefaultGuiServer implements IServer
+public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 {
 	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();
 	private final BiMap<IRemoteClient, Player> players = new HashBiMap<IRemoteClient, Player>();
@@ -194,6 +189,12 @@ public class DefaultGuiServer implements IServer
 		}
 
 		this.serverUI.updateInterface();
+	}
+	
+	@Override
+	public void onConnectionRequest(ConnectionEvent event)
+	{
+		add(event.getClient());
 	}
 
 	// ====================================================================================================

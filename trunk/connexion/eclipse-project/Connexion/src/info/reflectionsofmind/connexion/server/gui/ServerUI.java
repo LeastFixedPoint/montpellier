@@ -1,17 +1,17 @@
 package info.reflectionsofmind.connexion.server.gui;
 
 import info.reflectionsofmind.connexion.server.local.DefaultGuiServer;
+import info.reflectionsofmind.connexion.server.remote.ClientType;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -25,20 +25,6 @@ public class ServerUI extends JFrame
 
 	private final JButton startButton;
 	private final ConfigPanel configPanel;
-
-	static final Map<String, ClientType> CLIENT_TYPES = new LinkedHashMap<String, ClientType>()
-	{
-		private static final long serialVersionUID = 1L;
-
-		{
-			put("", ClientType.NONE);
-			put("Local", ClientType.LOCAL);
-			put("Bot", ClientType.BOT);
-			put("Spectator", ClientType.SPECTATOR);
-			put("Jabber", ClientType.JABBER);
-			put("Online", ClientType.ONLINE);
-		}
-	};
 
 	public ServerUI()
 	{
@@ -65,30 +51,36 @@ public class ServerUI extends JFrame
 		}
 
 		this.startButton = new JButton(new StartAction());
-		this.startButton.setEnabled(false);
 
 		add(this.startButton, "span, al 50%, w 180");
 
 		pack();
 	}
-	
+
 	public void updateInterface()
 	{
-		
+
+	}
+	
+	public synchronized void onClientConnected(ClientPanel panel)
+	{
+		if (allConnected())
+		{
+			this.server.startGame(this.configPanel.getGameName());
+		}
 	}
 
-	void updateStartButton()
+	private boolean allConnected()
 	{
-		for (final ClientPanel panel : this.panels)
+		for (final ClientPanel panel : ServerUI.this.panels)
 		{
-			if (panel.getClient() != null)
+			if (panel.getClientType() != ClientType.NONE && panel.getClient() == null)
 			{
-				this.startButton.setEnabled(true);
-				return;
+				return false;
 			}
 		}
-
-		this.startButton.setEnabled(false);
+		
+		return true;
 	}
 
 	public DefaultGuiServer getServer()
@@ -106,17 +98,48 @@ public class ServerUI extends JFrame
 		}
 
 		@Override
-		public void actionPerformed(final ActionEvent arg0)
+		public void actionPerformed(final ActionEvent event)
 		{
-			ServerUI.this.server.startGame(configPanel.getGameName());
-			setEnabled(false);
-
+			boolean atLeastOneClient = false;
+			
 			for (final ClientPanel panel : ServerUI.this.panels)
 			{
-				panel.disable();
+				atLeastOneClient |= (panel.getClientType() != ClientType.NONE);
 			}
 			
+			if (!atLeastOneClient)
+			{
+				JOptionPane.showMessageDialog(ServerUI.this, "You must have at least one client!", "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			for (final ClientPanel panel : ServerUI.this.panels)
+			{
+				panel.startListening();
+			}
+
 			configPanel.disable();
+			
+			startButton.setAction(new CancelAction());
+		}
+	}
+
+	private class CancelAction extends AbstractAction
+	{
+		public CancelAction()
+		{
+			super("Cancel");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent event)
+		{
+			for (final ClientPanel panel : ServerUI.this.panels)
+			{
+				panel.cancelListening();
+			}
+			
+			startButton.setAction(new StartAction());
 		}
 	}
 }

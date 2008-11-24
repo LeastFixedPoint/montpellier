@@ -6,6 +6,7 @@ import info.reflectionsofmind.connexion.client.remote.IRemoteServer;
 import info.reflectionsofmind.connexion.client.remote.RemoteServerException;
 import info.reflectionsofmind.connexion.client.remote.ServerConnectionException;
 import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.server.local.DisconnectReason;
 import info.reflectionsofmind.connexion.server.local.IServer;
 import info.reflectionsofmind.connexion.server.remote.AbstractRemoteClient;
 import info.reflectionsofmind.connexion.server.remote.ClientConnectionException;
@@ -48,7 +49,7 @@ public class HotSeatTransport
 		{
 			this.client = client;
 		}
-
+		
 		@Override
 		public void sendStart(StartEvent event) throws ClientConnectionException
 		{
@@ -59,6 +60,12 @@ public class HotSeatTransport
 		public void sendTurn(ServerTurnEvent event) throws ClientConnectionException
 		{
 			client.onTurn(event);
+		}
+
+		@Override
+		public void disconnect(DisconnectReason reason) throws ClientConnectionException
+		{
+			throw new UnsupportedOperationException("Disconnects not supported yet");
 		}
 
 		@Override
@@ -80,7 +87,7 @@ public class HotSeatTransport
 		@Override
 		public void connect(IClient client) throws ServerConnectionException, RemoteServerException
 		{
-			// Connected automatically
+			this.server.onConnectionRequest(new ConnectionEvent(remoteClient));
 		}
 
 		@Override
