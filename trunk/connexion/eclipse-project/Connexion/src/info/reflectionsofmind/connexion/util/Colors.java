@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.client.util;
+package info.reflectionsofmind.connexion.util;
 
 import java.awt.Color;
 

@@ -1,7 +1,5 @@
 package info.reflectionsofmind.connexion;
 
-import info.reflectionsofmind.connexion.server.gui.ServerUI;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -23,14 +21,12 @@ public class Application
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			UIManager.setLookAndFeel(new SubstanceBusinessLookAndFeel());
 
-			// UIManager.setLookAndFeel(org.jvnet.substance.SubstanceLookAndFeel.class.getName());
-
 			SwingUtilities.invokeLater(new Runnable()
 			{
 				public void run()
 				{
-					new ServerUI().setVisible(true);
-//					new MainMenuFrame().setVisible(true);
+//					new ServerUI().setVisible(true);
+					new MainMenuFrame().setVisible(true);
 				}
 			});
 		}

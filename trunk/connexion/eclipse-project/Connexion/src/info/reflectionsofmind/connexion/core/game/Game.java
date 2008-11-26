@@ -69,7 +69,7 @@ public class Game
 			
 			try
 			{
-				getBoard().placeMeeple(freeMeeple, turn.getSection());
+				getBoard().placeMeeple(freeMeeple, getCurrentTile().getSections().get(turn.getSectionIndex()));
 			}
 			catch (MeeplePlacementException exception)
 			{
