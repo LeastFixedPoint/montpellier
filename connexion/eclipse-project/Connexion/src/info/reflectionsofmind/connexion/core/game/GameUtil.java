@@ -4,6 +4,7 @@ import info.reflectionsofmind.connexion.core.board.Board;
 import info.reflectionsofmind.connexion.core.board.BoardUtil;
 import info.reflectionsofmind.connexion.core.board.Feature;
 import info.reflectionsofmind.connexion.core.board.Meeple;
+import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.util.Util;
 
 import java.util.List;
@@ -38,5 +39,10 @@ public class GameUtil
 		}
 		
 		return null;
+	}
+
+	public static Tile getInitialTile(Game game)
+	{
+		return game.getBoard().getPlacements().get(0).getTile();
 	}
 }
