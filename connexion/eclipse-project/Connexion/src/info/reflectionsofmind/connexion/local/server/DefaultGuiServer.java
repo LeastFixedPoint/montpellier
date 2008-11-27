@@ -11,6 +11,7 @@ import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
 import info.reflectionsofmind.connexion.local.server.gui.ServerUI;
@@ -186,6 +187,11 @@ public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 				client.sendPlayerConnected(players.get(clients.get(clients.size() - 1)));
 			}
 		}
+	}
+	
+	@Override
+	public void onMessage(IRemoteClient sender, ClientToServer_MessageEvent event)
+	{
 	}
 	
 	@Override

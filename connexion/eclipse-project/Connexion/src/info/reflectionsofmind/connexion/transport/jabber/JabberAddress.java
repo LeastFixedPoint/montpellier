@@ -3,6 +3,7 @@ package info.reflectionsofmind.connexion.transport.jabber;
 
 public class JabberAddress
 {
+	private final String address;
 	private final String login;
 	private final String password;
 	private final String host;
@@ -11,6 +12,8 @@ public class JabberAddress
 	
 	public JabberAddress(final String string)
 	{
+		this.address = string;
+		
 		final int atPos = string.indexOf('@');
 		final int slPos = string.indexOf('/');
 		
@@ -49,5 +52,10 @@ public class JabberAddress
 	public String getResource()
 	{
 		return this.resource;
+	}
+	
+	public String getAddress()
+	{
+		return this.address;
 	}
 }

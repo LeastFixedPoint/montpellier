@@ -38,7 +38,14 @@ public class MainMenuFrame extends JFrame
 
 		add(new JButton("Configure"), "span, grow");
 
-		add(new JButton("Exit"), "span");
+		add(new JButton(new AbstractAction("Exit")
+		{
+			@Override
+			public void actionPerformed(final ActionEvent arg0)
+			{
+				dispose();
+			}
+		}), "span");
 
 		pack();
 		setVisible(true);

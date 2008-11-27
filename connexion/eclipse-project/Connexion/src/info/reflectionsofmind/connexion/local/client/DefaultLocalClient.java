@@ -10,6 +10,7 @@ import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
@@ -21,6 +22,7 @@ import info.reflectionsofmind.connexion.tilelist.ITileSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DefaultLocalClient implements IClient, IRemoteServer.IListener
@@ -166,6 +168,11 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 			}
 		}
 	}
+	
+	@Override
+	public void onMessage(ServerToClient_MessageEvent event)
+	{
+	}
 
 	// ============================================================================================
 	// === GETTERS
@@ -199,6 +206,12 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	public IRemoteServer getServer()
 	{
 		return this.server;
+	}
+	
+	@Override
+	public List<Player> getPlayers()
+	{
+		return Collections.unmodifiableList(this.players);
 	}
 
 	// ============================================================================================

@@ -3,11 +3,11 @@ package info.reflectionsofmind.connexion.remote.server;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.client.IClient;
-import info.reflectionsofmind.connexion.local.client.gui.join.JoinGameFrame;
 
 public interface IRemoteServer
 {
@@ -17,6 +17,9 @@ public interface IRemoteServer
 	/** Call this to send a turn. */
 	void sendTurn(Turn turn) throws ServerConnectionException, RemoteServerException;
 
+	/** Call this to send a message. */
+	void sendMessage(String message) throws ServerConnectionException, RemoteServerException;
+	
 	void addListener(IListener listener);
 
 	void removeListener(IListener listener);
@@ -37,5 +40,8 @@ public interface IRemoteServer
 
 		/** This is called when the game starts. */
 		void onStart(ServerToClient_GameStartedEvent event);
+		
+		/** Client calls this when it send a message. */
+		void onMessage(ServerToClient_MessageEvent event);
 	}
 }

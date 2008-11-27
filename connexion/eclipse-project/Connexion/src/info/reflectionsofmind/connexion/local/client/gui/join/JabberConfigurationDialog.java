@@ -14,9 +14,11 @@ import net.miginfocom.swing.MigLayout;
 
 public class JabberConfigurationDialog extends JDialog
 {
+	private final JTextField nameField;
 	private final JTextField serverField;
 	private final JTextField clientField;
 
+	private String playerName;
 	private JabberAddress server;
 	private JabberAddress client;
 	
@@ -25,6 +27,10 @@ public class JabberConfigurationDialog extends JDialog
 		super(owner, "Connexion :: Join game :: Jabber", true);
 
 		setLayout(new MigLayout("", "[60]6[360]", "[]6[]6[]"));
+
+		add(new JLabel("Name"), "grow");
+		this.nameField = new JTextField("Shooshpanchick");
+		add(this.nameField, "grow, span");
 
 		add(new JLabel("Server"), "grow");
 		this.serverField = new JTextField("shooshpanchick@gmail.com/connexion-server");
@@ -42,7 +48,7 @@ public class JabberConfigurationDialog extends JDialog
 				joinGame();
 			}
 		}), "span, split, center");
-		add(new JButton(new AbstractAction("Join game")
+		add(new JButton(new AbstractAction("Cancel")
 		{
 			@Override
 			public void actionPerformed(final ActionEvent e)
@@ -57,34 +63,30 @@ public class JabberConfigurationDialog extends JDialog
 
 	private void joinGame()
 	{
+		this.playerName = this.nameField.getText();
 		this.server = new JabberAddress(this.serverField.getText());
 		this.client = new JabberAddress(this.clientField.getText());
 		
 		dispose();
+	}
+	
+	public String getPlayerName()
+	{
+		return this.playerName;
 	}
 
 	private void cancel()
 	{
 		dispose();
 	}
-
+	
 	public JabberAddress getServer()
 	{
 		return this.server;
 	}
 
-	public void setServer(JabberAddress server)
-	{
-		this.server = server;
-	}
-
 	public JabberAddress getClient()
 	{
 		return this.client;
-	}
-
-	public void setClient(JabberAddress client)
-	{
-		this.client = client;
 	}
 }

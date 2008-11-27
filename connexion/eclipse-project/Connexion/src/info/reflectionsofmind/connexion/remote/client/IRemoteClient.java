@@ -8,6 +8,7 @@ import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent.Reason;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
@@ -26,6 +27,9 @@ public interface IRemoteClient
 	
 	/** Call this to notify client about a turn. */
 	void sendTurn(Turn turn, Tile newCurrentTile) throws ClientConnectionException;
+	
+	/** Call this to route a message to client. */
+	void sendMessage(int playerIndex, String message) throws ClientConnectionException;
 	
 	/** Call this to tell client someone has connected. */
 	void sendPlayerConnected(Player player);
@@ -47,5 +51,8 @@ public interface IRemoteClient
 		
 		/** Client calls this when it makes a turn. */
 		void onTurn(IRemoteClient sender, ClientToServer_TurnEvent event);
+		
+		/** Client calls this when it send a message. */
+		void onMessage(IRemoteClient sender, ClientToServer_MessageEvent event);
 	}
 }
