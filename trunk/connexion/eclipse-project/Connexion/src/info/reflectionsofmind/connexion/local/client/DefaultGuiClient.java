@@ -10,6 +10,7 @@ import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
@@ -87,6 +88,11 @@ public class DefaultGuiClient implements IClient, IRemoteServer.IListener
 		}
 		
 		this.player = this.players.get(this.players.size());
+	}
+	
+	@Override
+	public void onMessage(ServerToClient_MessageEvent event)
+	{
 	}
 	
 	@Override
@@ -203,6 +209,12 @@ public class DefaultGuiClient implements IClient, IRemoteServer.IListener
 	public IRemoteServer getServer()
 	{
 		return this.server;
+	}
+	
+	@Override
+	public List<Player> getPlayers()
+	{
+		return null;
 	}
 
 	// ============================================================================================

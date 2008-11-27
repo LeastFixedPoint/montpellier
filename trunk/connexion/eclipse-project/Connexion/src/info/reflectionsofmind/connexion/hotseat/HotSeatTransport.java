@@ -5,9 +5,11 @@ import info.reflectionsofmind.connexion.core.game.GameUtil;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Tile;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
@@ -111,6 +113,12 @@ public class HotSeatTransport
 
 			client.onTurn(event);
 		}
+		
+		@Override
+		public void sendMessage(int playerIndex, String message) throws ClientConnectionException
+		{
+			client.onMessage(new ServerToClient_MessageEvent(playerIndex, message));
+		}
 
 		@Override
 		public synchronized void disconnect(DisconnectReason reason) throws ClientConnectionException
@@ -138,6 +146,12 @@ public class HotSeatTransport
 		public synchronized void sendTurn(final Turn turn) throws RemoteServerException
 		{
 			this.server.onTurn(HotSeatTransport.this.remoteClient, new ClientToServer_TurnEvent(turn));
+		}
+		
+		@Override
+		public void sendMessage(String message) throws ServerConnectionException, RemoteServerException
+		{
+			this.server.onMessage(HotSeatTransport.this.remoteClient, new ClientToServer_MessageEvent(message));
 		}
 
 		@Override

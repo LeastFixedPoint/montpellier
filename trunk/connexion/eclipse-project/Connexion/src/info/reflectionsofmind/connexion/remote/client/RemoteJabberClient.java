@@ -10,7 +10,7 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnec
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
 
-public class JabberRemoteClient extends AbstractRemoteClient
+public class RemoteJabberClient extends AbstractRemoteClient
 {
 	// ============================================================================================
 	// === ACTIONS
@@ -38,6 +38,11 @@ public class JabberRemoteClient extends AbstractRemoteClient
 	
 	@Override
 	public void sendPlayerDisconnected(int playerIndex, Reason reason)
+	{
+	}
+	
+	@Override
+	public void sendMessage(int playerIndex, String message) throws ClientConnectionException
 	{
 	}
 
