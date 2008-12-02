@@ -22,7 +22,7 @@ import javax.swing.JOptionPane;
 import net.miginfocom.swing.MigLayout;
 
 /** GUI. Create only when the game has started on server. */
-public class ClientUI extends JFrame
+public class GameWindow extends JFrame
 {
 	public enum State
 	{
@@ -42,7 +42,7 @@ public class ClientUI extends JFrame
 	private State turnMode = State.WAITING;
 	private Turn turn = null;
 
-	public ClientUI(final IClient client)
+	public GameWindow(final IClient client)
 	{
 		super("Connexion :: Client :: " + client.getGame().getName() + " :: " + client.getPlayer().getName());
 

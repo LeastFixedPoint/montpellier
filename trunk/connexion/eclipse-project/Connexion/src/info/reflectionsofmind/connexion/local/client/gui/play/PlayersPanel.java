@@ -28,10 +28,10 @@ class PlayersPanel extends JPanel
 			.put(Meeple.Type.MEEPLE, "Meeples: ") //
 			.build();
 
-	private final ClientUI clientUI;
+	private final GameWindow clientUI;
 	private final Map<Player, PlayerStatusPanel> panels = new HashMap<Player, PlayerStatusPanel>();
 
-	public PlayersPanel(final ClientUI clientUI)
+	public PlayersPanel(final GameWindow clientUI)
 	{
 		this.clientUI = clientUI;
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
@@ -56,7 +56,7 @@ class PlayersPanel extends JPanel
 		}
 	}
 
-	public ClientUI getClientUI()
+	public GameWindow getClientUI()
 	{
 		return this.clientUI;
 	}

@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.local.server.gui;
 
-import info.reflectionsofmind.connexion.local.server.DefaultGuiServer;
+import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
 import info.reflectionsofmind.connexion.local.server.gui.ClientPanel.State;
 
 import java.awt.event.ActionEvent;
@@ -15,22 +15,20 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class ServerUI extends JFrame
+public class HostGameWindow extends JFrame
 {
 	private static final long serialVersionUID = 1L;
-	private final DefaultGuiServer server;
-
-	private final List<ClientPanel> panels = new ArrayList<ClientPanel>();
+	private final DefaultLocalServer server;
 
 	private final JButton startButton;
 	private final ConfigPanel configPanel;
 	private final JButton addClientButton;
 
-	public ServerUI()
+	public HostGameWindow()
 	{
 		super("Connexion :: Server");
 
-		this.server = new DefaultGuiServer(this);
+		this.server = new DefaultLocalServer(this);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
@@ -41,43 +39,13 @@ public class ServerUI extends JFrame
 
 		add(new JLabel("Clients:"), "span");
 
-		addClientPanel();
-
-		this.addClientButton = new JButton(new AbstractAction("Add another client")
-		{
-			@Override
-			public void actionPerformed(final ActionEvent event)
-			{
-				addClientPanel();
-			}
-		});
-
-		add(this.addClientButton, "w 148, wrap");
+		add(new ClientsPanel(this));
 
 		this.startButton = new JButton(new StartAction());
 		add(this.startButton, "w 120, right");
 
 		pack();
 		setLocationRelativeTo(null);
-	}
-
-	public void addClientPanel()
-	{
-		final ClientPanel clientPanel = new ClientPanel(this);
-		this.panels.add(clientPanel);
-
-		add(clientPanel, "grow, flowy, cell 0 2, wrap");
-		pack();
-	}
-
-	public void removeClientPanel(final ClientPanel panel)
-	{
-		if (this.panels.size() > 1)
-		{
-			remove(panel);
-			this.panels.remove(panel);
-			pack();
-		}
 	}
 
 	public void updateInterface()
@@ -99,7 +67,7 @@ public class ServerUI extends JFrame
 	// === GETTERS AND SETTERS
 	// ====================================================================================================
 
-	public DefaultGuiServer getServer()
+	public DefaultLocalServer getServer()
 	{
 		return this.server;
 	}
@@ -122,28 +90,28 @@ public class ServerUI extends JFrame
 		{
 			boolean atLeastOneClient = false;
 
-			for (final ClientPanel panel : ServerUI.this.panels)
+			for (final ClientPanel panel : HostGameWindow.this.panels)
 			{
 				atLeastOneClient = atLeastOneClient || panel.getState() == State.CONNECTED;
 			}
 
 			if (!atLeastOneClient)
 			{
-				JOptionPane.showMessageDialog(ServerUI.this, "You must have at least one client connected!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(HostGameWindow.this, "You must have at least one client connected!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
-			ServerUI.this.addClientButton.setEnabled(false);
-			ServerUI.this.configPanel.fade();
+			HostGameWindow.this.addClientButton.setEnabled(false);
+			HostGameWindow.this.configPanel.fade();
 
-			for (final ClientPanel panel : ServerUI.this.panels)
+			for (final ClientPanel panel : HostGameWindow.this.panels)
 			{
 				panel.fade();
 			}
 
 			setEnabled(false);
 
-			ServerUI.this.server.startGame(ServerUI.this.configPanel.getGameName());
+			HostGameWindow.this.server.startGame(HostGameWindow.this.configPanel.getGameName());
 		}
 	}
 }

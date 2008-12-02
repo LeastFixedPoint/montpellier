@@ -6,11 +6,12 @@ import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Location;
-import info.reflectionsofmind.connexion.util.convert.AbstractMessage;
-import info.reflectionsofmind.connexion.util.convert.IConvertible;
+import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 
-public class Turn implements IConvertible<Turn>
+public class Turn
 {
+	public static final Coder CODER = new Coder(); 
+	
 	private final boolean advancePlayer;
 
 	private IDirection direction;
@@ -65,30 +66,27 @@ public class Turn implements IConvertible<Turn>
 		return this.advancePlayer;
 	}
 
-	@Override
-	public IMessage<Turn> encode()
+	public static class Coder extends AbstractCoder<Turn>
 	{
-		final String string = "[" + isAdvancePlayer() + //
-				":" + ((Location) getLocation()).getX() + // 
-				":" + ((Location) getLocation()).getY() + //
-				":" + getDirection().getIndex() + //
-				":" + getMeepleType().toString() + //
-				":" + getSectionIndex() + "]";
-
-		return new Message(string);
-	}
-
-	public final static class Message extends AbstractMessage<Turn>
-	{
-		public Message(final String string)
+		public boolean accepts(String string)
 		{
-			super(string);
+			return string.startsWith("turn:");
 		}
 
-		@Override
-		public Turn decode()
+		public String encode(Turn turn)
 		{
-			final String[] tokens = getTokens();
+			return join("turn:", //
+					String.valueOf(turn.isAdvancePlayer()), //
+					String.valueOf(((Location) turn.getLocation()).getX()), // 
+					String.valueOf(((Location) turn.getLocation()).getY()), //
+					String.valueOf(turn.getDirection().getIndex()), //
+					turn.getMeepleType().toString(), //
+					String.valueOf(turn.getSectionIndex()));
+		}
+
+		public Turn decode(String string)
+		{
+			final String[] tokens = split("turn", string);
 
 			final Geometry geometry = new Geometry();
 

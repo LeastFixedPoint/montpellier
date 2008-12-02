@@ -8,7 +8,7 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnec
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.client.DefaultLocalClient;
 import info.reflectionsofmind.connexion.local.client.IClient;
-import info.reflectionsofmind.connexion.local.client.gui.play.ClientUI;
+import info.reflectionsofmind.connexion.local.client.gui.play.GameWindow;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteJabberServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
@@ -16,25 +16,20 @@ import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
 import info.reflectionsofmind.connexion.transport.jabber.JabberAddress;
 
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.html.HTMLDocument;
 
 import net.miginfocom.swing.MigLayout;
 
-public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
+public class JoinGameWindow extends JFrame implements IRemoteServer.IListener
 {
 	public static enum ConnectionType
 	{
@@ -46,12 +41,12 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
 	private final JLabel statusLabel;
 	private final JComboBox connectionTypeCombo;
 	private final JButton connectButton;
-	private final JEditorPane chatPane;
+	private final ChatPane chatPane;
 	private final JTextField sendField;
 	private final JButton sendButton;
 	private final JList playerList;
 
-	public JoinGameFrame()
+	public JoinGameWindow()
 	{
 		super("Connexion :: Join game");
 
@@ -75,27 +70,9 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
 		this.statusLabel = new JLabel("Not connected");
 		add(this.statusLabel, "grow, span");
 
-		this.chatPane = new JEditorPane("text/html", "");
-		this.chatPane.setEditable(false);
-		this.chatPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+		this.chatPane = new ChatPane();
 		add(this.chatPane, "grow, span 3");
 
-		final HTMLDocument document = (HTMLDocument) JoinGameFrame.this.chatPane.getDocument();
-		
-		try
-		{
-			document.setOuterHTML(document.getRootElements()[0].getElement(0), 
-					"<body style='margin: 0px; padding: 0px;'><div>Initialization ok.</div></body>");
-		}
-		catch (BadLocationException exception)
-		{
-			exception.printStackTrace();
-		}
-		catch (IOException exception)
-		{
-			exception.printStackTrace();
-		}
-		
 		this.playerList = new JList(new PlayersModel());
 		add(new JScrollPane(this.playerList), "grow, wrap, spany 2");
 
@@ -107,31 +84,8 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
 
 		pack();
 		setLocationRelativeTo(null);
-	}
 
-	private void writeSystem(final String text)
-	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					final HTMLDocument document = (HTMLDocument) JoinGameFrame.this.chatPane.getDocument();
-					document.insertBeforeEnd(document.getRootElements()[0].getElement(0), // 
-							"<p style='color:green;padding:0px;margin:0px;'>" + text + "</p>");
-				}
-				catch (final IOException exception)
-				{
-					exception.printStackTrace();
-				}
-				catch (final BadLocationException exception)
-				{
-					exception.printStackTrace();
-				}
-			}
-		});
+		this.chatPane.writeSystem("Please select connection type and click \"Connect\".");
 	}
 
 	public void connect()
@@ -147,38 +101,38 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
 				final JabberAddress jabberServer = dialog.getServer();
 				final JabberAddress jabberClient = dialog.getClient();
 
-				writeSystem("Connecting") 
-				writeSystem("to: " + jabberServer.getAddress());
-				writeSystem("as: " + jabberClient.getAddress());
+				chatPane.writeSystem("Connecting");
+				chatPane.writeSystem("to: " + jabberServer.getAddress());
+				chatPane.writeSystem("as: " + jabberClient.getAddress());
 
 				if (jabberServer == null || jabberClient == null) return;
 
-				JoinGameFrame.this.connectButton.setEnabled(false);
-				JoinGameFrame.this.connectionTypeCombo.setEnabled(false);
+				JoinGameWindow.this.connectButton.setEnabled(false);
+				JoinGameWindow.this.connectionTypeCombo.setEnabled(false);
 
 				final IClient client = new DefaultLocalClient("DLC");
 				final IRemoteServer server = new RemoteJabberServer(jabberClient, jabberServer);
 
 				try
 				{
-					writeSystem("Sending connection request... ");
+					chatPane.writeSystem("Sending connection request... ");
 					client.connect(server);
-					writeSystem("Sent.");
+					chatPane.writeSystem("Connection request sent. Waiting for response...");
 				}
 				catch (final ServerConnectionException exception)
 				{
 					exception.printStackTrace();
-					writeSystem("Cannot connect to the server.");
+					chatPane.writeSystem("Cannot connect to the server.");
 					return;
 				}
 				catch (final RemoteServerException exception)
 				{
 					exception.printStackTrace();
-					writeSystem("Server-side failure.");
+					chatPane.writeSystem("Server-side failure.");
 					return;
 				}
 
-				JoinGameFrame.this.client = client;
+				JoinGameWindow.this.client = client;
 
 			}
 		}.start();
@@ -191,7 +145,7 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
 	@Override
 	public void onConnectionAccepted(final ServerToClient_ConnectionAcceptedEvent event)
 	{
-		this.statusLabel.setText("Server accepted connection.");
+		this.statusLabel.setText("Connection request accepted.");
 
 		this.chatPane.setEnabled(true);
 		this.sendField.setEnabled(true);
@@ -216,7 +170,7 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
 	{
 		this.client.getServer().removeListener(this);
 		dispose();
-		new ClientUI(this.client).setVisible(true);
+		new GameWindow(this.client).setVisible(true);
 	}
 
 	@Override
@@ -228,6 +182,8 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
 	@Override
 	public void onMessage(final ServerToClient_MessageEvent event)
 	{
+		final String name = this.client.getPlayers().get(event.getPlayerIndex()).getName();
+		this.chatPane.writeMessage(name, event.getMessage());
 	}
 
 	// ============================================================================================
@@ -239,13 +195,13 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener
 		@Override
 		public Object getElementAt(final int index)
 		{
-			return JoinGameFrame.this.client.getPlayers().get(index);
+			return JoinGameWindow.this.client.getPlayers().get(index);
 		}
 
 		@Override
 		public int getSize()
 		{
-			final IClient client = JoinGameFrame.this.client;
+			final IClient client = JoinGameWindow.this.client;
 			return client == null ? 0 : client.getPlayers().size();
 		}
 	}

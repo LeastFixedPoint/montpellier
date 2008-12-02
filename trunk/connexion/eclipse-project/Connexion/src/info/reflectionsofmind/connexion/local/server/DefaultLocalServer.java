@@ -14,8 +14,10 @@ import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnec
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
-import info.reflectionsofmind.connexion.local.server.gui.ServerUI;
+import info.reflectionsofmind.connexion.local.server.gui.HostGameWindow;
+import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.remote.client.connector.IClientConnector;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
@@ -23,65 +25,49 @@ import info.reflectionsofmind.connexion.util.Util;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.BiMap;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 
-public class DefaultGuiServer implements IServer, IRemoteClient.IListener
+public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 {
-	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();
-	private final BiMap<IRemoteClient, Player> players = new HashBiMap<IRemoteClient, Player>();
-	private final ServerUI serverUI;
+	private final List<ISlot> slots = new ArrayList<ISlot>();
 
 	private Game game;
-	private boolean gameStarted = false;
 	private ITileSource tileSource;
-
-	public DefaultGuiServer(final ServerUI serverUI)
-	{
-		this.serverUI = serverUI;
-	}
 
 	// ====================================================================================================
 	// === IMPLEMENTATION
 	// ====================================================================================================
 
-	public void add(final IRemoteClient client)
+	public void addSlot(ISlot slot)
 	{
-		if (this.gameStarted) throw new RuntimeException("Game already started.");
-		this.clients.add(client);
+		if (this.game != null) throw new RuntimeException("Game already started.");
 
-		this.serverUI.updateInterface();
-	}
-
-	public void remove(final IRemoteClient client)
-	{
-		if (this.gameStarted) throw new RuntimeException("Game already started.");
-		this.clients.remove(client);
-
-		this.serverUI.updateInterface();
+		slot.init(this);
 	}
 
 	private void sendStartEvents(final Tile initialTile)
 	{
-		for (final IRemoteClient client : this.clients)
+		for (final ISlot slot : this.slots)
 		{
-			final List<String> playerNames = new ArrayList<String>();
-
-			for (Player player : getGame().getPlayers())
+			if (slot.getState() == ISlot.State.CONNECTED)
 			{
-				playerNames.add(player.getName());
-			}
-
-			try
-			{
-				client.sendStart(getGame());
-			}
-			catch (final ClientConnectionException exception)
-			{
-				exception.printStackTrace();
+				try
+				{
+					slot.getClient().sendStart(getGame());
+				}
+				catch (final ClientConnectionException exception)
+				{
+					exception.printStackTrace();
+				}
 			}
 		}
 	}
@@ -99,10 +85,13 @@ public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 				tiles.add(new Tile(tileData.getCode()));
 			}
 
-			final ITileSequence sequence = new RandomTileSequence(tiles);
+			final List<Player> players = new ArrayList<Player>();
+			for (ISlot slot : this.slots)
+			{
+				players.add(slot.getPlayer());
+			}
 
-			this.game = new Game(name, sequence, Util.map(this.players, this.clients));
-			this.gameStarted = true;
+			this.game = new Game(name, new RandomTileSequence(tiles), players);
 		}
 		catch (final IOException exception)
 		{
@@ -143,29 +132,22 @@ public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 		}
 
 		sendStartEvents(initialTile);
-
-		this.serverUI.updateInterface();
 	}
 
 	// ============================================================================================
 	// === GETTERS
 	// ============================================================================================
 
-	public List<IRemoteClient> getClients()
-	{
-		return Collections.unmodifiableList(this.clients);
-	}
-
 	@Override
 	public Game getGame()
 	{
-		return this.gameStarted ? this.game : null;
+		return this.game;
 	}
 
 	@Override
 	public ITileSource getTileSource()
 	{
-		return this.gameStarted ? this.tileSource : null;
+		return this.tileSource;
 	}
 
 	// ============================================================================================
@@ -173,27 +155,26 @@ public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 	// ============================================================================================
 
 	@Override
-	public synchronized void onConnectionRequest(IRemoteClient sender, ClientToServer_ClientConnectionRequestEvent event)
+	public synchronized void onConnectionRequest(ISlot senderSlot, ClientToServer_ClientConnectionRequestEvent event)
 	{
-		this.clients.add(sender);
-		this.players.put(sender, new Player(event.getPlayerName()));
+		final Player player = new Player(event.getPlayerName());
+		senderSlot.accept(player);
+		senderSlot.getClient().acceptConnection(ServerUtil.getPlayers(this));
 		
-		sender.acceptConnection(Util.map(this.players, this.clients));
-		
-		for (IRemoteClient client : this.clients)
+		for (ISlot slot : ServerUtil.getConnectedSlots(this))
 		{
-			if (client != sender)
+			if (slot != senderSlot)
 			{
-				client.sendPlayerConnected(players.get(clients.get(clients.size() - 1)));
+				slot.getClient().sendPlayerConnected(player);
 			}
 		}
 	}
-	
+
 	@Override
 	public void onMessage(IRemoteClient sender, ClientToServer_MessageEvent event)
 	{
 	}
-	
+
 	@Override
 	public synchronized void onTurn(final IRemoteClient sender, final ClientToServer_TurnEvent event)
 	{
@@ -208,7 +189,7 @@ public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 			return;
 		}
 
-		for (final IRemoteClient client : getClients())
+		for (final IRemoteClient client : ServerUtil.getClients(this))
 		{
 			try
 			{
@@ -220,8 +201,6 @@ public class DefaultGuiServer implements IServer, IRemoteClient.IListener
 				exception.printStackTrace();
 			}
 		}
-
-		this.serverUI.updateInterface();
 	}
 
 	@Override

@@ -1,11 +1,15 @@
 package info.reflectionsofmind.connexion.event.stc;
 
 import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.util.convert.AbstractMessage;
+import info.reflectionsofmind.connexion.util.Util;
+import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 
 /** A turn event coming from server. */
-public class ServerToClient_TurnEvent extends ServerToClientEvent<ServerToClient_TurnEvent>
+public class ServerToClient_TurnEvent extends ServerToClientEvent
 {
+	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":turn";
+	public final static Coder CODER = new Coder();
+
 	private final Turn turn;
 	private final String currentTileCode;
 
@@ -24,20 +28,34 @@ public class ServerToClient_TurnEvent extends ServerToClientEvent<ServerToClient
 	{
 		return this.currentTileCode;
 	}
-
+	
 	@Override
-	public IMessage<ServerToClient_TurnEvent> encode()
+	public String encode()
 	{
-		final String[] tokens = new String[] { this.turn.encode().getString(), this.currentTileCode };
+		return CODER.encode(this);
+	}
 
-		return new AbstractMessage<ServerToClient_TurnEvent>(PREFIX + ":turn", tokens)
+	public static class Coder extends AbstractCoder<ServerToClient_TurnEvent>
+	{
+		@Override
+		public boolean accepts(String string)
 		{
-			@Override
-			public ServerToClient_TurnEvent decode()
-			{
-				final String[] tokens = getTokens();
-				return new ServerToClient_TurnEvent(new Turn.Message(tokens[3]).decode(), tokens[4]);
-			}
-		};
+			return string.startsWith(PREFIX);
+		}
+
+		@Override
+		public ServerToClient_TurnEvent decode(String string)
+		{
+			final String[] tokens = split(PREFIX, string);
+			final Turn turn = Turn.CODER.decode(Util.decode(tokens[0]));
+			final String currentTileCode = tokens[1];
+			return new ServerToClient_TurnEvent(turn, currentTileCode);
+		}
+
+		@Override
+		public String encode(ServerToClient_TurnEvent event)
+		{
+			return join(PREFIX, Util.encode(Turn.CODER.encode(event.getTurn())), event.getCurrentTileCode());
+		}
 	}
 }

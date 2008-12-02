@@ -1,19 +1,18 @@
 package info.reflectionsofmind.connexion.event.stc;
 
-import info.reflectionsofmind.connexion.util.convert.AbstractMessage;
+import info.reflectionsofmind.connexion.local.server.ServerSideDisconnectReason;
+import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 
-/** Server-to-client event: client has disconnected by its own initiative. */
-public class ServerToClient_PlayerDisconnectedEvent extends ServerToClientEvent<ServerToClient_PlayerDisconnectedEvent>
+/** Server-to-client event: a player has (been) disconnected from game. */
+public class ServerToClient_PlayerDisconnectedEvent extends ServerToClientEvent
 {
-	public enum Reason
-	{
-		SERVER_REQUEST, CLIENT_REQUEST, CONNECTION_FAILURE
-	}
+	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":player-disconnected";
+	public final static Coder CODER = new Coder();
 
 	private final int playerIndex;
-	private final Reason reason;
+	private final ServerSideDisconnectReason reason;
 
-	public ServerToClient_PlayerDisconnectedEvent(final int playerIndex, final Reason reason)
+	public ServerToClient_PlayerDisconnectedEvent(final int playerIndex, final ServerSideDisconnectReason reason)
 	{
 		this.playerIndex = playerIndex;
 		this.reason = reason;
@@ -24,25 +23,39 @@ public class ServerToClient_PlayerDisconnectedEvent extends ServerToClientEvent<
 		return this.playerIndex;
 	}
 
-	public Reason getReason()
+	public ServerSideDisconnectReason getReason()
 	{
 		return this.reason;
 	}
-
+	
 	@Override
-	public IMessage<ServerToClient_PlayerDisconnectedEvent> encode()
+	public String encode()
 	{
-		final String[] tokens = new String[] { String.valueOf(playerIndex), reason.toString() };
-
-		return new AbstractMessage<ServerToClient_PlayerDisconnectedEvent>(PREFIX + ":player-disconnected", tokens)
-		{
-			@Override
-			public ServerToClient_PlayerDisconnectedEvent decode()
-			{
-				final String[] tokens = getTokens();
-				return new ServerToClient_PlayerDisconnectedEvent( //
-						Integer.parseInt(tokens[0]), Reason.valueOf(tokens[1]));
-			}
-		};
+		return CODER.encode(this);
 	}
+
+	public static class Coder extends AbstractCoder<ServerToClient_PlayerDisconnectedEvent>
+	{
+		@Override
+		public boolean accepts(String string)
+		{
+			return string.startsWith(PREFIX);
+		}
+
+		@Override
+		public ServerToClient_PlayerDisconnectedEvent decode(String string)
+		{
+			final String[] tokens = split(PREFIX, string);
+			final int playerIndex = Integer.valueOf(tokens[0]);
+			final ServerSideDisconnectReason reason = ServerSideDisconnectReason.valueOf(tokens[1]);
+			return new ServerToClient_PlayerDisconnectedEvent(playerIndex, reason);
+		}
+
+		@Override
+		public String encode(ServerToClient_PlayerDisconnectedEvent event)
+		{
+			return join(PREFIX, String.valueOf(event.getPlayerIndex()), event.reason.toString());
+		}
+	}
+
 }

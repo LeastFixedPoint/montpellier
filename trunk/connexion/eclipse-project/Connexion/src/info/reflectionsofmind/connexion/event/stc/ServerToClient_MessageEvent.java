@@ -1,10 +1,13 @@
 package info.reflectionsofmind.connexion.event.stc;
 
 import info.reflectionsofmind.connexion.util.Util;
-import info.reflectionsofmind.connexion.util.convert.AbstractMessage;
+import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 
-public class ServerToClient_MessageEvent extends ServerToClientEvent<ServerToClient_MessageEvent>
+public class ServerToClient_MessageEvent extends ServerToClientEvent
 {
+	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":message";
+	public final static Coder CODER = new Coder();
+
 	private final int playerIndex;
 	private final String message;
 
@@ -23,18 +26,34 @@ public class ServerToClient_MessageEvent extends ServerToClientEvent<ServerToCli
 	{
 		return this.message;
 	}
-
+	
 	@Override
-	public IMessage<ServerToClient_MessageEvent> encode()
+	public String encode()
 	{
-		return new AbstractMessage<ServerToClient_MessageEvent>( //
-				PREFIX + ":connection-request", String.valueOf(this.playerIndex), Util.encode(this.message))
+		return CODER.encode(this);
+	}
+
+	public static class Coder extends AbstractCoder<ServerToClient_MessageEvent>
+	{
+		@Override
+		public boolean accepts(String string)
 		{
-			@Override
-			public ServerToClient_MessageEvent decode()
-			{
-				return new ServerToClient_MessageEvent(Integer.parseInt(getTokens()[0]), getTokens()[1]);
-			}
-		};
+			return string.startsWith(PREFIX);
+		}
+
+		@Override
+		public ServerToClient_MessageEvent decode(String string)
+		{
+			final String[] tokens = split(PREFIX, string);
+			final int playerIndex = Integer.valueOf(tokens[0]);
+			final String message = Util.decode(tokens[1]);
+			return new ServerToClient_MessageEvent(playerIndex, message);
+		}
+
+		@Override
+		public String encode(ServerToClient_MessageEvent event)
+		{
+			return join(PREFIX, String.valueOf(event.getPlayerIndex()), Util.encode(event.message));
+		}
 	}
 }

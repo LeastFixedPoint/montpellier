@@ -30,7 +30,7 @@ class ClientPanel extends JPanel
 			.put("Jabber", ClientType.JABBER) //
 			.build();
 
-	private final ServerUI serverUI;
+	private final ClientsPanel panel;
 
 	private final JComboBox clientTypeCombo;
 	private final JLabel statusLabel;
@@ -41,9 +41,9 @@ class ClientPanel extends JPanel
 	private IRemoteClient client;
 	private IClientConnector connector;
 
-	public ClientPanel(final ServerUI serverUI)
+	public ClientPanel(final ClientsPanel panel)
 	{
-		this.serverUI = serverUI;
+		this.panel = panel;
 		setLayout(new MigLayout("ins 0", "[24][120]6[120]6[240]", "[24]"));
 
 		this.removeButton = new JButton(new RemoveAction());
@@ -58,8 +58,6 @@ class ClientPanel extends JPanel
 
 		this.statusLabel = new JLabel("");
 		add(this.statusLabel, "grow");
-
-		this.serverUI.pack();
 	}
 
 	public void listen()
@@ -72,7 +70,7 @@ class ClientPanel extends JPanel
 
 		final ClientType clientType = CLIENT_TYPES.get(this.clientTypeCombo.getSelectedItem());
 
-		final IClientConnector connector = clientType.getConnector(this.serverUI.getServer());
+		final IClientConnector connector = clientType.getConnector(this.panel.getWindow().getServer());
 		connector.addListener(new IClientConnector.IListener()
 		{
 			@Override
@@ -94,7 +92,7 @@ class ClientPanel extends JPanel
 		this.statusLabel.setText("Connected as [" + client.getName() + "].");
 		this.state = State.CONNECTED;
 
-		this.serverUI.onClientConnected(ClientPanel.this);
+		this.panel.getWindow().onClientConnected(ClientPanel.this);
 	}
 
 	public void cancel()
@@ -124,7 +122,7 @@ class ClientPanel extends JPanel
 		this.removeButton.setEnabled(true);
 		this.statusLabel.setText("Disconnected.");
 
-		this.serverUI.onClientDisconnected(this);
+		this.panel.getWindow().onClientDisconnected(this);
 	}
 
 	public void fade()
@@ -158,7 +156,7 @@ class ClientPanel extends JPanel
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			ClientPanel.this.serverUI.removeClientPanel(ClientPanel.this);
+			ClientPanel.this.panel.removePanel(ClientPanel.this);
 		}
 	}
 

@@ -15,7 +15,7 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnected
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.client.exception.DesynchronizationException;
-import info.reflectionsofmind.connexion.local.client.gui.play.ClientUI;
+import info.reflectionsofmind.connexion.local.client.gui.play.GameWindow;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
@@ -45,7 +45,7 @@ public class DefaultGuiClient implements IClient, IRemoteServer.IListener
 
 	// All of this we have after onStart
 	private RemoteTileSequence sequence;
-	private ClientUI clientUI;
+	private GameWindow clientUI;
 	private Game game;
 
 	public DefaultGuiClient(final IRemoteServer server, final String name)
@@ -134,7 +134,7 @@ public class DefaultGuiClient implements IClient, IRemoteServer.IListener
 
 		this.conectionFrame.dispose();
 
-		this.clientUI = new ClientUI(this);
+		this.clientUI = new GameWindow(this);
 	}
 
 	@Override
