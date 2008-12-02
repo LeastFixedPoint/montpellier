@@ -15,7 +15,7 @@ public class GameInfoPanel extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 
-	private final ClientUI clientUI;
+	private final GameWindow clientUI;
 
 	private JLabel tileCountLabel;
 	private JLabel tileCountDescriptionLabel;
@@ -26,7 +26,7 @@ public class GameInfoPanel extends JPanel
 	private final long gameStartTimestamp;
 	private final long turnStartTimestamp;
 
-	public GameInfoPanel(final ClientUI clientUI)
+	public GameInfoPanel(final GameWindow clientUI)
 	{
 		this.clientUI = clientUI;
 
@@ -90,7 +90,7 @@ public class GameInfoPanel extends JPanel
 		return panel;
 	}
 
-	public ClientUI getClientUI()
+	public GameWindow getClientUI()
 	{
 		return this.clientUI;
 	}
@@ -145,11 +145,11 @@ public class GameInfoPanel extends JPanel
 				{
 				}
 
-				final ClientUI.State turnMode = getClientUI().getTurnMode();
+				final GameWindow.State turnMode = getClientUI().getTurnMode();
 
-				if (turnMode != ClientUI.State.PLACE_TILE //
-						&& turnMode != ClientUI.State.PLACE_MEEPLE //
-						&& turnMode != ClientUI.State.WAITING) break;
+				if (turnMode != GameWindow.State.PLACE_TILE //
+						&& turnMode != GameWindow.State.PLACE_MEEPLE //
+						&& turnMode != GameWindow.State.WAITING) break;
 			}
 		}
 	}

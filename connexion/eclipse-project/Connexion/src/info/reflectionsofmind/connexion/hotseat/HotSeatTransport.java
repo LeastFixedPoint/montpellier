@@ -15,7 +15,7 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnec
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent.Reason;
 import info.reflectionsofmind.connexion.local.client.IClient;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.local.server.ServerSideDisconnectReason;
 import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
 import info.reflectionsofmind.connexion.remote.client.AbstractRemoteClient;
@@ -90,7 +90,7 @@ public class HotSeatTransport
 		}
 		
 		@Override
-		public void sendPlayerDisconnected(int playerIndex, Reason reason)
+		public void sendPlayerDisconnected(int playerIndex, ClientSideDisconnectReason reason)
 		{
 			client.onPlayerDisconnect(new ServerToClient_PlayerDisconnectedEvent(playerIndex, reason));
 		}
@@ -121,7 +121,7 @@ public class HotSeatTransport
 		}
 
 		@Override
-		public synchronized void disconnect(DisconnectReason reason) throws ClientConnectionException
+		public synchronized void disconnect(ServerSideDisconnectReason reason) throws ClientConnectionException
 		{
 			throw new UnsupportedOperationException("Disconnects not supported yet");
 		}

@@ -7,7 +7,7 @@ import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent.Reason;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.local.server.ServerSideDisconnectReason;
 import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
 
 public class RemoteJabberClient extends AbstractRemoteClient
@@ -37,7 +37,7 @@ public class RemoteJabberClient extends AbstractRemoteClient
 	}
 	
 	@Override
-	public void sendPlayerDisconnected(int playerIndex, Reason reason)
+	public void sendPlayerDisconnected(int playerIndex, ClientSideDisconnectReason reason)
 	{
 	}
 	
@@ -47,7 +47,7 @@ public class RemoteJabberClient extends AbstractRemoteClient
 	}
 
 	@Override
-	public void disconnect(DisconnectReason reason) throws ClientConnectionException
+	public void disconnect(ServerSideDisconnectReason reason) throws ClientConnectionException
 	{
 	}
 

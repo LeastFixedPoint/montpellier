@@ -6,7 +6,7 @@ import static java.awt.geom.AffineTransform.getTranslateInstance;
 import info.reflectionsofmind.connexion.core.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.game.Game;
-import info.reflectionsofmind.connexion.local.client.gui.play.ClientUI.State;
+import info.reflectionsofmind.connexion.local.client.gui.play.GameWindow.State;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileSourceUtil;
 
@@ -35,7 +35,7 @@ class CurrentTilePanel extends JPanel
 	private BufferedImage emptyImage;
 	private BufferedImage meepleImage;
 
-	private final ClientUI clientUI;
+	private final GameWindow clientUI;
 	private IDirection rotation = new Geometry().getDirections().get(0);
 
 	private final StretchingImage tileImage;
@@ -43,7 +43,7 @@ class CurrentTilePanel extends JPanel
 	private final JButton rotateLeftButton;
 	private final JButton endTurnButton;
 
-	public CurrentTilePanel(final ClientUI localGuiClient)
+	public CurrentTilePanel(final GameWindow localGuiClient)
 	{
 		this.emptyImage = new BufferedImage(64, 64, BufferedImage.TYPE_BYTE_GRAY);
 		
@@ -151,7 +151,7 @@ class CurrentTilePanel extends JPanel
 		this.rotation = new Geometry().getInitialDirection();
 	}
 	
-	public ClientUI getClientUI()
+	public GameWindow getClientUI()
 	{
 		return this.clientUI;
 	}

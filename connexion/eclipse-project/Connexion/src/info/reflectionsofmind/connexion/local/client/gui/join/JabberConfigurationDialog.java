@@ -22,7 +22,7 @@ public class JabberConfigurationDialog extends JDialog
 	private JabberAddress server;
 	private JabberAddress client;
 	
-	public JabberConfigurationDialog(final JoinGameFrame owner)
+	public JabberConfigurationDialog(final JoinGameWindow owner)
 	{
 		super(owner, "Connexion :: Join game :: Jabber", true);
 

@@ -1,8 +1,9 @@
 package info.reflectionsofmind.connexion.event.cts;
 
-import info.reflectionsofmind.connexion.util.convert.IConvertible;
 
-public abstract class ClientToServerEvent<T extends ClientToServerEvent<T>> implements IConvertible<T>
+public abstract class ClientToServerEvent
 {
-	public static final String PREFIX = "connexion:cts-event";
+	public static final String EVENT_PREFIX = "connexion:cts-event";
+	
+	public abstract String encode();
 }

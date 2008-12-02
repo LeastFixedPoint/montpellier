@@ -11,7 +11,7 @@ import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnec
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent.Reason;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.local.server.ServerSideDisconnectReason;
 import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
 
 public interface IRemoteClient
@@ -20,7 +20,7 @@ public interface IRemoteClient
 	void acceptConnection(List<Player> existingPlayers);
 	
 	/** Call this to notify that it is disconnected. */
-	void disconnect(DisconnectReason reason) throws ClientConnectionException;
+	void disconnect(ServerSideDisconnectReason reason) throws ClientConnectionException;
 	
 	/** Call this to notify client about a game start. */
 	void sendStart(Game game) throws ClientConnectionException;
@@ -35,7 +35,7 @@ public interface IRemoteClient
 	void sendPlayerConnected(Player player);
 	
 	/** Call this to tell client someone has disconnected. */
-	void sendPlayerDisconnected(int playerIndex, Reason reason);
+	void sendPlayerDisconnected(int playerIndex, ClientSideDisconnectReason reason);
 	
 	String getName();
 	

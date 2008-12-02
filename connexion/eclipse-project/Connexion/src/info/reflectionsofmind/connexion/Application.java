@@ -26,7 +26,7 @@ public class Application
 				public void run()
 				{
 //					new ServerUI().setVisible(true);
-					new MainMenuFrame().setVisible(true);
+					new MainWindow().setVisible(true);
 				}
 			});
 		}

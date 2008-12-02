@@ -33,11 +33,11 @@ public class StatusBarPanel extends JPanel
 			.put(Type.ROAD, "A road. ") //
 			.build();
 
-	private final ClientUI clientUI;
+	private final GameWindow clientUI;
 
 	private final JLabel hintLabel;
 
-	public StatusBarPanel(final ClientUI clientUI)
+	public StatusBarPanel(final GameWindow clientUI)
 	{
 		this.clientUI = clientUI;
 
@@ -48,7 +48,7 @@ public class StatusBarPanel extends JPanel
 		add(this.hintLabel, "span, grow");
 	}
 
-	public ClientUI getClientUI()
+	public GameWindow getClientUI()
 	{
 		return this.clientUI;
 	}

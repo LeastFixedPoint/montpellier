@@ -2,7 +2,7 @@ package info.reflectionsofmind.connexion.remote.client.connector;
 
 import info.reflectionsofmind.connexion.hotseat.HotSeatTransport;
 import info.reflectionsofmind.connexion.local.client.DefaultGuiClient;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.local.server.ServerSideDisconnectReason;
 import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
 
@@ -36,7 +36,7 @@ public class HotSeatConnector extends AbstractClientConnector
 	{
 		try
 		{
-			this.transport.getRemoteClient().disconnect(DisconnectReason.SERVER_REQUEST);
+			this.transport.getRemoteClient().disconnect(ServerSideDisconnectReason.SERVER_REQUEST);
 		}
 		catch (final ClientConnectionException exception)
 		{

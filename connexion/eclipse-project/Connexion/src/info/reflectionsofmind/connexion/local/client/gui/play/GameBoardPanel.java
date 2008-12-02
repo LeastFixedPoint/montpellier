@@ -14,7 +14,7 @@ import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Location
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.tile.Section;
-import info.reflectionsofmind.connexion.local.client.gui.play.ClientUI.State;
+import info.reflectionsofmind.connexion.local.client.gui.play.GameWindow.State;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.tilelist.TileSourceUtil;
@@ -40,10 +40,10 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 {
 	private static final long serialVersionUID = 1L;
 
-	private final ClientUI clientUI;
+	private final GameWindow clientUI;
 	private Point mousePoint = null;
 
-	public GameBoardPanel(final ClientUI localGuiClient)
+	public GameBoardPanel(final GameWindow localGuiClient)
 	{
 		this.clientUI = localGuiClient;
 
@@ -89,7 +89,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 		final State turnMode = getClientUI().getTurnMode();
 
-		if (turnMode == ClientUI.State.PLACE_TILE || turnMode == ClientUI.State.WAITING)
+		if (turnMode == GameWindow.State.PLACE_TILE || turnMode == GameWindow.State.WAITING)
 		{
 			for (final TilePlacement placement : game.getBoard().getPlacements())
 			{
@@ -172,7 +172,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 		final Location mouseLocation = getLocationByPoint(this.mousePoint);
 		final Board board = getClientUI().getClient().getGame().getBoard();
 
-		if (getClientUI().getTurnMode() == ClientUI.State.PLACE_TILE)
+		if (getClientUI().getTurnMode() == GameWindow.State.PLACE_TILE)
 		{
 			final Point p = getLocationPoint(mouseLocation);
 			final int ls = getLocationSide();
@@ -352,7 +352,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	// === MOUSE LISTENER
 	// =============================================================================================
 
-	private ClientUI getClientUI()
+	private GameWindow getClientUI()
 	{
 		return this.clientUI;
 	}
@@ -360,11 +360,11 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	@Override
 	public void mouseClicked(final MouseEvent event)
 	{
-		if (getClientUI().getTurnMode() == ClientUI.State.PLACE_TILE)
+		if (getClientUI().getTurnMode() == GameWindow.State.PLACE_TILE)
 		{
 			placeTile(event.getPoint());
 		}
-		else if (getClientUI().getTurnMode() == ClientUI.State.PLACE_MEEPLE)
+		else if (getClientUI().getTurnMode() == GameWindow.State.PLACE_MEEPLE)
 		{
 			placeMeeple(event.getPoint());
 		}
