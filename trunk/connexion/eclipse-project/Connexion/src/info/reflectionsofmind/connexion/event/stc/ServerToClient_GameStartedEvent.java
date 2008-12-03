@@ -1,28 +1,46 @@
 package info.reflectionsofmind.connexion.event.stc;
 
+import info.reflectionsofmind.connexion.core.game.Game;
+import info.reflectionsofmind.connexion.core.game.GameUtil;
+import info.reflectionsofmind.connexion.remote.server.IRemoteServer.IListener;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
+import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 public class ServerToClient_GameStartedEvent extends ServerToClientEvent
 {
 	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":game-started";
-	public final static Coder CODER = new Coder();
 
 	private final String gameName;
 	private final String initialTileCode;
 	private final String currentTileCode;
 	private final Integer totalTiles;
 
-	public ServerToClient_GameStartedEvent( //
+	public ServerToClient_GameStartedEvent(final Game game)
+	{
+		this(//
+				game.getName(), // 
+				GameUtil.getInitialTile(game).getCode(), // 
+				game.getCurrentTile().getCode(), //
+				game.getSequence().getTotalNumberOfTiles());
+	}
+
+	private ServerToClient_GameStartedEvent( //
 			final String gameName, // 
 			final String initialTileCode, //
-			final String currentTileCode, final Integer totalTiles)
+			final String currentTileCode, //
+			final Integer totalTiles)
 	{
-		super();
 		this.gameName = gameName;
 		this.initialTileCode = initialTileCode;
 		this.currentTileCode = currentTileCode;
 		this.totalTiles = totalTiles;
+	}
+
+	@Override
+	public void dispatch(final IListener listener)
+	{
+		listener.onStart(this);
 	}
 
 	public String getGameName()
@@ -44,23 +62,23 @@ public class ServerToClient_GameStartedEvent extends ServerToClientEvent
 	{
 		return this.totalTiles;
 	}
-	
+
 	@Override
 	public String encode()
 	{
 		return CODER.encode(this);
 	}
 
-	public static class Coder extends AbstractCoder<ServerToClient_GameStartedEvent>
+	public final static ICoder<ServerToClient_GameStartedEvent> CODER = new AbstractCoder<ServerToClient_GameStartedEvent>()
 	{
 		@Override
-		public boolean accepts(String string)
+		public boolean accepts(final String string)
 		{
 			return string.startsWith(PREFIX);
 		}
 
 		@Override
-		public ServerToClient_GameStartedEvent decode(String string)
+		public ServerToClient_GameStartedEvent decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
 
@@ -70,7 +88,7 @@ public class ServerToClient_GameStartedEvent extends ServerToClientEvent
 		}
 
 		@Override
-		public String encode(ServerToClient_GameStartedEvent event)
+		public String encode(final ServerToClient_GameStartedEvent event)
 		{
 			return PREFIX // 
 					+ ":" + Util.encode(event.getGameName()) // 
@@ -78,5 +96,5 @@ public class ServerToClient_GameStartedEvent extends ServerToClientEvent
 					+ ":" + event.getCurrentTileCode()//
 					+ ":" + String.valueOf(event.getTotalNumberOfTiles());
 		}
-	}
+	};
 }

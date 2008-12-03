@@ -1,14 +1,15 @@
 package info.reflectionsofmind.connexion.event.stc;
 
 import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.remote.server.IRemoteServer.IListener;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
+import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 /** A turn event coming from server. */
 public class ServerToClient_TurnEvent extends ServerToClientEvent
 {
 	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":turn";
-	public final static Coder CODER = new Coder();
 
 	private final Turn turn;
 	private final String currentTileCode;
@@ -17,6 +18,12 @@ public class ServerToClient_TurnEvent extends ServerToClientEvent
 	{
 		this.turn = turn;
 		this.currentTileCode = currentTileCode;
+	}
+	
+	@Override
+	public void dispatch(IListener listener)
+	{
+		listener.onTurn(this);
 	}
 
 	public Turn getTurn()
@@ -28,23 +35,23 @@ public class ServerToClient_TurnEvent extends ServerToClientEvent
 	{
 		return this.currentTileCode;
 	}
-	
+
 	@Override
 	public String encode()
 	{
 		return CODER.encode(this);
 	}
 
-	public static class Coder extends AbstractCoder<ServerToClient_TurnEvent>
+	public final static ICoder<ServerToClient_TurnEvent> CODER = new AbstractCoder<ServerToClient_TurnEvent>()
 	{
 		@Override
-		public boolean accepts(String string)
+		public boolean accepts(final String string)
 		{
 			return string.startsWith(PREFIX);
 		}
 
 		@Override
-		public ServerToClient_TurnEvent decode(String string)
+		public ServerToClient_TurnEvent decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
 			final Turn turn = Turn.CODER.decode(Util.decode(tokens[0]));
@@ -53,9 +60,9 @@ public class ServerToClient_TurnEvent extends ServerToClientEvent
 		}
 
 		@Override
-		public String encode(ServerToClient_TurnEvent event)
+		public String encode(final ServerToClient_TurnEvent event)
 		{
 			return join(PREFIX, Util.encode(Turn.CODER.encode(event.getTurn())), event.getCurrentTileCode());
 		}
-	}
+	};
 }

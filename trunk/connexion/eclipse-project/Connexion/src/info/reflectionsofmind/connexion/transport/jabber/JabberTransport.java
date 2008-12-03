@@ -1,6 +1,8 @@
-package info.reflectionsofmind.connexion.local.server.transport;
+package info.reflectionsofmind.connexion.transport.jabber;
 
-import info.reflectionsofmind.connexion.transport.jabber.JabberAddress;
+import info.reflectionsofmind.connexion.transport.AbstractTransport;
+import info.reflectionsofmind.connexion.transport.IAddressee;
+import info.reflectionsofmind.connexion.transport.TransportException;
 
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
@@ -8,7 +10,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
-public class JabberTransport extends AbstractTransport implements PacketListener
+public class JabberTransport extends AbstractTransport<JabberTransport.Addressee> implements PacketListener
 {
 	private XMPPConnection connection;
 
@@ -20,11 +22,11 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	}
 
 	@Override
-	public void send(final ISender sender, final String string) throws TransportException
+	public void send(final Addressee sender, final String string) throws TransportException
 	{
-		if (!(sender instanceof Sender)) throw new TransportException("Invalid sender [" + sender + "] (expected a " + Sender.class.getName() + ").");
+		if (!(sender instanceof Addressee)) throw new TransportException("Invalid sender [" + sender + "] (expected a " + Addressee.class.getName() + ").");
 
-		final Sender jabberSender = (Sender) sender;
+		final Addressee jabberSender = (Addressee) sender;
 
 		final Message message = new Message(jabberSender.getAddress());
 		message.setBody(string);
@@ -33,7 +35,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	}
 
 	@Override
-	public void start() throws TransportException
+	protected void doFirstStart() throws TransportException
 	{
 		try
 		{
@@ -49,7 +51,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	}
 
 	@Override
-	public void stop() throws TransportException
+	protected void doFinalStop() throws TransportException
 	{
 		this.connection.disconnect();
 	}
@@ -65,17 +67,17 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	{
 		if (!(packet instanceof Message)) return;
 
-		final ISender sender = new Sender(packet.getFrom());
+		final Addressee sender = new Addressee(packet.getFrom());
 		final String string = ((Message) packet).getBody();
 		
 		fireMessage(sender, string);
 	}
 
-	public class Sender implements ISender
+	public class Addressee implements IAddressee
 	{
 		private final String address;
 
-		public Sender(final String address)
+		public Addressee(final String address)
 		{
 			this.address = address;
 		}

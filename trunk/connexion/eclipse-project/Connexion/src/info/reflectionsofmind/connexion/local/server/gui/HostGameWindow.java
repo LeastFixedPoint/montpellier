@@ -1,11 +1,9 @@
 package info.reflectionsofmind.connexion.local.server.gui;
 
 import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
-import info.reflectionsofmind.connexion.local.server.gui.ClientPanel.State;
+import info.reflectionsofmind.connexion.local.server.ServerUtil;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -22,13 +20,13 @@ public class HostGameWindow extends JFrame
 
 	private final JButton startButton;
 	private final ConfigPanel configPanel;
-	private final JButton addClientButton;
+	private final ClientsPanel clientsPanel;
 
 	public HostGameWindow()
 	{
 		super("Connexion :: Server");
 
-		this.server = new DefaultLocalServer(this);
+		this.server = new DefaultLocalServer();
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
@@ -39,28 +37,14 @@ public class HostGameWindow extends JFrame
 
 		add(new JLabel("Clients:"), "span");
 
-		add(new ClientsPanel(this));
+		this.clientsPanel = new ClientsPanel(this);
+		add(this.clientsPanel);
 
 		this.startButton = new JButton(new StartAction());
 		add(this.startButton, "w 120, right");
 
 		pack();
 		setLocationRelativeTo(null);
-	}
-
-	public void updateInterface()
-	{
-
-	}
-
-	public void onClientConnected(final ClientPanel panel)
-	{
-		this.server.add(panel.getClient());
-	}
-
-	public void onClientDisconnected(final ClientPanel panel)
-	{
-		this.server.remove(panel.getClient());
 	}
 
 	// ====================================================================================================
@@ -88,26 +72,14 @@ public class HostGameWindow extends JFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			boolean atLeastOneClient = false;
-
-			for (final ClientPanel panel : HostGameWindow.this.panels)
+			if (ServerUtil.getPlayers(getServer()).isEmpty())
 			{
-				atLeastOneClient = atLeastOneClient || panel.getState() == State.CONNECTED;
-			}
-
-			if (!atLeastOneClient)
-			{
-				JOptionPane.showMessageDialog(HostGameWindow.this, "You must have at least one client connected!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(HostGameWindow.this, "You must have at least one player!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
-			HostGameWindow.this.addClientButton.setEnabled(false);
-			HostGameWindow.this.configPanel.fade();
-
-			for (final ClientPanel panel : HostGameWindow.this.panels)
-			{
-				panel.fade();
-			}
+			HostGameWindow.this.configPanel.setEnabled(false);
+			HostGameWindow.this.clientsPanel.setEnabled(false);
 
 			setEnabled(false);
 

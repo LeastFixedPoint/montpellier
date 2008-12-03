@@ -10,20 +10,20 @@ public class ServerToClientDecoder
 {
 	private final static List<ICoder<?>> CODERS = // 
 	ImmutableList.<ICoder<?>> of( //
-			new ServerToClient_ConnectionAcceptedEvent.Coder(), // 
-			new ServerToClient_PlayerDisconnectedEvent.Coder(), //
-			new ServerToClient_GameStartedEvent.Coder(), //
-			new ServerToClient_MessageEvent.Coder(), //
-			new ServerToClient_PlayerConnectedEvent.Coder(), //
-			new ServerToClient_TurnEvent.Coder());
+			ServerToClient_ConnectionAcceptedEvent.CODER, // 
+			ServerToClient_PlayerDisconnectedEvent.CODER, //
+			ServerToClient_GameStartedEvent.CODER, //
+			ServerToClient_MessageEvent.CODER, //
+			ServerToClient_PlayerConnectedEvent.CODER, //
+			ServerToClient_TurnEvent.CODER);
 
-	public ServerToClientEvent decode(String string)
+	public static ServerToClientEvent decode(String string)
 	{
-		for (ICoder<?> coder : CODERS)
+		for (ICoder<?> decoder : CODERS)
 		{
-			if (coder.accepts(string))
+			if (decoder.accepts(string))
 			{
-				return (ServerToClientEvent) coder.decode(string);
+				return (ServerToClientEvent) decoder.decode(string);
 			}
 		}
 

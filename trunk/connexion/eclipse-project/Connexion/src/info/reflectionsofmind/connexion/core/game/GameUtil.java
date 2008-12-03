@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public class GameUtil
 {
@@ -27,22 +28,35 @@ public class GameUtil
 			}
 		});
 	}
-	
-	public static Meeple getFreeMeepleOfType(Board board, Player player, Meeple.Type type)
+
+	public static Meeple getFreeMeepleOfType(final Board board, final Player player, final Meeple.Type type)
 	{
-		for (Meeple meeple : player.getMeeples())
+		for (final Meeple meeple : player.getMeeples())
 		{
 			if (!board.getMeeples().contains(meeple) && meeple.getType() == type)
 			{
 				return meeple;
 			}
 		}
-		
+
 		return null;
 	}
 
-	public static Tile getInitialTile(Game game)
+	public static Tile getInitialTile(final Game game)
 	{
 		return game.getBoard().getPlacements().get(0).getTile();
+	}
+
+	public static List<String> getNames(final List<Player> players)
+	{
+		return Lists.transform(players, // 
+				new Function<Player, String>()
+				{
+					@Override
+					public String apply(final Player player)
+					{
+						return player.getName();
+					}
+				});
 	}
 }

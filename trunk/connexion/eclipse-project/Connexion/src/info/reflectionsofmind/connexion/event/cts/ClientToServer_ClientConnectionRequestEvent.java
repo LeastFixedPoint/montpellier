@@ -1,12 +1,14 @@
 package info.reflectionsofmind.connexion.event.cts;
 
+import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.remote.client.IRemoteClient.IListener;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
+import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerEvent
 {
 	private final static String PREFIX = ClientToServerEvent.EVENT_PREFIX + ":connection-request";
-	public final static Coder CODER = new Coder();
 
 	private final String playerName;
 
@@ -14,28 +16,35 @@ public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerE
 	{
 		this.playerName = playerName;
 	}
+	
+	@Override
+	public void dispatch(IRemoteClient sender, IListener listener)
+	{
+		listener.onConnectionRequest(sender, this);
+	}
 
 	public String getPlayerName()
 	{
 		return this.playerName;
 	}
-	
+
 	@Override
 	public String encode()
 	{
 		return CODER.encode(this);
 	}
-	
-	public static class Coder extends AbstractCoder<ClientToServer_ClientConnectionRequestEvent>
+
+	public final static ICoder<ClientToServer_ClientConnectionRequestEvent> CODER = // 
+	new AbstractCoder<ClientToServer_ClientConnectionRequestEvent>()
 	{
 		@Override
-		public boolean accepts(String string)
+		public boolean accepts(final String string)
 		{
 			return string.startsWith(PREFIX);
 		}
 
 		@Override
-		public ClientToServer_ClientConnectionRequestEvent decode(String string)
+		public ClientToServer_ClientConnectionRequestEvent decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
 			final String playerName = Util.decode(tokens[0]);
@@ -43,9 +52,9 @@ public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerE
 		}
 
 		@Override
-		public String encode(ClientToServer_ClientConnectionRequestEvent event)
+		public String encode(final ClientToServer_ClientConnectionRequestEvent event)
 		{
 			return join(PREFIX, Util.encode(event.getPlayerName()));
 		}
-	}
+	};
 }
