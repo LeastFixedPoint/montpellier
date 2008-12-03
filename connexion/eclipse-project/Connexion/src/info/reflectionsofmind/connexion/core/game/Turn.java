@@ -7,11 +7,10 @@ import info.reflectionsofmind.connexion.core.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Geometry;
 import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Location;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
+import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 public class Turn
 {
-	public static final Coder CODER = new Coder(); 
-	
 	private final boolean advancePlayer;
 
 	private IDirection direction;
@@ -66,7 +65,7 @@ public class Turn
 		return this.advancePlayer;
 	}
 
-	public static class Coder extends AbstractCoder<Turn>
+	public static final ICoder<Turn> CODER = new AbstractCoder<Turn>()
 	{
 		public boolean accepts(String string)
 		{
@@ -100,5 +99,5 @@ public class Turn
 
 			return turn;
 		}
-	}
+	};
 }

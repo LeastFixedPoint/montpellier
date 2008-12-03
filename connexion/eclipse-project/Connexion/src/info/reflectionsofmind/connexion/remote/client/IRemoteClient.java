@@ -1,41 +1,15 @@
 package info.reflectionsofmind.connexion.remote.client;
 
-import java.util.List;
-
-import info.reflectionsofmind.connexion.core.game.Game;
-import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent.Reason;
-import info.reflectionsofmind.connexion.local.server.ServerSideDisconnectReason;
-import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
+import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
+import info.reflectionsofmind.connexion.transport.TransportException;
 
 public interface IRemoteClient
 {
-	/** Call this to notify that its connection is accepted. */
-	void acceptConnection(List<Player> existingPlayers);
-	
-	/** Call this to notify that it is disconnected. */
-	void disconnect(ServerSideDisconnectReason reason) throws ClientConnectionException;
-	
-	/** Call this to notify client about a game start. */
-	void sendStart(Game game) throws ClientConnectionException;
-	
-	/** Call this to notify client about a turn. */
-	void sendTurn(Turn turn, Tile newCurrentTile) throws ClientConnectionException;
-	
-	/** Call this to route a message to client. */
-	void sendMessage(int playerIndex, String message) throws ClientConnectionException;
-	
-	/** Call this to tell client someone has connected. */
-	void sendPlayerConnected(Player player);
-	
-	/** Call this to tell client someone has disconnected. */
-	void sendPlayerDisconnected(int playerIndex, ClientSideDisconnectReason reason);
+	void sendEvent(ServerToClientEvent event) throws TransportException;
 	
 	String getName();
 	

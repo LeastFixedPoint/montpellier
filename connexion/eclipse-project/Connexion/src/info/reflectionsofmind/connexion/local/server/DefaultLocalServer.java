@@ -5,7 +5,6 @@ import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
-import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.game.sequence.RandomTileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
@@ -14,31 +13,25 @@ import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnec
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
-import info.reflectionsofmind.connexion.local.server.gui.HostGameWindow;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.remote.client.connector.IClientConnector;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
-import info.reflectionsofmind.connexion.util.Util;
+import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
 public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 {
-	private final List<ISlot> slots = new ArrayList<ISlot>();
+	private final static List<ITransport<?>> TRANSPORTS = ImmutableList.<ITransport<?>>of(new JabberTransport(null));
+	
+	private final List<ISlot<?>> slots = new ArrayList<ISlot<?>>();
 
 	private Game game;
 	private ITileSource tileSource;
@@ -47,16 +40,15 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	// === IMPLEMENTATION
 	// ====================================================================================================
 
-	public void addSlot(ISlot slot)
+	public void addSlot(ISlot<?> slot)
 	{
 		if (this.game != null) throw new RuntimeException("Game already started.");
-
-		slot.init(this);
+		this.slots.add(slot);
 	}
 
 	private void sendStartEvents(final Tile initialTile)
 	{
-		for (final ISlot slot : this.slots)
+		for (final ISlot<?> slot : this.slots)
 		{
 			if (slot.getState() == ISlot.State.CONNECTED)
 			{
@@ -85,13 +77,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 				tiles.add(new Tile(tileData.getCode()));
 			}
 
-			final List<Player> players = new ArrayList<Player>();
-			for (ISlot slot : this.slots)
-			{
-				players.add(slot.getPlayer());
-			}
-
-			this.game = new Game(name, new RandomTileSequence(tiles), players);
+			this.game = new Game(name, new RandomTileSequence(tiles), ServerUtil.getPlayers(this));
 		}
 		catch (final IOException exception)
 		{
@@ -149,19 +135,33 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	{
 		return this.tileSource;
 	}
+	
+	@Override
+	public List<ISlot<?>> getSlots()
+	{
+		return ImmutableList.copyOf(this.slots);
+	}
+	
+	@Override
+	public List<ITransport<?>> getTransports()
+	{
+		return ImmutableList.copyOf(TRANSPORTS);
+	}
 
 	// ============================================================================================
 	// === HANDLERS
 	// ============================================================================================
 
 	@Override
-	public synchronized void onConnectionRequest(ISlot senderSlot, ClientToServer_ClientConnectionRequestEvent event)
+	public void onConnectionRequest(IRemoteClient sender, ClientToServer_ClientConnectionRequestEvent event)
 	{
+		final ISlot<?> senderSlot = ServerUtil.getSlotByClient(this, sender);
+		
 		final Player player = new Player(event.getPlayerName());
 		senderSlot.accept(player);
-		senderSlot.getClient().acceptConnection(ServerUtil.getPlayers(this));
+		sender.sendConnectionAccepted(ServerUtil.getPlayers(this));
 		
-		for (ISlot slot : ServerUtil.getConnectedSlots(this))
+		for (ISlot<?> slot : ServerUtil.getConnectedSlots(this))
 		{
 			if (slot != senderSlot)
 			{
@@ -184,8 +184,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 		}
 		catch (final GameTurnException exception)
 		{
-			// TODO Server doesn't care about client's desync?
-			exception.printStackTrace();
+			ServerUtil.getSlotByClient(this, sender).disconnect(DisconnectReason.DESYNCHRONIZATION);
 			return;
 		}
 
@@ -198,7 +197,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 			}
 			catch (final ClientConnectionException exception)
 			{
-				exception.printStackTrace();
+				ServerUtil.getSlotByClient(this, sender).disconnect(DisconnectReason.CONNECTION_FAILURE);
 			}
 		}
 	}

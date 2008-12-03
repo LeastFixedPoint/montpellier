@@ -14,29 +14,30 @@ import net.miginfocom.swing.MigLayout;
 public class ClientsPanel extends JPanel
 {
 	private final HostGameWindow window;
-
+	private final JButton addSlotButton;
 	private final List<ClientPanel> panels = new ArrayList<ClientPanel>();
-	
-	public ClientsPanel(HostGameWindow window)
+
+	public ClientsPanel(final HostGameWindow window)
 	{
 		this.window = window;
-		
+
 		setLayout(new MigLayout("", "[]", "[]"));
-		
-		add(new JButton("Add another client"));
-		
+
+		this.addSlotButton = new JButton("Add another slot");
+		add(this.addSlotButton);
+
 		addPanel();
 		addPanel();
 	}
-	
+
 	private void addPanel()
 	{
-		ClientPanel panel = new ClientPanel(this);
+		final ClientPanel panel = new ClientPanel(this);
 		this.panels.add(panel);
-		
-		((MigLayout)this.getLayout()).setRowConstraints(Util.copy(this.panels.size(), "[]6") + "[]");
+
+		((MigLayout) getLayout()).setRowConstraints(Util.copy(this.panels.size(), "[]6") + "[]");
 		add(panel, new CC().spanX().cell(0, 1 + this.panels.indexOf(panel)));
-		
+
 		getLayout().layoutContainer(this);
 	}
 
@@ -49,9 +50,20 @@ public class ClientsPanel extends JPanel
 			getLayout().layoutContainer(this);
 		}
 	}
-	
+
 	public HostGameWindow getWindow()
 	{
 		return this.window;
+	}
+
+	@Override
+	public void setEnabled(final boolean enabled)
+	{
+		for (final ClientPanel panel : this.panels)
+		{
+			panel.setEnabled(enabled);
+		}
+
+		this.addSlotButton.setEnabled(enabled);
 	}
 }

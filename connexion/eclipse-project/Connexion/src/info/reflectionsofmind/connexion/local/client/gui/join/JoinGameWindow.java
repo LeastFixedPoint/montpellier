@@ -154,13 +154,13 @@ public class JoinGameWindow extends JFrame implements IRemoteServer.IListener
 	}
 
 	@Override
-	public void onPlayerConnect(final ServerToClient_PlayerConnectedEvent event)
+	public void onPlayerConnected(final ServerToClient_PlayerConnectedEvent event)
 	{
 
 	}
 
 	@Override
-	public void onPlayerDisconnect(final ServerToClient_PlayerDisconnectedEvent event)
+	public void onPlayerDisconnected(final ServerToClient_PlayerDisconnectedEvent event)
 	{
 
 	}

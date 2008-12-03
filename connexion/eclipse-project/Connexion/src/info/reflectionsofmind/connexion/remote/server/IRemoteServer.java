@@ -30,10 +30,10 @@ public interface IRemoteServer
 		void onConnectionAccepted(ServerToClient_ConnectionAcceptedEvent event);
 		
 		/** This is called when someone connects. */
-		void onPlayerConnect(ServerToClient_PlayerConnectedEvent event);
+		void onPlayerConnected(ServerToClient_PlayerConnectedEvent event);
 		
 		/** This is called when someone disconnects. */
-		void onPlayerDisconnect(ServerToClient_PlayerDisconnectedEvent event);
+		void onPlayerDisconnected(ServerToClient_PlayerDisconnectedEvent event);
 		
 		/** This is called when someone makes a turn. */
 		void onTurn(ServerToClient_TurnEvent event);

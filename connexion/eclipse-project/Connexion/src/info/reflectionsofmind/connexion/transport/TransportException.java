@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.server.transport;
+package info.reflectionsofmind.connexion.transport;
 
 public class TransportException extends Exception
 {

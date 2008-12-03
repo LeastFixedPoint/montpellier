@@ -96,13 +96,13 @@ public class DefaultGuiClient implements IClient, IRemoteServer.IListener
 	}
 	
 	@Override
-	public synchronized void onPlayerConnect(ServerToClient_PlayerConnectedEvent event)
+	public synchronized void onPlayerConnected(ServerToClient_PlayerConnectedEvent event)
 	{
 		this.players.add(new Player(event.getPlayerName()));
 	}
 	
 	@Override
-	public synchronized void onPlayerDisconnect(ServerToClient_PlayerDisconnectedEvent event)
+	public synchronized void onPlayerDisconnected(ServerToClient_PlayerDisconnectedEvent event)
 	{
 		this.players.remove(event.getPlayerIndex());
 	}

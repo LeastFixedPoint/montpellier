@@ -1,20 +1,16 @@
 package info.reflectionsofmind.connexion.local.server.slot;
 
 import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.local.server.ServerSideDisconnectReason;
-import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.local.server.transport.ITransport;
+import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.transport.ITransport;
 
-public interface ISlot
+public interface ISlot<TransportType extends ITransport<?>>
 {
 	public enum State
 	{
-		INIT, CLOSED, OPEN, CONNECTED, ACCEPTED, SPECTATOR, ERROR
+		CLOSED, OPEN, CONNECTED, ACCEPTED, ERROR
 	}
-
-	/** {@link State#INIT} to {@link State#CLOSED} */
-	void init(final IServer server);           
 
 	/** {@link State#CLOSED} to {@link State#OPEN} */
 	void open();                               
@@ -25,22 +21,19 @@ public interface ISlot
 	/** {@link State#CONNECTED} to {@link State#ACCEPTED} */
 	void accept(Player player);
 	
-	/** {@link State#CONNECTED} to {@link State#SPECTATOR} */
-	void spectate();
-	
-	/** {@link State#CONNECTED}, {@link State#ACCEPTED}, {@link State#SPECTATOR} to {@link State#CLOSED} */
-	void disconnect(ServerSideDisconnectReason reason);
+	/** {@link State#CONNECTED}, {@link State#ACCEPTED} to {@link State#CLOSED} */
+	void disconnect(DisconnectReason reason);
 
 	State getState();
 	IRemoteClient getClient();
 	Player getPlayer();
 	Exception getError();
-	ITransport getTransport();
+	TransportType getTransport();
 	
 	void addListener(IListener listener);
 
 	public interface IListener
 	{
-		void onConnected();
+		void onAfterSlotStateChange(State previousState);
 	}
 }

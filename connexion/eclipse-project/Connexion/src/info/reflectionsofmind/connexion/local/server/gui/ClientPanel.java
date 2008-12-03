@@ -1,11 +1,13 @@
 package info.reflectionsofmind.connexion.local.server.gui;
 
-import info.reflectionsofmind.connexion.remote.client.ClientType;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.remote.client.connector.IClientConnector;
+import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.local.server.slot.ISlot;
+import info.reflectionsofmind.connexion.local.server.slot.Slot;
+import info.reflectionsofmind.connexion.local.server.slot.ISlot.State;
+import info.reflectionsofmind.connexion.transport.IAddressee;
+import info.reflectionsofmind.connexion.transport.ITransport;
 
 import java.awt.event.ActionEvent;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -17,18 +19,9 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jvnet.substance.SubstanceLookAndFeel;
 
-import com.google.common.collect.ImmutableMap;
-
-class ClientPanel extends JPanel
+class ClientPanel extends JPanel implements ISlot.IListener
 {
 	private static final long serialVersionUID = 1L;
-
-	private static final Map<String, ClientType> CLIENT_TYPES = // 
-	new ImmutableMap.Builder<String, ClientType>() //
-			.put("Local", ClientType.LOCAL) //
-			.put("Bot", ClientType.BOT) //
-			.put("Jabber", ClientType.JABBER) //
-			.build();
 
 	private final ClientsPanel panel;
 
@@ -37,9 +30,7 @@ class ClientPanel extends JPanel
 	private final JButton listenButton;
 	private final JButton removeButton;
 
-	private State state = State.WAITING;
-	private IRemoteClient client;
-	private IClientConnector connector;
+	private ISlot<?> slot;
 
 	public ClientPanel(final ClientsPanel panel)
 	{
@@ -50,7 +41,7 @@ class ClientPanel extends JPanel
 		this.removeButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, Boolean.TRUE);
 		add(this.removeButton, "grow");
 
-		this.clientTypeCombo = new JComboBox(CLIENT_TYPES.keySet().toArray());
+		this.clientTypeCombo = new JComboBox(panel.getWindow().getServer().getTransports().toArray());
 		add(this.clientTypeCombo, "grow");
 
 		this.listenButton = new JButton(new ListenAction());
@@ -60,69 +51,61 @@ class ClientPanel extends JPanel
 		add(this.statusLabel, "grow");
 	}
 
+	@Override
+	public void onAfterSlotStateChange(final State previousState)
+	{
+		switch (getSlot().getState())
+		{
+			case CLOSED:
+				this.statusLabel.setText("");
+				break;
+			case OPEN:
+				this.statusLabel.setText("Listening...");
+				break;
+			case CONNECTED:
+				this.statusLabel.setText("Client [" + getSlot().getClient().getName() + "] connected.");
+				break;
+			case ACCEPTED:
+				this.statusLabel.setText("Player [" + getSlot().getPlayer().getName() + "] accepted into the game.");
+				break;
+			case ERROR:
+				this.statusLabel.setText("Error :" + getSlot().getError().getLocalizedMessage() + ".");
+				break;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public void listen()
 	{
-		if (this.state != State.WAITING) throw new IllegalStateException();
-
 		this.listenButton.setAction(new CancelAction());
 		this.clientTypeCombo.setEnabled(false);
 		this.removeButton.setEnabled(false);
 
-		final ClientType clientType = CLIENT_TYPES.get(this.clientTypeCombo.getSelectedItem());
+		final ITransport<IAddressee> transport = (ITransport<IAddressee>) this.clientTypeCombo.getSelectedItem();
 
-		final IClientConnector connector = clientType.getConnector(this.panel.getWindow().getServer());
-		connector.addListener(new IClientConnector.IListener()
-		{
-			@Override
-			public void onConnected(final IRemoteClient client)
-			{
-				ClientPanel.this.onConnected(client);
-			}
-		});
-
-		this.state = State.LISTENING;
-		connector.startListening();
-	}
-
-	private void onConnected(final IRemoteClient client)
-	{
-		this.connector = null;
-		this.client = client;
-		this.listenButton.setAction(new DisconnectAction());
-		this.statusLabel.setText("Connected as [" + client.getName() + "].");
-		this.state = State.CONNECTED;
-
-		this.panel.getWindow().onClientConnected(ClientPanel.this);
+		this.slot = new Slot<IAddressee, ITransport<IAddressee>>(this.panel.getWindow().getServer(), transport);
+		this.slot.addListener(this);
+		this.slot.open();
 	}
 
 	public void cancel()
 	{
-		if (this.state != State.LISTENING) throw new IllegalStateException();
+		this.slot.close();
 
-		this.connector.stopListening();
-
-		this.connector = null;
-		this.client = null;
 		this.listenButton.setAction(new ListenAction());
 		this.clientTypeCombo.setEnabled(true);
 		this.removeButton.setEnabled(true);
 		this.statusLabel.setText("Cancelled.");
-		this.state = State.WAITING;
 	}
 
 	public void disconnect()
 	{
-		if (this.state != State.CONNECTED) throw new IllegalStateException();
+		this.slot.disconnect(DisconnectReason.SERVER_REQUEST);
 
-		this.connector = null;
-		this.client = null;
-		this.state = State.WAITING;
 		this.listenButton.setAction(new ListenAction());
 		this.clientTypeCombo.setEnabled(true);
 		this.removeButton.setEnabled(true);
 		this.statusLabel.setText("Disconnected.");
-
-		this.panel.getWindow().onClientDisconnected(this);
 	}
 
 	public void fade()
@@ -130,16 +113,11 @@ class ClientPanel extends JPanel
 		this.listenButton.setEnabled(false);
 		this.clientTypeCombo.setEnabled(false);
 		this.removeButton.setEnabled(false);
-	}	
-
-	public State getState()
-	{
-		return this.state;
 	}
 
-	public IRemoteClient getClient()
+	public ISlot<?> getSlot()
 	{
-		return this.client;
+		return this.slot;
 	}
 
 	// ====================================================================================================
@@ -200,14 +178,5 @@ class ClientPanel extends JPanel
 		{
 			disconnect();
 		}
-	}
-
-	// ====================================================================================================
-	// === STATE
-	// ====================================================================================================
-
-	public enum State
-	{
-		WAITING, LISTENING, CONNECTED
 	}
 }

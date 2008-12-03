@@ -10,24 +10,25 @@ import net.miginfocom.swing.MigLayout;
 
 public class ConfigPanel extends JPanel
 {
-	private JTextField nameField;
+	private final JTextField nameField;
 
-	public ConfigPanel(HostGameWindow serverUI) throws HeadlessException
+	public ConfigPanel(final HostGameWindow serverUI) throws HeadlessException
 	{
 		setLayout(new MigLayout("ins 0", "[240]", "[]6[]"));
-		
+
 		add(new JLabel("Game name:"), "span");
-		nameField = new JTextField("Test game");
-		add(nameField, "grow, span");
+		this.nameField = new JTextField("Test game");
+		add(this.nameField, "grow, span");
 	}
-	
+
 	public String getGameName()
 	{
 		return this.nameField.getText();
 	}
-	
-	public void fade()
+
+	@Override
+	public void setEnabled(final boolean enabled)
 	{
-		this.nameField.setEditable(false);
+		this.nameField.setEditable(enabled);
 	}
 }

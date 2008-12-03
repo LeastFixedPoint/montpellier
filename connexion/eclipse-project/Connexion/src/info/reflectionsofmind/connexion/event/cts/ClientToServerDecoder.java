@@ -10,12 +10,12 @@ public class ClientToServerDecoder
 {
 	private final static List<ICoder<?>> CODERS = // 
 	ImmutableList.<ICoder<?>> of( //
-			new ClientToServer_ClientConnectionRequestEvent.Coder(), // 
-			new ClientToServer_ClientDisconnectedEvent.Coder(), //
-			new ClientToServer_MessageEvent.Coder(), //
-			new ClientToServer_TurnEvent.Coder());
+			ClientToServer_ClientConnectionRequestEvent.CODER, // 
+			ClientToServer_ClientDisconnectedEvent.CODER, //
+			ClientToServer_MessageEvent.CODER, //
+			ClientToServer_TurnEvent.CODER);
 
-	public ClientToServerEvent decode(String string)
+	public static ClientToServerEvent decode(String string)
 	{
 		for (ICoder<?> coder : CODERS)
 		{
