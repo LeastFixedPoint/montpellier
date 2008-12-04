@@ -18,7 +18,7 @@ public class ChatPane extends JEditorPane
 		putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
 	}
 
-	public void writeMessage(final String name, final String message)
+	public void writeRaw(final String text)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -30,7 +30,7 @@ public class ChatPane extends JEditorPane
 					final HTMLDocument document = (HTMLDocument) getDocument();
 					final AbstractElement element = (AbstractElement) document.getRootElements()[0].getElement(0).getElement(0);
 
-					document.insertBeforeEnd(element, "<font color=red>" + name + ":</font> " + message + "<br>");
+					document.insertBeforeEnd(element, text);
 				}
 				catch (final IOException exception)
 				{
@@ -44,29 +44,13 @@ public class ChatPane extends JEditorPane
 		});
 	}
 
+	public void writeMessage(final String name, final String message)
+	{
+		writeRaw("<font color=red>" + name + ":</font> " + message + "<br>");
+	}
+
 	public void writeSystem(final String text)
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					final HTMLDocument document = (HTMLDocument) getDocument();
-					final AbstractElement element = (AbstractElement) document.getRootElements()[0].getElement(0).getElement(0);
-
-					document.insertBeforeEnd(element, "<font color=green>" + text + "</font><br>");
-				}
-				catch (final IOException exception)
-				{
-					throw new RuntimeException(exception);
-				}
-				catch (final BadLocationException exception)
-				{
-					throw new RuntimeException(exception);
-				}
-			}
-		});
+		writeRaw("<font color=green>" + text + "</font><br>");
 	}
 }

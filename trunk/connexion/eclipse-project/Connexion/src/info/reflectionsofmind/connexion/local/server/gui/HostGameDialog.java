@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.local.server.gui;
 
+import info.reflectionsofmind.connexion.MainWindow;
 import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
 
@@ -7,13 +8,13 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameWindow extends JFrame
+public class HostGameDialog extends JDialog
 {
 	private static final long serialVersionUID = 1L;
 	private final DefaultLocalServer server;
@@ -22,11 +23,11 @@ public class HostGameWindow extends JFrame
 	private final ConfigPanel configPanel;
 	private final ClientsPanel clientsPanel;
 
-	public HostGameWindow()
+	public HostGameDialog(final MainWindow parent)
 	{
-		super("Connexion :: Server");
+		super(parent, "Connexion :: Host game", true);
 
-		this.server = new DefaultLocalServer();
+		this.server = new DefaultLocalServer(parent.getApplication().getSettings());
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
@@ -74,16 +75,16 @@ public class HostGameWindow extends JFrame
 		{
 			if (ServerUtil.getPlayers(getServer()).isEmpty())
 			{
-				JOptionPane.showMessageDialog(HostGameWindow.this, "You must have at least one player!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(HostGameDialog.this, "You must have at least one player!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
-			HostGameWindow.this.configPanel.setEnabled(false);
-			HostGameWindow.this.clientsPanel.setEnabled(false);
+			HostGameDialog.this.configPanel.setEnabled(false);
+			HostGameDialog.this.clientsPanel.setEnabled(false);
 
 			setEnabled(false);
 
-			HostGameWindow.this.server.startGame(HostGameWindow.this.configPanel.getGameName());
+			HostGameDialog.this.server.startGame(HostGameDialog.this.configPanel.getGameName());
 		}
 	}
 }

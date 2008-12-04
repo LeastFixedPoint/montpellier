@@ -1,5 +1,7 @@
 package info.reflectionsofmind.connexion;
 
+import info.reflectionsofmind.connexion.local.client.Settings;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -9,6 +11,8 @@ import org.jvnet.substance.skin.SubstanceBusinessLookAndFeel;
 
 public class Application
 {
+	private Settings settings;
+	
 	public static void main(final String[] args)
 	{
 		new Application().start();
@@ -16,6 +20,9 @@ public class Application
 
 	private void start()
 	{
+		this.settings = new Settings();
+		this.settings.load();
+		
 		try
 		{
 			JFrame.setDefaultLookAndFeelDecorated(true);
@@ -25,8 +32,7 @@ public class Application
 			{
 				public void run()
 				{
-//					new ServerUI().setVisible(true);
-					new MainWindow().setVisible(true);
+					new MainWindow(Application.this).setVisible(true);
 				}
 			});
 		}
@@ -35,5 +41,10 @@ public class Application
 			JOptionPane.showMessageDialog(null, "Internal error", "Connexion", JOptionPane.ERROR_MESSAGE);
 			exception.printStackTrace();
 		}
+	}
+
+	public Settings getSettings()
+	{
+		return this.settings;
 	}
 }

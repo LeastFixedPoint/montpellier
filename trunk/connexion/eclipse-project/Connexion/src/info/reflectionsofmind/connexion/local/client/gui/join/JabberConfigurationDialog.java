@@ -16,13 +16,11 @@ public class JabberConfigurationDialog extends JDialog
 {
 	private final JTextField nameField;
 	private final JTextField serverField;
-	private final JTextField clientField;
 
 	private String playerName;
 	private JabberAddress server;
-	private JabberAddress client;
 	
-	public JabberConfigurationDialog(final JoinGameWindow owner)
+	public JabberConfigurationDialog(final JoinGameDialog owner)
 	{
 		super(owner, "Connexion :: Join game :: Jabber", true);
 
@@ -35,10 +33,6 @@ public class JabberConfigurationDialog extends JDialog
 		add(new JLabel("Server"), "grow");
 		this.serverField = new JTextField("shooshpanchick@gmail.com/connexion-server");
 		add(this.serverField, "grow, span");
-
-		add(new JLabel("Client"), "grow");
-		this.clientField = new JTextField("connexion:connexion@binaryfreedom.info:5222/connexion-client");
-		add(this.clientField, "grow, span");
 
 		add(new JButton(new AbstractAction("Join game")
 		{
@@ -65,7 +59,6 @@ public class JabberConfigurationDialog extends JDialog
 	{
 		this.playerName = this.nameField.getText();
 		this.server = new JabberAddress(this.serverField.getText());
-		this.client = new JabberAddress(this.clientField.getText());
 		
 		dispose();
 	}
@@ -83,10 +76,5 @@ public class JabberConfigurationDialog extends JDialog
 	public JabberAddress getServer()
 	{
 		return this.server;
-	}
-
-	public JabberAddress getClient()
-	{
-		return this.client;
 	}
 }

@@ -4,7 +4,7 @@ import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
 import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
 
-public class JabberSlot extends Slot<JabberTransport.Addressee, JabberTransport>
+public class JabberSlot extends Slot<JabberTransport.JabberNode, JabberTransport>
 {
 	public JabberSlot(IServer server)
 	{
@@ -12,7 +12,7 @@ public class JabberSlot extends Slot<JabberTransport.Addressee, JabberTransport>
 	}
 
 	@Override
-	public void onMessage(JabberTransport.Addressee from, String message)
+	public void onMessage(JabberTransport.JabberNode from, String message)
 	{
 		
 	}

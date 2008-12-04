@@ -1,16 +1,18 @@
 package info.reflectionsofmind.connexion.transport.jabber;
 
 import info.reflectionsofmind.connexion.transport.AbstractTransport;
-import info.reflectionsofmind.connexion.transport.IAddressee;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
+import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
-public class JabberTransport extends AbstractTransport<JabberTransport.Addressee> implements PacketListener
+public class JabberTransport extends AbstractTransport<JabberTransport.JabberNode> implements PacketListener
 {
 	private XMPPConnection connection;
 
@@ -20,17 +22,12 @@ public class JabberTransport extends AbstractTransport<JabberTransport.Addressee
 	{
 		this.address = address;
 	}
-
+	
 	@Override
-	public void send(final Addressee sender, final String string) throws TransportException
+	public void send(final JabberNode to, final String string) throws TransportException
 	{
-		if (!(sender instanceof Addressee)) throw new TransportException("Invalid sender [" + sender + "] (expected a " + Addressee.class.getName() + ").");
-
-		final Addressee jabberSender = (Addressee) sender;
-
-		final Message message = new Message(jabberSender.getAddress());
+		final Message message = new Message(to.getAddress().asString());
 		message.setBody(string);
-
 		this.connection.sendPacket(message);
 	}
 
@@ -39,6 +36,11 @@ public class JabberTransport extends AbstractTransport<JabberTransport.Addressee
 	{
 		try
 		{
+			
+			final ConnectionConfiguration configuration = new ConnectionConfiguration( //
+					this.address.getHost(), this.address.getPort());
+			SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+			this.connection = new XMPPConnection(configuration);
 			this.connection.connect();
 			this.connection.login(this.address.getLogin(), this.address.getPassword());
 
@@ -67,22 +69,22 @@ public class JabberTransport extends AbstractTransport<JabberTransport.Addressee
 	{
 		if (!(packet instanceof Message)) return;
 
-		final Addressee sender = new Addressee(packet.getFrom());
+		final JabberNode sender = new JabberNode(new JabberAddress(packet.getFrom()));
 		final String string = ((Message) packet).getBody();
 		
 		fireMessage(sender, string);
 	}
 
-	public class Addressee implements IAddressee
+	public class JabberNode implements INode
 	{
-		private final String address;
+		private final JabberAddress address;
 
-		public Addressee(final String address)
+		public JabberNode(final JabberAddress address)
 		{
 			this.address = address;
 		}
 
-		public String getAddress()
+		public JabberAddress getAddress()
 		{
 			return this.address;
 		}

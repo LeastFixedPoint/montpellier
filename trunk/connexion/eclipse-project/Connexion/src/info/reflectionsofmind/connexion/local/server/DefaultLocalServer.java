@@ -12,13 +12,18 @@ import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectio
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
-import info.reflectionsofmind.connexion.local.server.exception.ClientConnectionException;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
+import info.reflectionsofmind.connexion.local.client.Settings;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
 
 import java.io.IOException;
@@ -29,12 +34,17 @@ import com.google.common.collect.ImmutableList;
 
 public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 {
-	private final static List<ITransport<?>> TRANSPORTS = ImmutableList.<ITransport<?>>of(new JabberTransport(null));
-	
+	private final static List<ITransport<?>> TRANSPORTS = ImmutableList.<ITransport<?>> of(new JabberTransport(null));
 	private final List<ISlot<?>> slots = new ArrayList<ISlot<?>>();
+	private final Settings settings;
 
 	private Game game;
 	private ITileSource tileSource;
+	
+	public DefaultLocalServer(final Settings settings)
+	{
+		this.settings = settings;
+	}
 
 	// ====================================================================================================
 	// === IMPLEMENTATION
@@ -54,11 +64,12 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 			{
 				try
 				{
-					slot.getClient().sendStart(getGame());
+					slot.getClient().sendEvent(new ServerToClient_GameStartedEvent(getGame()));
 				}
-				catch (final ClientConnectionException exception)
+				catch (TransportException exception)
 				{
-					exception.printStackTrace();
+					throw new RuntimeException();
+					// TODO Handle disconnect on game start
 				}
 			}
 		}
@@ -135,17 +146,23 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	{
 		return this.tileSource;
 	}
-	
+
 	@Override
 	public List<ISlot<?>> getSlots()
 	{
 		return ImmutableList.copyOf(this.slots);
 	}
-	
+
 	@Override
 	public List<ITransport<?>> getTransports()
 	{
 		return ImmutableList.copyOf(TRANSPORTS);
+	}
+	
+	@Override
+	public Settings getSettings()
+	{
+		return this.settings;
 	}
 
 	// ============================================================================================
@@ -156,16 +173,31 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	public void onConnectionRequest(IRemoteClient sender, ClientToServer_ClientConnectionRequestEvent event)
 	{
 		final ISlot<?> senderSlot = ServerUtil.getSlotByClient(this, sender);
-		
+
 		final Player player = new Player(event.getPlayerName());
 		senderSlot.accept(player);
-		sender.sendConnectionAccepted(ServerUtil.getPlayers(this));
-		
+
+		try
+		{
+			sender.sendEvent(new ServerToClient_ConnectionAcceptedEvent(this));
+		}
+		catch (TransportException exception)
+		{
+			senderSlot.disconnect(DisconnectReason.CONNECTION_FAILURE);
+		}
+
 		for (ISlot<?> slot : ServerUtil.getConnectedSlots(this))
 		{
 			if (slot != senderSlot)
 			{
-				slot.getClient().sendPlayerConnected(player);
+				try
+				{
+					slot.getClient().sendEvent(new ServerToClient_PlayerConnectedEvent(player));
+				}
+				catch (TransportException exception)
+				{
+					senderSlot.disconnect(DisconnectReason.CONNECTION_FAILURE);
+				}
 			}
 		}
 	}
@@ -193,9 +225,9 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 			try
 			{
 				final Turn turn = (client == sender) ? null : event.getTurn();
-				client.sendTurn(turn, getGame().getCurrentTile());
+				client.sendEvent(new ServerToClient_TurnEvent(turn, getGame().getCurrentTile().getCode()));
 			}
-			catch (final ClientConnectionException exception)
+			catch (final TransportException exception)
 			{
 				ServerUtil.getSlotByClient(this, sender).disconnect(DisconnectReason.CONNECTION_FAILURE);
 			}
