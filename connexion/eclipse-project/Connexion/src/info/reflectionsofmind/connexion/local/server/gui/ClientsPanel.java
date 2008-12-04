@@ -13,11 +13,11 @@ import net.miginfocom.swing.MigLayout;
 
 public class ClientsPanel extends JPanel
 {
-	private final HostGameWindow window;
+	private final HostGameDialog window;
 	private final JButton addSlotButton;
 	private final List<ClientPanel> panels = new ArrayList<ClientPanel>();
 
-	public ClientsPanel(final HostGameWindow window)
+	public ClientsPanel(final HostGameDialog window)
 	{
 		this.window = window;
 
@@ -51,7 +51,7 @@ public class ClientsPanel extends JPanel
 		}
 	}
 
-	public HostGameWindow getWindow()
+	public HostGameDialog getWindow()
 	{
 		return this.window;
 	}

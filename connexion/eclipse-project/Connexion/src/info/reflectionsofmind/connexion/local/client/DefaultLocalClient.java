@@ -8,6 +8,7 @@ import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
@@ -19,16 +20,21 @@ import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
+import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 {
 	// All of this we have always
-	private final String name;
+	private final Settings settings;
+	private final List<ITransport<?>> transports = new ArrayList<ITransport<?>>();
 
 	// All of this we have after connect() call
 	private IRemoteServer server;
@@ -42,9 +48,11 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	private RemoteTileSequence sequence;
 	private Game game;
 
-	public DefaultLocalClient(final String name)
+	public DefaultLocalClient(final Settings settings)
 	{
-		this.name = name;
+		this.settings = settings;
+		
+		this.transports.add(new JabberTransport(settings.getJabberAddress()));
 	}
 	
 	public void connect(final IRemoteServer server)
@@ -67,7 +75,7 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 
 		try
 		{
-			this.server.connect(this);
+			this.server.sendEvent(new ClientToServer_ClientConnectionRequestEvent(getName()));
 		}
 		catch (ServerConnectionException exception)
 		{
@@ -181,7 +189,7 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	@Override
 	public String getName()
 	{
-		return this.name;
+		return this.settings.getPlayerName();
 	}
 
 	@Override
@@ -212,6 +220,18 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	public List<Player> getPlayers()
 	{
 		return Collections.unmodifiableList(this.players);
+	}
+	
+	@Override
+	public List<ITransport<?>> getTransports()
+	{
+		return ImmutableList.copyOf(this.transports);
+	}
+	
+	@Override
+	public Settings getSettings()
+	{
+		return this.settings;
 	}
 
 	// ============================================================================================

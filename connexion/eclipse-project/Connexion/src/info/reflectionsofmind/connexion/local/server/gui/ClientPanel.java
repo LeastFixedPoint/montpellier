@@ -4,7 +4,7 @@ import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 import info.reflectionsofmind.connexion.local.server.slot.Slot;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot.State;
-import info.reflectionsofmind.connexion.transport.IAddressee;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 
 import java.awt.event.ActionEvent;
@@ -81,9 +81,9 @@ class ClientPanel extends JPanel implements ISlot.IListener
 		this.clientTypeCombo.setEnabled(false);
 		this.removeButton.setEnabled(false);
 
-		final ITransport<IAddressee> transport = (ITransport<IAddressee>) this.clientTypeCombo.getSelectedItem();
+		final ITransport<INode> transport = (ITransport<INode>) this.clientTypeCombo.getSelectedItem();
 
-		this.slot = new Slot<IAddressee, ITransport<IAddressee>>(this.panel.getWindow().getServer(), transport);
+		this.slot = new Slot<INode, ITransport<INode>>(this.panel.getWindow().getServer(), transport);
 		this.slot.addListener(this);
 		this.slot.open();
 	}

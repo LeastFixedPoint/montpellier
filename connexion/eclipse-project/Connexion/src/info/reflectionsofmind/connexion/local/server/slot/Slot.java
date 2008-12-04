@@ -9,7 +9,7 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnec
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.transport.IAddressee;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
@@ -17,16 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Slot
-<AddresseeType extends IAddressee, TransportType extends ITransport<AddresseeType>> // 
+<NodeType extends INode, TransportType extends ITransport<NodeType>> // 
 		implements // 
 		ISlot<TransportType>, // 
-		ITransport.IListener<AddresseeType>
+		ITransport.IListener<NodeType>
 {
 	private final TransportType transport;
 	private final IServer server;
 
 	private State state = State.CLOSED;
-	private AddresseeType clientAddressee;
+	private NodeType clientNode;
 	private IRemoteClient client;
 	private Player player;
 	private Exception error;
@@ -54,9 +54,9 @@ public class Slot
 		}
 	}
 
-	public void onMessage(final AddresseeType from, final String message)
+	public void onMessage(final NodeType from, final String message)
 	{
-		if (from != this.clientAddressee) return;
+		if (from != this.clientNode) return;
 
 		final ClientToServerEvent event = ClientToServerDecoder.decode(message);
 
@@ -131,7 +131,7 @@ public class Slot
 			final ServerToClient_PlayerDisconnectedEvent event = // 
 				new ServerToClient_PlayerDisconnectedEvent(getServer(), getPlayer(), reason);
 			
-			this.transport.send(clientAddressee, event.encode());
+			this.transport.send(clientNode, event.encode());
 			this.transport.removeListener(this);
 			this.transport.stop();
 			setState(State.CLOSED);

@@ -12,7 +12,7 @@ public class ConfigPanel extends JPanel
 {
 	private final JTextField nameField;
 
-	public ConfigPanel(final HostGameWindow serverUI) throws HeadlessException
+	public ConfigPanel(final HostGameDialog serverUI) throws HeadlessException
 	{
 		setLayout(new MigLayout("ins 0", "[240]", "[]6[]"));
 

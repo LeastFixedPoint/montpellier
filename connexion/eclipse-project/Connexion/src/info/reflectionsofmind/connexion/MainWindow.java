@@ -1,7 +1,8 @@
 package info.reflectionsofmind.connexion;
 
-import info.reflectionsofmind.connexion.local.client.gui.join.JoinGameWindow;
-import info.reflectionsofmind.connexion.local.server.gui.HostGameWindow;
+import info.reflectionsofmind.connexion.local.client.gui.join.JoinGameDialog;
+import info.reflectionsofmind.connexion.local.client.gui.settings.SettingsDialog;
+import info.reflectionsofmind.connexion.local.server.gui.HostGameDialog;
 
 import java.awt.event.ActionEvent;
 
@@ -14,9 +15,13 @@ import net.miginfocom.swing.MigLayout;
 
 public class MainWindow extends JFrame
 {
-	public MainWindow()
+	private final Application application;
+
+	public MainWindow(Application application)
 	{
 		super("Connexion");
+
+		this.application = application;
 
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -30,7 +35,7 @@ public class MainWindow extends JFrame
 
 		add(new JButton("Play online"), "span, grow");
 
-		add(new JButton("Configure"), "span, grow");
+		add(new JButton(new SettingsAction("Settings")), "span, grow");
 
 		add(new JButton(new ExitAction("Exit")), "span");
 
@@ -38,9 +43,14 @@ public class MainWindow extends JFrame
 		setVisible(true);
 	}
 
+	public Application getApplication()
+	{
+		return this.application;
+	}
+
 	private final class ExitAction extends AbstractAction
 	{
-		private ExitAction(String name)
+		private ExitAction(final String name)
 		{
 			super(name);
 		}
@@ -54,7 +64,7 @@ public class MainWindow extends JFrame
 
 	private final class JoinGameAction extends AbstractAction
 	{
-		private JoinGameAction(String name)
+		private JoinGameAction(final String name)
 		{
 			super(name);
 		}
@@ -62,21 +72,35 @@ public class MainWindow extends JFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			new JoinGameWindow().setVisible(true);
+			new JoinGameDialog(MainWindow.this).setVisible(true);
 		}
 	}
 
 	private final class HostGameAction extends AbstractAction
 	{
-		private HostGameAction(String name)
+		private HostGameAction(final String name)
 		{
 			super(name);
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void actionPerformed(final ActionEvent e)
 		{
-			new HostGameWindow().setVisible(true);
+			new HostGameDialog(MainWindow.this).setVisible(true);
+		}
+	}
+
+	private final class SettingsAction extends AbstractAction
+	{
+		private SettingsAction(final String name)
+		{
+			super(name);
+		}
+
+		@Override
+		public void actionPerformed(final ActionEvent e)
+		{
+			new SettingsDialog(MainWindow.this).setVisible(true);
 		}
 	}
 }

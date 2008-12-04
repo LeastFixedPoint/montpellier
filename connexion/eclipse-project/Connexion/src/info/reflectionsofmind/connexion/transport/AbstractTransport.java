@@ -3,7 +3,7 @@ package info.reflectionsofmind.connexion.transport;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractTransport<SenderType extends IAddressee> implements ITransport<SenderType>
+public abstract class AbstractTransport<SenderType extends INode> implements ITransport<SenderType>
 {
 	private int connections = 0;
 

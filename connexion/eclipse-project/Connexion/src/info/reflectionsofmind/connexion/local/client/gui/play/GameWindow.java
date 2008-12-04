@@ -9,6 +9,7 @@ import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.GameUtil;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Section;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.local.client.IClient;
 import info.reflectionsofmind.connexion.local.client.exception.DesynchronizationException;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
@@ -126,7 +127,7 @@ public class GameWindow extends JFrame
 		try
 		{
 			this.turnMode = State.WAITING;
-			getClient().getServer().sendTurn(this.turn);
+			getClient().getServer().sendEvent(new ClientToServer_TurnEvent(this.turn));
 		}
 		catch (final RemoteServerException exception)
 		{

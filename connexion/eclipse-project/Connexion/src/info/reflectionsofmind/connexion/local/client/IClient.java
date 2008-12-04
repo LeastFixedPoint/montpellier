@@ -8,6 +8,7 @@ import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
+import info.reflectionsofmind.connexion.transport.ITransport;
 
 public interface IClient extends IRemoteServer.IListener
 {
@@ -17,6 +18,8 @@ public interface IClient extends IRemoteServer.IListener
 	ITileSource getTileSource();
 	IRemoteServer getServer();
 	List<Player> getPlayers();
-	
+	List<ITransport<?>> getTransports();
+	Settings getSettings();
+
 	void connect(IRemoteServer server) throws ServerConnectionException, RemoteServerException;
 }

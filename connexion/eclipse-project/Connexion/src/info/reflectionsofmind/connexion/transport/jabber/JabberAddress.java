@@ -6,7 +6,7 @@ public class JabberAddress
 	private final String login;
 	private final String password;
 	private final String host;
-	private final String port;
+	private int port;
 	private final String resource;
 
 	public JabberAddress(final String string)
@@ -29,7 +29,7 @@ public class JabberAddress
 		final int s2Pos = hostPort.indexOf(':');
 
 		this.host = (s1Pos == -1) ? hostPort : hostPort.substring(0, s2Pos);
-		this.port = (s1Pos == -1) ? null : hostPort.substring(s2Pos + 1);
+		this.port = (s1Pos == -1) ? 0 : Integer.parseInt(hostPort.substring(s2Pos + 1));
 	}
 
 	public String getLogin()
@@ -47,7 +47,7 @@ public class JabberAddress
 		return this.host;
 	}
 
-	public String getPort()
+	public int getPort()
 	{
 		return this.port;
 	}
@@ -57,7 +57,7 @@ public class JabberAddress
 		return this.resource;
 	}
 
-	public String getAddress()
+	public String asString()
 	{
 		return this.address;
 	}
