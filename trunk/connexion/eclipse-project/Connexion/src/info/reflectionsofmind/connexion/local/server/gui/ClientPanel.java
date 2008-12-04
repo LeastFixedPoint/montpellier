@@ -8,6 +8,8 @@ import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -35,13 +37,19 @@ class ClientPanel extends JPanel implements ISlot.IListener
 	public ClientPanel(final ClientsPanel panel)
 	{
 		this.panel = panel;
-		setLayout(new MigLayout("ins 0", "[24][120]6[120]6[240]", "[24]"));
+		setLayout(new MigLayout("ins 0", "[120]6[120]6[240]", "[24]"));
 
 		this.removeButton = new JButton(new RemoveAction());
 		this.removeButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, Boolean.TRUE);
-		add(this.removeButton, "grow");
 
-		this.clientTypeCombo = new JComboBox(panel.getWindow().getServer().getTransports().toArray());
+		final List<ClientType> clientTypes = new ArrayList<ClientType>();
+		clientTypes.add(new ClientType(null));
+		for (final ITransport<?> transport : panel.getWindow().getServer().getTransports())
+		{
+			clientTypes.add(new ClientType(transport));
+		}
+
+		this.clientTypeCombo = new JComboBox(clientTypes.toArray());
 		add(this.clientTypeCombo, "grow");
 
 		this.listenButton = new JButton(new ListenAction());
@@ -81,7 +89,7 @@ class ClientPanel extends JPanel implements ISlot.IListener
 		this.clientTypeCombo.setEnabled(false);
 		this.removeButton.setEnabled(false);
 
-		final ITransport<INode> transport = (ITransport<INode>) this.clientTypeCombo.getSelectedItem();
+		final ITransport<INode> transport = (ITransport<INode>) ((ClientType) this.clientTypeCombo.getSelectedItem()).getTransport();
 
 		this.slot = new Slot<INode, ITransport<INode>>(this.panel.getWindow().getServer(), transport);
 		this.slot.addListener(this);

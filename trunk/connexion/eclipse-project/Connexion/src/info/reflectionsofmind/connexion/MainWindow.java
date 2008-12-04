@@ -1,8 +1,8 @@
 package info.reflectionsofmind.connexion;
 
 import info.reflectionsofmind.connexion.local.client.gui.join.JoinGameDialog;
-import info.reflectionsofmind.connexion.local.client.gui.settings.SettingsDialog;
 import info.reflectionsofmind.connexion.local.server.gui.HostGameDialog;
+import info.reflectionsofmind.connexion.local.settings.SettingsDialog;
 
 import java.awt.event.ActionEvent;
 

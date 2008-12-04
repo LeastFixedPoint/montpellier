@@ -5,7 +5,7 @@ import info.reflectionsofmind.connexion.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.miginfocom.layout.CC;
@@ -14,20 +14,22 @@ import net.miginfocom.swing.MigLayout;
 public class ClientsPanel extends JPanel
 {
 	private final HostGameDialog window;
-	private final JButton addSlotButton;
 	private final List<ClientPanel> panels = new ArrayList<ClientPanel>();
 
 	public ClientsPanel(final HostGameDialog window)
 	{
 		this.window = window;
 
-		setLayout(new MigLayout("", "[]", "[]"));
+		setLayout(new MigLayout("ins 0", "[]", "[]"));
 
-		this.addSlotButton = new JButton("Add another slot");
-		add(this.addSlotButton);
+		add(new JLabel("Clients"), "span");
+		
+		for (int i = 0; i < 7; i++)
+		{
+			addPanel();
+		}
 
-		addPanel();
-		addPanel();
+		getLayout().layoutContainer(this);
 	}
 
 	private void addPanel()
@@ -37,8 +39,6 @@ public class ClientsPanel extends JPanel
 
 		((MigLayout) getLayout()).setRowConstraints(Util.copy(this.panels.size(), "[]6") + "[]");
 		add(panel, new CC().spanX().cell(0, 1 + this.panels.indexOf(panel)));
-
-		getLayout().layoutContainer(this);
 	}
 
 	public void removePanel(final ClientPanel panel)
@@ -63,7 +63,5 @@ public class ClientsPanel extends JPanel
 		{
 			panel.setEnabled(enabled);
 		}
-
-		this.addSlotButton.setEnabled(enabled);
 	}
 }

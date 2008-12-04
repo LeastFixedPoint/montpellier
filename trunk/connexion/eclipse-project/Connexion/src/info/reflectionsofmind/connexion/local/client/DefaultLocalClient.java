@@ -15,6 +15,7 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
+import info.reflectionsofmind.connexion.local.settings.Settings;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;

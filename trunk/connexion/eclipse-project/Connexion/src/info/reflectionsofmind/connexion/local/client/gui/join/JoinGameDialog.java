@@ -32,7 +32,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -47,8 +46,6 @@ public class JoinGameDialog extends JDialog implements IRemoteServer.IListener
 	private final JComboBox connectionTypeCombo;
 	private final JButton connectButton;
 	private final ChatPane chatPane;
-	private final JTextField sendField;
-	private final JButton sendButton;
 	private final JList playerList;
 
 	public JoinGameDialog(final MainWindow parent)
@@ -63,7 +60,7 @@ public class JoinGameDialog extends JDialog implements IRemoteServer.IListener
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
-		setLayout(new MigLayout("", "[120]6[120]6[120]6[120]", "[]6[360]6[]"));
+		setLayout(new MigLayout("", "[120]6[120]6[120]6[120]", "[]6[360]"));
 
 		this.connectionTypeCombo = new JComboBox(this.serverTypes.toArray());
 		add(this.connectionTypeCombo, "grow");
@@ -85,13 +82,7 @@ public class JoinGameDialog extends JDialog implements IRemoteServer.IListener
 		add(this.chatPane, "grow, span 3");
 
 		this.playerList = new JList(new PlayersModel());
-		add(new JScrollPane(this.playerList), "grow, wrap, spany 2");
-
-		this.sendField = new JTextField();
-		add(this.sendField, "grow, span 3, split");
-
-		this.sendButton = new JButton("Send");
-		add(this.sendButton);
+		add(new JScrollPane(this.playerList), "grow, wrap");
 
 		pack();
 		setLocationRelativeTo(null);
@@ -128,8 +119,6 @@ public class JoinGameDialog extends JDialog implements IRemoteServer.IListener
 		this.statusLabel.setText("Connection request accepted.");
 
 		this.chatPane.setEnabled(true);
-		this.sendField.setEnabled(true);
-		this.sendButton.setEnabled(true);
 		this.playerList.setEnabled(true);
 	}
 

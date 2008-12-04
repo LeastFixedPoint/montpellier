@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
@@ -30,13 +29,11 @@ public class HostGameDialog extends JDialog
 		this.server = new DefaultLocalServer(parent.getApplication().getSettings());
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setResizable(false);
+		setResizable(true);
 		setLayout(new MigLayout("", "[]", "[]6[18][18][18]12[18]"));
 
 		this.configPanel = new ConfigPanel(this);
 		add(this.configPanel, "span");
-
-		add(new JLabel("Clients:"), "span");
 
 		this.clientsPanel = new ClientsPanel(this);
 		add(this.clientsPanel);
