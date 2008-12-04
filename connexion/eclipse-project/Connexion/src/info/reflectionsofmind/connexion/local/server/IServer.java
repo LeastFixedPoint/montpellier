@@ -2,8 +2,8 @@ package info.reflectionsofmind.connexion.local.server;
 
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.local.client.Settings;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
+import info.reflectionsofmind.connexion.local.settings.Settings;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.transport.ITransport;

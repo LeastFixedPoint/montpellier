@@ -16,14 +16,15 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAccep
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
-import info.reflectionsofmind.connexion.local.client.Settings;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
+import info.reflectionsofmind.connexion.local.settings.Settings;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
+import info.reflectionsofmind.connexion.transport.hotseat.ServerHotSeatTransport;
 import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ import com.google.common.collect.ImmutableList;
 
 public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 {
-	private final static List<ITransport<?>> TRANSPORTS = ImmutableList.<ITransport<?>> of(new JabberTransport(null));
+	private final List<ITransport<?>> transports = new ArrayList<ITransport<?>>();
 	private final List<ISlot<?>> slots = new ArrayList<ISlot<?>>();
 	private final Settings settings;
 
@@ -44,6 +45,9 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	public DefaultLocalServer(final Settings settings)
 	{
 		this.settings = settings;
+		
+		this.transports.add(new ServerHotSeatTransport(this));
+		this.transports.add(new JabberTransport(settings.getJabberAddress()));
 	}
 
 	// ====================================================================================================
@@ -156,7 +160,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	@Override
 	public List<ITransport<?>> getTransports()
 	{
-		return ImmutableList.copyOf(TRANSPORTS);
+		return ImmutableList.copyOf(this.transports);
 	}
 	
 	@Override
