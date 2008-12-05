@@ -8,8 +8,8 @@ import info.reflectionsofmind.connexion.transport.TransportException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RemoteClient<TransportType extends ITransport<NodeType>, NodeType extends INode> // 
-		implements IRemoteClient
+public final class RemoteClient<TransportType extends ITransport<NodeType>, NodeType extends INode> // 
+		implements IRemoteClient<TransportType, NodeType>
 {
 	private final List<IListener> listeners = new ArrayList<IListener>();
 
@@ -40,5 +40,11 @@ public class RemoteClient<TransportType extends ITransport<NodeType>, NodeType e
 	public String getName()
 	{
 		return this.name;
+	}
+	
+	@Override
+	public NodeType getClientNode()
+	{
+		return this.clientNode;
 	}
 }

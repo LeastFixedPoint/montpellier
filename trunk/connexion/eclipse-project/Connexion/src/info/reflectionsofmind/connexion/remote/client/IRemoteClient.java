@@ -5,28 +5,31 @@ import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnec
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
+import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
-public interface IRemoteClient
+public interface IRemoteClient<TransportType extends ITransport<NodeType>, NodeType extends INode>
 {
 	void sendEvent(ServerToClientEvent event) throws TransportException;
 	
 	String getName();
+	NodeType getClientNode();
 	
 	void addListener(IListener listener);
 	
 	public interface IListener
 	{
 		/** Client calls this when it wants to connect. */
-		void onConnectionRequest(IRemoteClient sender, ClientToServer_ClientConnectionRequestEvent event);
+		void onConnectionRequest(IRemoteClient<?,?> sender, ClientToServer_ClientConnectionRequestEvent event);
 		
 		/** Client calls this before it disconnects. */
-		void onDisconnect(IRemoteClient sender, ClientToServer_ClientDisconnectedEvent event);
+		void onDisconnect(IRemoteClient<?,?> sender, ClientToServer_ClientDisconnectedEvent event);
 		
 		/** Client calls this when it makes a turn. */
-		void onTurn(IRemoteClient sender, ClientToServer_TurnEvent event);
+		void onTurn(IRemoteClient<?,?> sender, ClientToServer_TurnEvent event);
 		
 		/** Client calls this when it send a message. */
-		void onMessage(IRemoteClient sender, ClientToServer_MessageEvent event);
+		void onMessage(IRemoteClient<?,?> sender, ClientToServer_MessageEvent event);
 	}
 }

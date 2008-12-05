@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.server.gui;
+package info.reflectionsofmind.connexion.gui.host;
 
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
@@ -6,41 +6,45 @@ import info.reflectionsofmind.connexion.local.server.slot.Slot;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot.State;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.util.Colors;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.jvnet.substance.SubstanceLookAndFeel;
-
-class ClientPanel extends JPanel implements ISlot.IListener
+class ClientPanel extends JPanel implements ISlot.IListener, ItemListener
 {
 	private static final long serialVersionUID = 1L;
 
 	private final ClientsPanel panel;
 
-	private final JComboBox clientTypeCombo;
 	private final JLabel statusLabel;
+	private final JComboBox clientTypeCombo;
 	private final JButton listenButton;
-	private final JButton removeButton;
+	private final Icon icon;
 
-	private ISlot<?> slot;
+	private ISlot<?,?> slot;
 
-	public ClientPanel(final ClientsPanel panel)
+	public ClientPanel(final ClientsPanel panel, final int index)
 	{
 		this.panel = panel;
-		setLayout(new MigLayout("ins 0", "[120]6[120]6[240]", "[24]"));
+		this.icon = Colors.getIcon(index, 12);
 
-		this.removeButton = new JButton(new RemoveAction());
-		this.removeButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, Boolean.TRUE);
+		setLayout(new MigLayout("ins 0 6 6 6", "[120]", "[24][24][24]"));
+		setBorder(BorderFactory.createTitledBorder("Player " + (index + 1)));
 
 		final List<ClientType> clientTypes = new ArrayList<ClientType>();
 		clientTypes.add(new ClientType(null));
@@ -49,14 +53,17 @@ class ClientPanel extends JPanel implements ISlot.IListener
 			clientTypes.add(new ClientType(transport));
 		}
 
-		this.clientTypeCombo = new JComboBox(clientTypes.toArray());
-		add(this.clientTypeCombo, "grow");
-
+		this.statusLabel = new JLabel("Not connected", Colors.getEmptyIcon(12), SwingConstants.LEFT);
 		this.listenButton = new JButton(new ListenAction());
-		add(this.listenButton, "grow");
+		this.listenButton.setEnabled(index == 0);
 
-		this.statusLabel = new JLabel("");
-		add(this.statusLabel, "grow");
+		this.clientTypeCombo = new JComboBox(clientTypes.toArray());
+		this.clientTypeCombo.addItemListener(this);
+		this.clientTypeCombo.setSelectedIndex((index == 0) ? 1 : 0);
+
+		add(this.statusLabel, "grow, wrap");
+		add(this.clientTypeCombo, "grow, span");
+		add(this.listenButton, "grow, span");
 	}
 
 	@Override
@@ -65,19 +72,24 @@ class ClientPanel extends JPanel implements ISlot.IListener
 		switch (getSlot().getState())
 		{
 			case CLOSED:
-				this.statusLabel.setText("");
+				this.statusLabel.setIcon(Colors.getEmptyIcon(12));
+				this.statusLabel.setText("Not connected");
 				break;
 			case OPEN:
-				this.statusLabel.setText("Listening...");
+				this.statusLabel.setIcon(Colors.getEmptyIcon(12));
+				this.statusLabel.setText("Listening");
 				break;
 			case CONNECTED:
-				this.statusLabel.setText("Client [" + getSlot().getClient().getName() + "] connected.");
+				this.statusLabel.setIcon(this.icon);
+				this.statusLabel.setText(getSlot().getClient().getName());
 				break;
 			case ACCEPTED:
-				this.statusLabel.setText("Player [" + getSlot().getPlayer().getName() + "] accepted into the game.");
+				this.statusLabel.setIcon(this.icon);
+				this.statusLabel.setText(getSlot().getPlayer().getName());
 				break;
 			case ERROR:
-				this.statusLabel.setText("Error :" + getSlot().getError().getLocalizedMessage() + ".");
+				this.statusLabel.setIcon(Colors.getEmptyIcon(12));
+				this.statusLabel.setText("Error");
 				break;
 		}
 	}
@@ -87,7 +99,6 @@ class ClientPanel extends JPanel implements ISlot.IListener
 	{
 		this.listenButton.setAction(new CancelAction());
 		this.clientTypeCombo.setEnabled(false);
-		this.removeButton.setEnabled(false);
 
 		final ITransport<INode> transport = (ITransport<INode>) ((ClientType) this.clientTypeCombo.getSelectedItem()).getTransport();
 
@@ -102,7 +113,6 @@ class ClientPanel extends JPanel implements ISlot.IListener
 
 		this.listenButton.setAction(new ListenAction());
 		this.clientTypeCombo.setEnabled(true);
-		this.removeButton.setEnabled(true);
 		this.statusLabel.setText("Cancelled.");
 	}
 
@@ -112,7 +122,6 @@ class ClientPanel extends JPanel implements ISlot.IListener
 
 		this.listenButton.setAction(new ListenAction());
 		this.clientTypeCombo.setEnabled(true);
-		this.removeButton.setEnabled(true);
 		this.statusLabel.setText("Disconnected.");
 	}
 
@@ -120,10 +129,9 @@ class ClientPanel extends JPanel implements ISlot.IListener
 	{
 		this.listenButton.setEnabled(false);
 		this.clientTypeCombo.setEnabled(false);
-		this.removeButton.setEnabled(false);
 	}
 
-	public ISlot<?> getSlot()
+	public ISlot<?,?> getSlot()
 	{
 		return this.slot;
 	}
@@ -131,20 +139,6 @@ class ClientPanel extends JPanel implements ISlot.IListener
 	// ====================================================================================================
 	// === ACTIONS
 	// ====================================================================================================
-
-	private class RemoveAction extends AbstractAction
-	{
-		private RemoveAction()
-		{
-			super("X");
-		}
-
-		@Override
-		public void actionPerformed(final ActionEvent e)
-		{
-			ClientPanel.this.panel.removePanel(ClientPanel.this);
-		}
-	}
 
 	public class ListenAction extends AbstractAction
 	{
@@ -185,6 +179,15 @@ class ClientPanel extends JPanel implements ISlot.IListener
 		public void actionPerformed(final ActionEvent e)
 		{
 			disconnect();
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent event)
+	{
+		if (event.getStateChange() == ItemEvent.SELECTED)
+		{
+			this.listenButton.setEnabled(this.clientTypeCombo.getSelectedIndex() > 0);
 		}
 	}
 }

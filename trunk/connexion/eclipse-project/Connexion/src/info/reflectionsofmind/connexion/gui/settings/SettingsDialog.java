@@ -1,6 +1,7 @@
-package info.reflectionsofmind.connexion.local.settings;
+package info.reflectionsofmind.connexion.gui.settings;
 
-import info.reflectionsofmind.connexion.MainWindow;
+import info.reflectionsofmind.connexion.gui.MainWindow;
+import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.transport.jabber.JabberAddress;
 
 import java.awt.event.ActionEvent;

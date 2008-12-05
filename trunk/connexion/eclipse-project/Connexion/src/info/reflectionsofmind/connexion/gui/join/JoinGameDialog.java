@@ -1,16 +1,16 @@
-package info.reflectionsofmind.connexion.local.client.gui.join;
+package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.MainWindow;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
+import info.reflectionsofmind.connexion.gui.MainWindow;
+import info.reflectionsofmind.connexion.gui.play.GameWindow;
 import info.reflectionsofmind.connexion.local.client.ClientUtil;
 import info.reflectionsofmind.connexion.local.client.DefaultLocalClient;
 import info.reflectionsofmind.connexion.local.client.IClient;
-import info.reflectionsofmind.connexion.local.client.gui.play.GameWindow;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;

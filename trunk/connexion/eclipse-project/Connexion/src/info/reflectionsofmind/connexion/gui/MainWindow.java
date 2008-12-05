@@ -1,8 +1,8 @@
-package info.reflectionsofmind.connexion;
+package info.reflectionsofmind.connexion.gui;
 
-import info.reflectionsofmind.connexion.local.client.gui.join.JoinGameDialog;
-import info.reflectionsofmind.connexion.local.server.gui.HostGameDialog;
-import info.reflectionsofmind.connexion.local.settings.SettingsDialog;
+import info.reflectionsofmind.connexion.gui.host.HostGameDialog;
+import info.reflectionsofmind.connexion.gui.join.JoinGameDialog;
+import info.reflectionsofmind.connexion.gui.settings.SettingsDialog;
 
 import java.awt.event.ActionEvent;
 
@@ -15,9 +15,9 @@ import net.miginfocom.swing.MigLayout;
 
 public class MainWindow extends JFrame
 {
-	private final Application application;
+	private final ApplicationGUI application;
 
-	public MainWindow(Application application)
+	public MainWindow(ApplicationGUI application)
 	{
 		super("Connexion");
 
@@ -43,7 +43,7 @@ public class MainWindow extends JFrame
 		setVisible(true);
 	}
 
-	public Application getApplication()
+	public ApplicationGUI getApplication()
 	{
 		return this.application;
 	}

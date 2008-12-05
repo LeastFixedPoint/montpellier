@@ -8,7 +8,9 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAccep
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.IServer;
+import info.reflectionsofmind.connexion.local.server.ServerUtil;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.remote.client.RemoteClient;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
@@ -16,18 +18,15 @@ import info.reflectionsofmind.connexion.transport.TransportException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Slot
-<NodeType extends INode, TransportType extends ITransport<NodeType>> // 
-		implements // 
-		ISlot<TransportType>, // 
-		ITransport.IListener<NodeType>
+public class Slot<NodeType extends INode, TransportType extends ITransport<NodeType>> // 
+		implements ISlot<TransportType, NodeType>, ITransport.IListener<NodeType>
 {
 	private final TransportType transport;
 	private final IServer server;
 
 	private State state = State.CLOSED;
-	private NodeType clientNode;
-	private IRemoteClient client;
+
+	private IRemoteClient<TransportType, NodeType> client;
 	private Player player;
 	private Exception error;
 
@@ -37,6 +36,7 @@ public class Slot
 	{
 		this.server = server;
 		this.transport = transport;
+		this.server.addSlot(this);
 
 		setState(State.CLOSED);
 	}
@@ -56,12 +56,18 @@ public class Slot
 
 	public void onMessage(final NodeType from, final String message)
 	{
-		if (from != this.clientNode) return;
+		for (ISlot<?,?> slot : ServerUtil.getConnectedSlots(getServer()))
+		{
+			if (slot.getClient().getClientNode() == from) return;
+		}
 
 		final ClientToServerEvent event = ClientToServerDecoder.decode(message);
 
 		if (event instanceof ClientToServer_ClientConnectionRequestEvent)
 		{
+			final String name = ((ClientToServer_ClientConnectionRequestEvent) event).getPlayerName();
+			this.client = new RemoteClient<TransportType, NodeType>(getTransport(), from, name);
+			setState(State.CONNECTED);
 			getServer().onConnectionRequest(getClient(), (ClientToServer_ClientConnectionRequestEvent) event);
 		}
 	}
@@ -85,16 +91,16 @@ public class Slot
 		{
 			setError(exception);
 		}
-		
+
 		fireAfterStateChange(State.OPEN);
 	}
 
 	public final void close()
 	{
 		if (this.state != State.OPEN) throw new IllegalStateException();
-		
+
 		this.transport.removeListener(this);
-		
+
 		try
 		{
 			this.transport.stop();
@@ -110,7 +116,7 @@ public class Slot
 	{
 		if (this.state != State.CONNECTED) throw new IllegalStateException();
 		this.player = player;
-		
+
 		try
 		{
 			this.client.sendEvent(new ServerToClient_ConnectionAcceptedEvent(getServer()));
@@ -129,9 +135,9 @@ public class Slot
 		try
 		{
 			final ServerToClient_PlayerDisconnectedEvent event = // 
-				new ServerToClient_PlayerDisconnectedEvent(getServer(), getPlayer(), reason);
-			
-			this.transport.send(clientNode, event.encode());
+			new ServerToClient_PlayerDisconnectedEvent(getServer(), getPlayer(), reason);
+
+			this.transport.send(getClient().getClientNode(), event.encode());
 			this.transport.removeListener(this);
 			this.transport.stop();
 			setState(State.CLOSED);
@@ -146,7 +152,7 @@ public class Slot
 	// === SETTERS
 	// ============================================================================================
 
-	protected final void setClient(final IRemoteClient client)
+	protected final void setClient(final IRemoteClient<TransportType, NodeType> client)
 	{
 		this.client = client;
 	}
@@ -181,7 +187,7 @@ public class Slot
 		return this.state;
 	}
 
-	public final IRemoteClient getClient()
+	public final IRemoteClient<TransportType, NodeType> getClient()
 	{
 		return this.client;
 	}
