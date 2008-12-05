@@ -3,9 +3,10 @@ package info.reflectionsofmind.connexion.local.server.slot;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 
-public interface ISlot<TransportType extends ITransport<?>>
+public interface ISlot<TransportType extends ITransport<NodeType>, NodeType extends INode>
 {
 	public enum State
 	{
@@ -25,7 +26,7 @@ public interface ISlot<TransportType extends ITransport<?>>
 	void disconnect(DisconnectReason reason);
 
 	State getState();
-	IRemoteClient getClient();
+	IRemoteClient<TransportType, NodeType> getClient();
 	Player getPlayer();
 	Exception getError();
 	TransportType getTransport();

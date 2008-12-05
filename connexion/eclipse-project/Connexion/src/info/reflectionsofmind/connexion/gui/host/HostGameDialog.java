@@ -1,6 +1,7 @@
-package info.reflectionsofmind.connexion.local.server.gui;
+package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.MainWindow;
+import info.reflectionsofmind.connexion.gui.MainWindow;
+import info.reflectionsofmind.connexion.gui.join.ChatPane;
 import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
 
@@ -30,19 +31,22 @@ public class HostGameDialog extends JDialog
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(true);
-		setLayout(new MigLayout("", "[]", "[]6[18][18][18]12[18]"));
+		setLayout(new MigLayout("", "[center, shrink 0]6[grow]", "[shrink 0]6[shrink 0]6[top, grow]"));
 
 		this.configPanel = new ConfigPanel(this);
-		add(this.configPanel, "span");
+		add(this.configPanel, "grow, wrap");
 
 		this.clientsPanel = new ClientsPanel(this);
-		add(this.clientsPanel);
+		add(this.clientsPanel, "grow, wrap");
 
 		this.startButton = new JButton(new StartAction());
-		add(this.startButton, "w 120, right");
+		add(this.startButton, "wrap, w 120");
+		
+		add(new ChatPane(), "grow, cell 1 0, spany 3, w 480");
 
 		pack();
 		setLocationRelativeTo(null);
+		setMinimumSize(getSize());
 	}
 
 	// ====================================================================================================

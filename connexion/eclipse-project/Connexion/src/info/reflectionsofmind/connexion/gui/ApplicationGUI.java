@@ -1,6 +1,6 @@
-package info.reflectionsofmind.connexion;
+package info.reflectionsofmind.connexion.gui;
 
-import info.reflectionsofmind.connexion.local.settings.Settings;
+import info.reflectionsofmind.connexion.local.Settings;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -9,13 +9,13 @@ import javax.swing.UIManager;
 
 import org.jvnet.substance.skin.SubstanceBusinessLookAndFeel;
 
-public class Application
+public class ApplicationGUI
 {
 	private Settings settings;
 	
 	public static void main(final String[] args)
 	{
-		new Application().start();
+		new ApplicationGUI().start();
 	}
 
 	private void start()
@@ -32,7 +32,7 @@ public class Application
 			{
 				public void run()
 				{
-					new MainWindow(Application.this).setVisible(true);
+					new MainWindow(ApplicationGUI.this).setVisible(true);
 				}
 			});
 		}

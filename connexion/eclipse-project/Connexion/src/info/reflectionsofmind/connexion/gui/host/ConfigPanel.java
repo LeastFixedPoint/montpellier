@@ -1,7 +1,8 @@
-package info.reflectionsofmind.connexion.local.server.gui;
+package info.reflectionsofmind.connexion.gui.host;
 
 import java.awt.HeadlessException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -14,9 +15,10 @@ public class ConfigPanel extends JPanel
 
 	public ConfigPanel(final HostGameDialog serverUI) throws HeadlessException
 	{
-		setLayout(new MigLayout("ins 0", "[240]", "[]6[]"));
+		setLayout(new MigLayout("ins 0 6 6 6", "[grow]", "[]6[]"));
+		setBorder(BorderFactory.createTitledBorder("Game parameters"));
 
-		add(new JLabel("Game name:"), "span");
+		add(new JLabel("Game name:"), "grow, span");
 		this.nameField = new JTextField("Test game");
 		add(this.nameField, "grow, span");
 	}

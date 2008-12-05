@@ -18,7 +18,7 @@ public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerE
 	}
 	
 	@Override
-	public void dispatch(IRemoteClient sender, IListener listener)
+	public void dispatch(IRemoteClient<?,?> sender, IListener listener)
 	{
 		listener.onConnectionRequest(sender, this);
 	}

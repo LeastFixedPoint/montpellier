@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.client.gui.play;
+package info.reflectionsofmind.connexion.gui.play;
 
 import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
@@ -14,7 +14,7 @@ import info.reflectionsofmind.connexion.core.board.geometry.rectangular.Location
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.tile.Section;
-import info.reflectionsofmind.connexion.local.client.gui.play.GameWindow.State;
+import info.reflectionsofmind.connexion.gui.play.GameWindow.State;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.tilelist.TileSourceUtil;

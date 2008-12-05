@@ -9,5 +9,5 @@ public abstract class ClientToServerEvent
 	
 	public abstract String encode();
 	
-	public abstract void dispatch(IRemoteClient sender, IRemoteClient.IListener listener);
+	public abstract void dispatch(IRemoteClient<?,?> sender, IRemoteClient.IListener listener);
 }

@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.client.gui.play;
+package info.reflectionsofmind.connexion.gui.play;
 
 import info.reflectionsofmind.connexion.core.board.Board;
 import info.reflectionsofmind.connexion.core.board.BoardUtil;

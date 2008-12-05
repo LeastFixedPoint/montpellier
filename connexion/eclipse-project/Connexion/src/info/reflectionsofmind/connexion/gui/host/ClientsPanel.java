@@ -1,6 +1,4 @@
-package info.reflectionsofmind.connexion.local.server.gui;
-
-import info.reflectionsofmind.connexion.util.Util;
+package info.reflectionsofmind.connexion.gui.host;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +18,11 @@ public class ClientsPanel extends JPanel
 	{
 		this.window = window;
 
-		setLayout(new MigLayout("ins 0", "[]", "[]"));
+		setLayout(new MigLayout("ins 0", "[]6[]", "[]6[]6[]6[]"));
 
-		add(new JLabel("Clients"), "span");
-		
-		for (int i = 0; i < 7; i++)
+		add(new JLabel(""), "span");
+
+		for (int i = 0; i < 6; i++)
 		{
 			addPanel();
 		}
@@ -34,11 +32,12 @@ public class ClientsPanel extends JPanel
 
 	private void addPanel()
 	{
-		final ClientPanel panel = new ClientPanel(this);
+		final ClientPanel panel = new ClientPanel(this, this.panels.size());
 		this.panels.add(panel);
 
-		((MigLayout) getLayout()).setRowConstraints(Util.copy(this.panels.size(), "[]6") + "[]");
-		add(panel, new CC().spanX().cell(0, 1 + this.panels.indexOf(panel)));
+		final int i = this.panels.indexOf(panel);
+
+		add(panel, new CC().grow().cell(i / 3, 1 + i % 3));
 	}
 
 	public void removePanel(final ClientPanel panel)

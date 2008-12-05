@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.client.gui.join;
+package info.reflectionsofmind.connexion.gui.join;
 
 import info.reflectionsofmind.connexion.transport.jabber.JabberAddress;
 

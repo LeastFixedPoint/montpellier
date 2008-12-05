@@ -16,12 +16,12 @@ import com.google.common.collect.Lists;
 
 public class ServerUtil
 {
-	public static Collection<ISlot<?>> getConnectedSlots(IServer server)
+	public static Collection<ISlot<?,?>> getConnectedSlots(IServer server)
 	{
-		return Collections2.filter(server.getSlots(), new Predicate<ISlot<?>>()
+		return Collections2.filter(server.getSlots(), new Predicate<ISlot<?,?>>()
 		{
 			@Override
-			public boolean apply(ISlot<?> slot)
+			public boolean apply(ISlot<?,?> slot)
 			{
 				return slot.getState() == ISlot.State.CONNECTED;
 			}
@@ -30,24 +30,24 @@ public class ServerUtil
 
 	public static List<Player> getPlayers(IServer server)
 	{
-		return Lists.transform(new ArrayList<ISlot<?>>(getConnectedSlots(server)), // 
-				new Function<ISlot<?>, Player>()
+		return Lists.transform(new ArrayList<ISlot<?,?>>(getConnectedSlots(server)), // 
+				new Function<ISlot<?,?>, Player>()
 				{
 					@Override
-					public Player apply(ISlot<?> slot)
+					public Player apply(ISlot<?,?> slot)
 					{
 						return slot.getPlayer();
 					}
 				});
 	}
 
-	public static List<IRemoteClient> getClients(IServer server)
+	public static List<IRemoteClient<?,?>> getClients(IServer server)
 	{
-		return Lists.transform(new ArrayList<ISlot<?>>(getConnectedSlots(server)), // 
-				new Function<ISlot<?>, IRemoteClient>()
+		return Lists.transform(new ArrayList<ISlot<?,?>>(getConnectedSlots(server)), // 
+				new Function<ISlot<?,?>, IRemoteClient<?,?>>()
 				{
 					@Override
-					public IRemoteClient apply(ISlot<?> slot)
+					public IRemoteClient<?,?> apply(ISlot<?,?> slot)
 					{
 						return slot.getClient();
 					}
@@ -55,9 +55,9 @@ public class ServerUtil
 	}
 
 	
-	public static ISlot<?> getSlotByClient(IServer server, IRemoteClient client)
+	public static ISlot<?,?> getSlotByClient(IServer server, IRemoteClient<?,?> client)
 	{
-		for (ISlot<?> slot : getConnectedSlots(server))
+		for (ISlot<?,?> slot : getConnectedSlots(server))
 		{
 			if (slot.getClient() == client) return slot;
 		}

@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.server.gui;
+package info.reflectionsofmind.connexion.gui.host;
 
 import info.reflectionsofmind.connexion.transport.ITransport;
 

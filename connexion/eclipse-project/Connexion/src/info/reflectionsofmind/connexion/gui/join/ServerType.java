@@ -1,6 +1,6 @@
-package info.reflectionsofmind.connexion.local.client.gui.join;
+package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.local.client.gui.join.JoinGameDialog.IConnector;
+import info.reflectionsofmind.connexion.gui.join.JoinGameDialog.IConnector;
 import info.reflectionsofmind.connexion.transport.ITransport;
 
 public class ServerType
