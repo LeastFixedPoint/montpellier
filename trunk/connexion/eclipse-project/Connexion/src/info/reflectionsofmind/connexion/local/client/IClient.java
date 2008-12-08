@@ -19,7 +19,7 @@ public interface IClient extends IRemoteServer.IListener
 	ITileSource getTileSource();
 	IRemoteServer getServer();
 	List<Player> getPlayers();
-	List<ITransport<?>> getTransports();
+	List<ITransport> getTransports();
 	Settings getSettings();
 
 	void connect(IRemoteServer server) throws ServerConnectionException, RemoteServerException;

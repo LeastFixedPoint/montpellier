@@ -4,14 +4,15 @@ import info.reflectionsofmind.connexion.transport.ITransport;
 
 public class ClientType
 {
-	private final ITransport<?> transport;
+	public final static ClientType NONE = new ClientType(null);
+	private final ITransport transport;
 
-	public ClientType(final ITransport<?> transport)
+	public ClientType(final ITransport transport)
 	{
 		this.transport = transport;
 	}
 
-	public ITransport<?> getTransport()
+	public ITransport getTransport()
 	{
 		return this.transport;
 	}

@@ -35,7 +35,7 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 {
 	// All of this we have always
 	private final Settings settings;
-	private final List<ITransport<?>> transports = new ArrayList<ITransport<?>>();
+	private final List<ITransport> transports = new ArrayList<ITransport>();
 
 	// All of this we have after connect() call
 	private IRemoteServer server;
@@ -100,7 +100,7 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 			this.players.add(new Player(playerName));
 		}
 		
-		this.player = this.players.get(this.players.size());
+		this.player = this.players.get(this.players.size() - 1);
 	}
 	
 	@Override
@@ -224,7 +224,7 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	}
 	
 	@Override
-	public List<ITransport<?>> getTransports()
+	public List<ITransport> getTransports()
 	{
 		return ImmutableList.copyOf(this.transports);
 	}

@@ -1,18 +1,18 @@
 package info.reflectionsofmind.connexion.transport;
 
 
-public interface ITransport<SenderType extends INode>
+public interface ITransport
 {
 	void start() throws TransportException;
 	void stop() throws TransportException;
-	void send(SenderType to, String message) throws TransportException;
+	void send(INode to, String message) throws TransportException;
 	
-	void addListener(IListener<SenderType> listener);
-	void removeListener(IListener<SenderType> listener);
+	void addListener(IListener listener);
+	void removeListener(IListener listener);
 	String getName();
 	
-	public interface IListener<SenderType extends INode>
+	public interface IListener
 	{
-		void onMessage(SenderType from, String message);
+		void onMessage(INode from, String message);
 	}
 }

@@ -32,7 +32,7 @@ public class ApplicationGUI
 			{
 				public void run()
 				{
-					new MainWindow(ApplicationGUI.this).setVisible(true);
+					new MainFrame(ApplicationGUI.this).setVisible(true);
 				}
 			});
 		}

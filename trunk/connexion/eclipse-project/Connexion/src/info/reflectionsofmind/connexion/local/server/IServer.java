@@ -12,20 +12,22 @@ import java.util.List;
 
 public interface IServer extends IRemoteClient.IListener
 {
-	void addSlot(ISlot<?,?> slot);
-	List<ISlot<?,?>> getSlots();
+	void addSlot(ISlot slot);
+	List<ISlot> getSlots();
 
 	void startGame(String name);
 	Game getGame();
 	ITileSource getTileSource();
 	
-	List<ITransport<?>> getTransports();
+	List<ITransport> getTransports();
 	Settings getSettings();
+	
+	void addPlayerListener(IPlayerListener listener);
 	
 	public interface IPlayerListener
 	{
 		void onMessage(Player player, String message);
-		void onAfterPlayerConnected(ISlot<?,?> slot);
-		void onBeforePlayerDisconnected(ISlot<?,?> slot, DisconnectReason reason);
+		void onAfterPlayerConnected(ISlot slot);
+		void onBeforePlayerDisconnected(ISlot slot, DisconnectReason reason);
 	}
 }

@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.gui.settings;
 
-import info.reflectionsofmind.connexion.gui.MainWindow;
+import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.transport.jabber.JabberAddress;
 
@@ -21,7 +21,7 @@ public class SettingsDialog extends JDialog
 	private final JTextField playerNameField;
 	private final JTextField jabberAddressField;
 
-	public SettingsDialog(final MainWindow parent)
+	public SettingsDialog(final MainFrame parent)
 	{
 		super(parent, "Connexion :: Settings", true);
 

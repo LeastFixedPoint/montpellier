@@ -1,7 +1,11 @@
-package info.reflectionsofmind.connexion.gui.join;
+package info.reflectionsofmind.connexion.gui.common;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -15,6 +19,8 @@ import net.miginfocom.swing.MigLayout;
 
 public class ChatPane extends JPanel
 {
+	private final List<IListener> listeners = new ArrayList<IListener>();
+	
 	private final JEditorPane chatPane;
 	private final JButton sendButton;
 	private final JTextField sendField;
@@ -25,8 +31,9 @@ public class ChatPane extends JPanel
 		this.chatPane.setEditable(false);
 		this.chatPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
 		
-		this.sendButton = new JButton("Send");
+		this.sendButton = new JButton(new SendAction());
 		this.sendField = new JTextField();
+		this.sendField.setAction(new SendAction());
 		
 		setLayout(new MigLayout("ins 0", "[grow][]", "[grow][]"));
 		
@@ -35,6 +42,18 @@ public class ChatPane extends JPanel
 		add(this.sendButton, "grow");
 
 		putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+	}
+	
+	@Override
+	public void setEnabled(boolean enabled)
+	{
+		this.sendButton.setEnabled(enabled);
+		this.sendField.setEnabled(enabled);
+	}
+	
+	public void addListener(IListener listener)
+	{
+		this.listeners.add(listener);
 	}
 
 	public void writeRaw(final String text)
@@ -71,5 +90,30 @@ public class ChatPane extends JPanel
 	public void writeSystem(final String text)
 	{
 		writeRaw("<font color=green>" + text + "</font><br>");
+	}
+	
+	public interface IListener
+	{
+		void onChatPaneMessageSent(String message);
+	}
+	
+	private final class SendAction extends AbstractAction
+	{
+		public SendAction()
+		{
+			super("Send");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent event)
+		{
+			for (IListener listener : listeners)
+			{
+				listener.onChatPaneMessageSent(sendField.getText());
+			}
+			
+			sendField.setText("");
+			sendField.requestFocus();
+		}
 	}
 }

@@ -12,7 +12,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
-public class JabberTransport extends AbstractTransport<JabberTransport.JabberNode> implements PacketListener
+public class JabberTransport extends AbstractTransport implements PacketListener
 {
 	private XMPPConnection connection;
 
@@ -24,9 +24,9 @@ public class JabberTransport extends AbstractTransport<JabberTransport.JabberNod
 	}
 	
 	@Override
-	public void send(final JabberNode to, final String string) throws TransportException
+	public void send(final INode to, final String string) throws TransportException
 	{
-		final Message message = new Message(to.getAddress().asString());
+		final Message message = new Message(((JabberNode)to).getAddress().asString());
 		message.setBody(string);
 		this.connection.sendPacket(message);
 	}

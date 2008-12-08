@@ -11,10 +11,10 @@ import net.miginfocom.swing.MigLayout;
 
 public class ClientsPanel extends JPanel
 {
-	private final HostGameDialog window;
-	private final List<ClientPanel> panels = new ArrayList<ClientPanel>();
+	private final HostGameFrame window;
+	private final List<SlotPanel> panels = new ArrayList<SlotPanel>();
 
-	public ClientsPanel(final HostGameDialog window)
+	public ClientsPanel(final HostGameFrame window)
 	{
 		this.window = window;
 
@@ -32,7 +32,7 @@ public class ClientsPanel extends JPanel
 
 	private void addPanel()
 	{
-		final ClientPanel panel = new ClientPanel(this, this.panels.size());
+		final SlotPanel panel = new SlotPanel(this, this.panels.size());
 		this.panels.add(panel);
 
 		final int i = this.panels.indexOf(panel);
@@ -40,7 +40,7 @@ public class ClientsPanel extends JPanel
 		add(panel, new CC().grow().cell(i / 3, 1 + i % 3));
 	}
 
-	public void removePanel(final ClientPanel panel)
+	public void removePanel(final SlotPanel panel)
 	{
 		if (this.panels.size() > 1)
 		{
@@ -50,7 +50,7 @@ public class ClientsPanel extends JPanel
 		}
 	}
 
-	public HostGameDialog getWindow()
+	public HostGameFrame getHostGameDialog()
 	{
 		return this.window;
 	}
@@ -58,7 +58,7 @@ public class ClientsPanel extends JPanel
 	@Override
 	public void setEnabled(final boolean enabled)
 	{
-		for (final ClientPanel panel : this.panels)
+		for (final SlotPanel panel : this.panels)
 		{
 			panel.setEnabled(enabled);
 		}

@@ -18,7 +18,7 @@ public class ClientToServer_MessageEvent extends ClientToServerEvent
 	}
 	
 	@Override
-	public void dispatch(IRemoteClient<?,?> sender, IListener listener)
+	public void dispatch(IRemoteClient sender, IListener listener)
 	{
 		listener.onMessage(sender, this);
 	}

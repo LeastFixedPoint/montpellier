@@ -7,13 +7,12 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
-import info.reflectionsofmind.connexion.transport.TransportException;
 
 public interface IRemoteServer
 {
-	void start() throws TransportException;
+	void start() throws ServerConnectionException;
 	
-	void stop() throws TransportException;
+	void stop() throws ServerConnectionException;
 	
 	void sendEvent(ClientToServerEvent event) throws ServerConnectionException, RemoteServerException;
 
