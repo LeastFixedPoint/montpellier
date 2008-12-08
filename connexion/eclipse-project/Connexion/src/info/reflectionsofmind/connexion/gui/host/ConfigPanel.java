@@ -13,7 +13,7 @@ public class ConfigPanel extends JPanel
 {
 	private final JTextField nameField;
 
-	public ConfigPanel(final HostGameDialog serverUI) throws HeadlessException
+	public ConfigPanel(final HostGameFrame serverUI) throws HeadlessException
 	{
 		setLayout(new MigLayout("ins 0 6 6 6", "[grow]", "[]6[]"));
 		setBorder(BorderFactory.createTitledBorder("Game parameters"));

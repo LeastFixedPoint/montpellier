@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.gui;
 
-import info.reflectionsofmind.connexion.gui.host.HostGameDialog;
-import info.reflectionsofmind.connexion.gui.join.JoinGameDialog;
+import info.reflectionsofmind.connexion.gui.host.HostGameFrame;
+import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
 import info.reflectionsofmind.connexion.gui.settings.SettingsDialog;
 
 import java.awt.event.ActionEvent;
@@ -13,11 +13,11 @@ import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
 
-public class MainWindow extends JFrame
+public class MainFrame extends JFrame
 {
 	private final ApplicationGUI application;
 
-	public MainWindow(ApplicationGUI application)
+	public MainFrame(ApplicationGUI application)
 	{
 		super("Connexion");
 
@@ -72,7 +72,7 @@ public class MainWindow extends JFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			new JoinGameDialog(MainWindow.this).setVisible(true);
+			new JoinGameFrame(MainFrame.this).setVisible(true);
 		}
 	}
 
@@ -86,7 +86,7 @@ public class MainWindow extends JFrame
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			new HostGameDialog(MainWindow.this).setVisible(true);
+			new HostGameFrame(MainFrame.this).setVisible(true);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class MainWindow extends JFrame
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			new SettingsDialog(MainWindow.this).setVisible(true);
+			new SettingsDialog(MainFrame.this).setVisible(true);
 		}
 	}
 }

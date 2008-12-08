@@ -14,6 +14,7 @@ import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.Settings;
@@ -24,8 +25,8 @@ import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
-import info.reflectionsofmind.connexion.transport.hotseat.ServerHotSeatTransport;
 import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
+import info.reflectionsofmind.connexion.transport.local.ServerLocalTransport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,18 +36,20 @@ import com.google.common.collect.ImmutableList;
 
 public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 {
-	private final List<ITransport<?>> transports = new ArrayList<ITransport<?>>();
-	private final List<ISlot<?,?>> slots = new ArrayList<ISlot<?,?>>();
+	private final List<ITransport> transports = new ArrayList<ITransport>();
+	private final List<ISlot> slots = new ArrayList<ISlot>();
 	private final Settings settings;
 
 	private Game game;
 	private ITileSource tileSource;
 	
+	private final List<IPlayerListener> playerListeners = new ArrayList<IPlayerListener>();
+	
 	public DefaultLocalServer(final Settings settings)
 	{
 		this.settings = settings;
 		
-		this.transports.add(new ServerHotSeatTransport(this));
+		this.transports.add(new ServerLocalTransport(this));
 		this.transports.add(new JabberTransport(settings.getJabberAddress()));
 	}
 
@@ -54,7 +57,13 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	// === IMPLEMENTATION
 	// ====================================================================================================
 
-	public void addSlot(ISlot<?,?> slot)
+	@Override
+	public void addPlayerListener(IPlayerListener listener)
+	{
+		this.playerListeners.add(listener);
+	}
+	
+	public void addSlot(ISlot slot)
 	{
 		if (this.game != null) throw new RuntimeException("Game already started.");
 		this.slots.add(slot);
@@ -62,7 +71,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 
 	private void sendStartEvents(final Tile initialTile)
 	{
-		for (final ISlot<?,?> slot : this.slots)
+		for (final ISlot slot : this.slots)
 		{
 			if (slot.getState() == ISlot.State.CONNECTED)
 			{
@@ -152,13 +161,13 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	}
 
 	@Override
-	public List<ISlot<?,?>> getSlots()
+	public List<ISlot> getSlots()
 	{
 		return ImmutableList.copyOf(this.slots);
 	}
 
 	@Override
-	public List<ITransport<?>> getTransports()
+	public List<ITransport> getTransports()
 	{
 		return ImmutableList.copyOf(this.transports);
 	}
@@ -174,12 +183,12 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	// ============================================================================================
 
 	@Override
-	public void onConnectionRequest(IRemoteClient<?,?> sender, ClientToServer_ClientConnectionRequestEvent event)
+	public void onConnectionRequest(IRemoteClient sender, ClientToServer_ClientConnectionRequestEvent event)
 	{
-		final ISlot<?,?> senderSlot = ServerUtil.getSlotByClient(this, sender);
+		final ISlot senderSlot = ServerUtil.getSlotByClient(this, sender);
 
 		final Player player = new Player(event.getPlayerName());
-		senderSlot.accept(player);
+		senderSlot.acceptAs(player);
 
 		try
 		{
@@ -190,7 +199,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 			senderSlot.disconnect(DisconnectReason.CONNECTION_FAILURE);
 		}
 
-		for (ISlot<?,?> slot : ServerUtil.getConnectedSlots(this))
+		for (ISlot slot : ServerUtil.getConnectedSlots(this))
 		{
 			if (slot != senderSlot)
 			{
@@ -204,15 +213,41 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 				}
 			}
 		}
+		
+		for (IPlayerListener listener : this.playerListeners)
+		{
+			listener.onAfterPlayerConnected(senderSlot);
+		}
 	}
 
 	@Override
-	public void onMessage(IRemoteClient<?,?> sender, ClientToServer_MessageEvent event)
+	public void onMessage(IRemoteClient sender, ClientToServer_MessageEvent event)
 	{
+		final Player player = ServerUtil.getSlotByClient(this, sender).getPlayer();
+		final int index = ServerUtil.getPlayers(this).indexOf(player);
+		
+		ServerToClient_MessageEvent serverEvent = new ServerToClient_MessageEvent(index, event.getMessage());
+		
+		for (ISlot slot : ServerUtil.getConnectedSlots(this))
+		{
+			try
+			{
+				slot.getClient().sendEvent(serverEvent);
+			}
+			catch (TransportException exception)
+			{
+				exception.printStackTrace();
+			}
+		}
+		
+		for (IPlayerListener listener : this.playerListeners)
+		{
+			listener.onMessage(player, event.getMessage());
+		}
 	}
 
 	@Override
-	public synchronized void onTurn(final IRemoteClient<?,?> sender, final ClientToServer_TurnEvent event)
+	public synchronized void onTurn(final IRemoteClient sender, final ClientToServer_TurnEvent event)
 	{
 		try
 		{
@@ -224,7 +259,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 			return;
 		}
 
-		for (final IRemoteClient<?,?> client : ServerUtil.getClients(this))
+		for (final IRemoteClient client : ServerUtil.getClients(this))
 		{
 			try
 			{
@@ -239,7 +274,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	}
 
 	@Override
-	public synchronized void onDisconnect(final IRemoteClient<?,?> sender, ClientToServer_ClientDisconnectedEvent event)
+	public synchronized void onDisconnect(final IRemoteClient sender, ClientToServer_ClientDisconnectedEvent event)
 	{
 		throw new UnsupportedOperationException("Disconnects not supported yet.");
 	}

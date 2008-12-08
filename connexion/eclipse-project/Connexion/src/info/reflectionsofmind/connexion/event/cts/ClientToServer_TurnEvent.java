@@ -19,7 +19,7 @@ public class ClientToServer_TurnEvent extends ClientToServerEvent
 	}
 	
 	@Override
-	public void dispatch(IRemoteClient<?,?> sender, IListener listener)
+	public void dispatch(IRemoteClient sender, IListener listener)
 	{
 		listener.onTurn(sender, this);
 	}

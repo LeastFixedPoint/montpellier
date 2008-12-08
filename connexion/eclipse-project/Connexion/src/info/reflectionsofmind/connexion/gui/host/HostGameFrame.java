@@ -1,33 +1,41 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.gui.MainWindow;
-import info.reflectionsofmind.connexion.gui.join.ChatPane;
+import info.reflectionsofmind.connexion.core.game.Player;
+import info.reflectionsofmind.connexion.gui.MainFrame;
+import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
+import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
+import info.reflectionsofmind.connexion.local.server.IServer.IPlayerListener;
+import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameDialog extends JDialog
+public class HostGameFrame extends JFrame implements ChatPane.IListener, IPlayerListener
 {
 	private static final long serialVersionUID = 1L;
 	private final DefaultLocalServer server;
 
+	private final MainFrame mainWindow;
 	private final JButton startButton;
 	private final ConfigPanel configPanel;
 	private final ClientsPanel clientsPanel;
+	private final ChatPane chatPane;
 
-	public HostGameDialog(final MainWindow parent)
+	public HostGameFrame(final MainFrame mainWindow)
 	{
-		super(parent, "Connexion :: Host game", true);
+		super("Connexion :: Host game");
 
-		this.server = new DefaultLocalServer(parent.getApplication().getSettings());
+		this.mainWindow = mainWindow;
+		this.server = new DefaultLocalServer(mainWindow.getApplication().getSettings());
+		this.server.addPlayerListener(this);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(true);
@@ -41,12 +49,36 @@ public class HostGameDialog extends JDialog
 
 		this.startButton = new JButton(new StartAction());
 		add(this.startButton, "wrap, w 120");
-		
-		add(new ChatPane(), "grow, cell 1 0, spany 3, w 480");
+
+		this.chatPane = new ChatPane();
+		this.chatPane.addListener(this);
+		add(this.chatPane, "grow, cell 1 0, spany 3, w 480");
 
 		pack();
 		setLocationRelativeTo(null);
 		setMinimumSize(getSize());
+	}
+
+	@Override
+	public void onChatPaneMessageSent(final String message)
+	{
+		this.chatPane.writeMessage("Server", message);
+	}
+
+	@Override
+	public void onAfterPlayerConnected(ISlot slot)
+	{
+	}
+
+	@Override
+	public void onBeforePlayerDisconnected(ISlot slot, DisconnectReason reason)
+	{
+	}
+
+	@Override
+	public void onMessage(Player player, String message)
+	{
+		this.chatPane.writeMessage(player.getName(), message);
 	}
 
 	// ====================================================================================================
@@ -56,6 +88,11 @@ public class HostGameDialog extends JDialog
 	public DefaultLocalServer getServer()
 	{
 		return this.server;
+	}
+
+	public MainFrame getMainWindow()
+	{
+		return this.mainWindow;
 	}
 
 	// ====================================================================================================
@@ -76,16 +113,16 @@ public class HostGameDialog extends JDialog
 		{
 			if (ServerUtil.getPlayers(getServer()).isEmpty())
 			{
-				JOptionPane.showMessageDialog(HostGameDialog.this, "You must have at least one player!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(HostGameFrame.this, "You must have at least one player!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
-			HostGameDialog.this.configPanel.setEnabled(false);
-			HostGameDialog.this.clientsPanel.setEnabled(false);
+			HostGameFrame.this.configPanel.setEnabled(false);
+			HostGameFrame.this.clientsPanel.setEnabled(false);
 
 			setEnabled(false);
 
-			HostGameDialog.this.server.startGame(HostGameDialog.this.configPanel.getGameName());
+			HostGameFrame.this.server.startGame(HostGameFrame.this.configPanel.getGameName());
 		}
 	}
 }

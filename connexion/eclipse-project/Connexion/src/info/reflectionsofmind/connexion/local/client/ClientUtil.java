@@ -7,7 +7,7 @@ public class ClientUtil
 	@SuppressWarnings("unchecked")
 	public static <T> T findTransport(final IClient client, final Class<T> transportClass)
 	{
-		for (final ITransport<?> transport : client.getTransports())
+		for (final ITransport transport : client.getTransports())
 		{
 			if (transportClass.isInstance(transport))
 			{

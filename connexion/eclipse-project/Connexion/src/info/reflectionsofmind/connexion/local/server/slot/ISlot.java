@@ -3,16 +3,17 @@ package info.reflectionsofmind.connexion.local.server.slot;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 
-public interface ISlot<TransportType extends ITransport<NodeType>, NodeType extends INode>
+public interface ISlot
 {
 	public enum State
 	{
 		CLOSED, OPEN, CONNECTED, ACCEPTED, ERROR
 	}
-
+	
+	void setTransport(ITransport transport);
+	
 	/** {@link State#CLOSED} to {@link State#OPEN} */
 	void open();                               
 
@@ -20,21 +21,21 @@ public interface ISlot<TransportType extends ITransport<NodeType>, NodeType exte
 	void close();
 	
 	/** {@link State#CONNECTED} to {@link State#ACCEPTED} */
-	void accept(Player player);
+	void acceptAs(Player player);
 	
 	/** {@link State#CONNECTED}, {@link State#ACCEPTED} to {@link State#CLOSED} */
 	void disconnect(DisconnectReason reason);
 
 	State getState();
-	IRemoteClient<TransportType, NodeType> getClient();
+	IRemoteClient getClient();
 	Player getPlayer();
 	Exception getError();
-	TransportType getTransport();
+	ITransport getTransport();
 	
 	void addListener(IListener listener);
 
 	public interface IListener
 	{
-		void onAfterSlotStateChange(State previousState);
+		void onAfterSlotStateChange(ISlot slot, State previousState);
 	}
 }

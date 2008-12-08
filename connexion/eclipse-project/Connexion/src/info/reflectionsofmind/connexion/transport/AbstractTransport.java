@@ -3,11 +3,11 @@ package info.reflectionsofmind.connexion.transport;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractTransport<SenderType extends INode> implements ITransport<SenderType>
+public abstract class AbstractTransport implements ITransport
 {
 	private int connections = 0;
 
-	private final List<IListener<SenderType>> listeners = new ArrayList<IListener<SenderType>>();
+	private final List<IListener> listeners = new ArrayList<IListener>();
 
 	@Override
 	public final void start() throws TransportException
@@ -47,19 +47,19 @@ public abstract class AbstractTransport<SenderType extends INode> implements ITr
 	{
 	}
 
-	public final void addListener(final IListener<SenderType> listener)
+	public final void addListener(final IListener listener)
 	{
 		this.listeners.add(listener);
 	}
 
-	public final void removeListener(final IListener<SenderType> listener)
+	public final void removeListener(final IListener listener)
 	{
 		this.listeners.remove(listener);
 	}
 
-	protected void fireMessage(final SenderType sender, final String message)
+	protected void fireMessage(final INode sender, final String message)
 	{
-		for (final IListener<SenderType> listener : this.listeners)
+		for (final IListener listener : this.listeners)
 			listener.onMessage(sender, message);
 	}
 }

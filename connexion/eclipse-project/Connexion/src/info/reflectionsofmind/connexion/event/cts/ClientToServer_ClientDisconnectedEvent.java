@@ -23,7 +23,7 @@ public class ClientToServer_ClientDisconnectedEvent extends ClientToServerEvent
 	}
 	
 	@Override
-	public void dispatch(IRemoteClient<?,?> sender, IListener listener)
+	public void dispatch(IRemoteClient sender, IListener listener)
 	{
 		listener.onDisconnect(sender, this);
 	}
