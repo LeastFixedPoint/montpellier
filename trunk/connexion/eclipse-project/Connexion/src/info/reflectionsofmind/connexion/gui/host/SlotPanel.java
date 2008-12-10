@@ -25,7 +25,7 @@ import net.miginfocom.swing.MigLayout;
 
 import com.google.common.collect.ImmutableMap;
 
-class SlotPanel extends JPanel implements ISlot.IListener, ItemListener
+class SlotPanel extends JPanel implements IServerToClientEventListener.IListener, ItemListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -113,12 +113,12 @@ class SlotPanel extends JPanel implements ISlot.IListener, ItemListener
 
 	public void kick()
 	{
-		getSlot().disconnect(DisconnectReason.SERVER_REQUEST);
+		getSlot().setDisconnected(DisconnectReason.SERVER_REQUEST);
 	}
 
 	public void accept()
 	{
-		getSlot().acceptAs(new Player(getSlot().getClient().getName()));
+		getSlot().setAcceptedAs(new Player(getSlot().getClient().getName()));
 	}
 
 	public void reject()
@@ -217,7 +217,7 @@ class SlotPanel extends JPanel implements ISlot.IListener, ItemListener
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			reject();
+			setRejected();
 		}
 	}
 

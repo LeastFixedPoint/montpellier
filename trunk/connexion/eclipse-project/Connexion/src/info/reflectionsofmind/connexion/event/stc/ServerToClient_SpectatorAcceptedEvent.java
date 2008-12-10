@@ -1,11 +1,7 @@
 package info.reflectionsofmind.connexion.event.stc;
 
-import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.local.common.SpectatingClient;
 import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.local.server.ServerUtil;
-import info.reflectionsofmind.connexion.remote.server.IRemoteServer.IListener;
-import info.reflectionsofmind.connexion.util.Util;
+import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
@@ -15,9 +11,9 @@ public class ServerToClient_SpectatorAcceptedEvent extends ServerToClientEvent
 
 	private final int clientIndex;
 
-	public ServerToClient_SpectatorAcceptedEvent(IServer server, SpectatingClient spectator)
+	public ServerToClient_SpectatorAcceptedEvent(IServer server, IRemoteClient client)
 	{
-		this(ServerUtil.getClients(server).indexOf(spectator.getConnectedClient().getClient()));
+		this(server.getClients().indexOf(client));
 	}
 
 	public ServerToClient_SpectatorAcceptedEvent(int clientIndex)
@@ -26,7 +22,7 @@ public class ServerToClient_SpectatorAcceptedEvent extends ServerToClientEvent
 	}
 
 	@Override
-	public void dispatch(IListener listener)
+	public void dispatch(IServerToClientEventListener listener)
 	{
 		listener.onSpectatorAccepted(this);
 	}

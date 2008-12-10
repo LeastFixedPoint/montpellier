@@ -29,13 +29,13 @@ public interface IRemoteClient
 
 	void sendEvent(ServerToClientEvent event) throws TransportException;
 
-	void connect();
+	void setConnected();
 
-	void acceptAs(Player player);
+	void setAcceptedAs(Player player);
 
-	void reject();
+	void setRejected();
 
-	void disconnect(DisconnectReason disconnectReason);
+	void setDisconnected(DisconnectReason disconnectReason);
 
 	// ====================================================================================================
 	// === GETTERS

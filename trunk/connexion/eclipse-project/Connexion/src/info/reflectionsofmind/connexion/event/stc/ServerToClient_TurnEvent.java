@@ -1,7 +1,6 @@
 package info.reflectionsofmind.connexion.event.stc;
 
 import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.remote.server.IRemoteServer.IListener;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
@@ -21,7 +20,7 @@ public class ServerToClient_TurnEvent extends ServerToClientEvent
 	}
 	
 	@Override
-	public void dispatch(IListener listener)
+	public void dispatch(IServerToClientEventListener listener)
 	{
 		listener.onTurn(this);
 	}

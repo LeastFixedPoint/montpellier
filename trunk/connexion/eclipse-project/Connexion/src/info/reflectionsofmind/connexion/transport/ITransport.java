@@ -13,6 +13,6 @@ public interface ITransport
 	
 	public interface IListener
 	{
-		void onMessage(INode from, String message);
+		void onTransportMessage(INode from, String message);
 	}
 }

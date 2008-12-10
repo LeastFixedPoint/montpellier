@@ -7,7 +7,7 @@ import info.reflectionsofmind.connexion.util.Colors;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-public class StatusLabel extends JLabel implements ISlot.IListener
+public class StatusLabel extends JLabel implements ISlot.IServerToClientEventListener
 {
 	private static final int ICON_SIZE = 12;
 

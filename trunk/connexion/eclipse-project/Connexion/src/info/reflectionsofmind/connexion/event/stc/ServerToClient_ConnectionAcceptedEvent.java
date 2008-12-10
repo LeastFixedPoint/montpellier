@@ -3,7 +3,6 @@ package info.reflectionsofmind.connexion.event.stc;
 import info.reflectionsofmind.connexion.core.game.GameUtil;
 import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
-import info.reflectionsofmind.connexion.remote.server.IRemoteServer.IListener;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
@@ -28,7 +27,7 @@ public class ServerToClient_ConnectionAcceptedEvent extends ServerToClientEvent
 	}
 
 	@Override
-	public void dispatch(IListener listener)
+	public void dispatch(IServerToClientEventListener listener)
 	{
 		listener.onConnectionAccepted(this);
 	}

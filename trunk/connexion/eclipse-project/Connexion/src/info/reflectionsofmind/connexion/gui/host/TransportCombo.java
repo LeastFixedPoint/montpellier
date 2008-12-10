@@ -10,7 +10,7 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 
-public class TransportCombo extends JComboBox implements ISlot.IListener
+public class TransportCombo extends JComboBox implements ISlot.IServerToClientEventListener
 {
 	public TransportCombo(SlotPanel panel)
 	{

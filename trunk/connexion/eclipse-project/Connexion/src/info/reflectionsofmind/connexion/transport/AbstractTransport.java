@@ -60,6 +60,6 @@ public abstract class AbstractTransport implements ITransport
 	protected void fireMessage(final INode sender, final String message)
 	{
 		for (final IListener listener : this.listeners)
-			listener.onMessage(sender, message);
+			listener.onTransportMessage(sender, message);
 	}
 }

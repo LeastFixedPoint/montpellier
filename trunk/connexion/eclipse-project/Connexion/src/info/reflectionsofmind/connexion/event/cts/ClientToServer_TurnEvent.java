@@ -18,7 +18,7 @@ public class ClientToServer_TurnEvent extends ClientToServerEvent
 	}
 	
 	@Override
-	public void dispatch(INode origin, IClientToServerEventTarget target)
+	public void dispatch(INode origin, IClientToServerEventListener target)
 	{
 		target.onTurnEvent(origin, this);
 	}

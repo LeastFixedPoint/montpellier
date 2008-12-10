@@ -40,7 +40,7 @@ public final class RemoteClient implements IRemoteClient
 	}
 
 	@Override
-	public void connect()
+	public void setConnected()
 	{
 		final State previousState = assertState(State.PENDING);
 
@@ -49,7 +49,7 @@ public final class RemoteClient implements IRemoteClient
 		fireStateChange(previousState);
 	}
 
-	public void acceptAs(Player player)
+	public void setAcceptedAs(Player player)
 	{
 		final State previousState = assertState(State.CONNECTED);
 
@@ -66,7 +66,7 @@ public final class RemoteClient implements IRemoteClient
 		fireStateChange(previousState);
 	}
 
-	public void reject()
+	public void setRejected()
 	{
 		final State previousState = assertState(State.ACCEPTED, State.SPECTATOR);
 
@@ -76,7 +76,7 @@ public final class RemoteClient implements IRemoteClient
 		fireStateChange(previousState);
 	}
 
-	public void disconnect(DisconnectReason reason)
+	public void setDisconnected(DisconnectReason reason)
 	{
 		final State previousState = assertState(State.CONNECTED, State.ACCEPTED, State.SPECTATOR);
 
