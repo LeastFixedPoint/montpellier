@@ -17,7 +17,7 @@ public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerE
 	}
 	
 	@Override
-	public void dispatch(INode origin, IClientToServerEventTarget target)
+	public void dispatch(INode origin, IClientToServerEventListener target)
 	{
 		target.onClientConnectionRequestEvent(origin, this);
 	}

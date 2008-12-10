@@ -2,7 +2,7 @@ package info.reflectionsofmind.connexion.event.cts;
 
 import info.reflectionsofmind.connexion.transport.INode;
 
-public interface IClientToServerEventTarget
+public interface IClientToServerEventListener
 {
 	void onClientConnectionRequestEvent(INode from, ClientToServer_ClientConnectionRequestEvent event);
 	void onDisconnectNoticeEvent(INode from, ClientToServer_DisconnectNoticeEvent event);

@@ -1,6 +1,5 @@
 package info.reflectionsofmind.connexion.event.stc;
 
-import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 
 public abstract class ServerToClientEvent
 {
@@ -8,5 +7,5 @@ public abstract class ServerToClientEvent
 	
 	public abstract String encode();
 
-	public abstract void dispatch(IRemoteServer.IListener listener);
+	public abstract void dispatch(IServerToClientEventListener listener);
 }

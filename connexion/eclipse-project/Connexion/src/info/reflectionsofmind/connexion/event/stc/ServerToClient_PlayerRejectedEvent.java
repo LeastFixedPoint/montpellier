@@ -1,38 +1,35 @@
 package info.reflectionsofmind.connexion.event.stc;
 
-import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.local.common.AcceptedClient;
 import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.local.server.ServerUtil;
-import info.reflectionsofmind.connexion.remote.server.IRemoteServer.IListener;
+import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 public class ServerToClient_PlayerRejectedEvent extends ServerToClientEvent
 {
-	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":participant-rejected";
+	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":player-rejected";
 	
-	public ServerToClient_PlayerRejectedEvent(IServer server, AcceptedClient client)
+	public ServerToClient_PlayerRejectedEvent(IServer server, IRemoteClient client)
 	{
-		this(ServerUtil.getParticipants(server).indexOf(client));
+		this(server.getClients().indexOf(client));
 	}
 	
-	private final int participantIndex;
+	private final int clientIndex;
 
 	private ServerToClient_PlayerRejectedEvent(final int clientIndex)
 	{
-		this.participantIndex = clientIndex;
+		this.clientIndex = clientIndex;
 	}
 
 	@Override
-	public void dispatch(IListener listener)
+	public void dispatch(IServerToClientEventListener listener)
 	{
-		listener.onParticipantRejected(this);
+		listener.onPlayerRejected(this);
 	}
 
-	public int getParticipantIndex()
+	public int getClientIndex()
 	{
-		return this.participantIndex;
+		return this.clientIndex;
 	}
 	
 	@Override
@@ -59,7 +56,7 @@ public class ServerToClient_PlayerRejectedEvent extends ServerToClientEvent
 		@Override
 		public String encode(ServerToClient_PlayerRejectedEvent event)
 		{
-			return join(PREFIX, String.valueOf(event.getParticipantIndex()));
+			return join(PREFIX, String.valueOf(event.getClientIndex()));
 		}
 	};
 }

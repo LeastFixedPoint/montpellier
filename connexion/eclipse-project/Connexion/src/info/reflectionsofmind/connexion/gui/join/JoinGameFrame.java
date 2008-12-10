@@ -1,6 +1,7 @@
 package info.reflectionsofmind.connexion.gui.join;
 
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
+import info.reflectionsofmind.connexion.event.stc.IServerToClientEventListener;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
@@ -37,7 +38,7 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class JoinGameFrame extends JFrame implements IRemoteServer.IListener, ChatPane.IListener
+public class JoinGameFrame extends JFrame implements IServerToClientEventListener, ChatPane.IListener
 {
 	private final List<ServerType> serverTypes = new ArrayList<ServerType>();
 
@@ -148,7 +149,7 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener, Ch
 	// ============================================================================================
 
 	@Override
-	public void onParticipantAccepted(final ServerToClient_PlayerAcceptedEvent event)
+	public void onPlayerAccepted(final ServerToClient_PlayerAcceptedEvent event)
 	{
 		this.statusLabel.setText("Connection request accepted.");
 

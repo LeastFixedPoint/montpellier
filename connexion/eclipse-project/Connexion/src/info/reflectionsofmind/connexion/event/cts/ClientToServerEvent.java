@@ -9,5 +9,5 @@ public abstract class ClientToServerEvent
 	
 	public abstract String encode();
 	
-	public abstract void dispatch(INode origin, IClientToServerEventTarget target);
+	public abstract void dispatch(INode origin, IClientToServerEventListener target);
 }

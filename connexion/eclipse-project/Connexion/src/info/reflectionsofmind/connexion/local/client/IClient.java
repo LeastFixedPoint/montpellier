@@ -1,7 +1,5 @@
 package info.reflectionsofmind.connexion.local.client;
 
-import java.util.List;
-
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.local.Settings;
@@ -11,7 +9,9 @@ import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.transport.ITransport;
 
-public interface IClient extends IRemoteServer.IListener
+import java.util.List;
+
+public interface IClient
 {
 	String getName();
 	Game getGame();

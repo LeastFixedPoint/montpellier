@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class ClientToServerDecoder
+public class ClientToServerEventDecoder
 {
 	private final static List<ICoder<?>> CODERS = // 
 	ImmutableList.<ICoder<?>> of( //

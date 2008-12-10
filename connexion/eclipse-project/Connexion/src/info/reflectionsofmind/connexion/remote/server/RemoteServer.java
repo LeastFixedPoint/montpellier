@@ -1,7 +1,8 @@
 package info.reflectionsofmind.connexion.remote.server;
 
 import info.reflectionsofmind.connexion.event.cts.ClientToServerEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClientDecoder;
+import info.reflectionsofmind.connexion.event.stc.IServerToClientEventListener;
+import info.reflectionsofmind.connexion.event.stc.ServerToClientEventDecoder;
 import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
@@ -13,7 +14,7 @@ import java.util.List;
 public class RemoteServer<TransportType extends ITransport, NodeType extends INode> //
 		implements IRemoteServer, ITransport.IListener
 {
-	private final List<IListener> listeners = new ArrayList<IListener>();
+	private final List<IServerToClientEventListener> listeners = new ArrayList<IServerToClientEventListener>();
 
 	private final TransportType transport;
 	private final NodeType serverNode;
@@ -50,11 +51,11 @@ public class RemoteServer<TransportType extends ITransport, NodeType extends INo
 	}
 	
 	@Override
-	public void onMessage(INode from, String message)
+	public void onTransportMessage(INode from, String message)
 	{
-		ServerToClientEvent event = ServerToClientDecoder.decode(message);
+		ServerToClientEvent event = ServerToClientEventDecoder.decode(message);
 		
-		for (IListener listener : this.listeners)
+		for (IServerToClientEventListener listener : this.listeners)
 		{
 			event.dispatch(listener);
 		}
@@ -74,13 +75,13 @@ public class RemoteServer<TransportType extends ITransport, NodeType extends INo
 	}
 
 	@Override
-	public void addListener(final IListener listener)
+	public void addListener(final IServerToClientEventListener listener)
 	{
 		this.listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(final IListener listener)
+	public void removeListener(final IServerToClientEventListener listener)
 	{
 		this.listeners.remove(listener);
 	}

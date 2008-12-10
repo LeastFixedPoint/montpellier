@@ -9,13 +9,22 @@ import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_DisconnectNoticeEvent;
+import info.reflectionsofmind.connexion.event.stc.IServerToClientEventListener;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerRejectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_SpectatorAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_SpectatorRejectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.Settings;
+import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.remote.client.RemoteClient;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
@@ -31,22 +40,15 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultLocalClient implements IClient, IRemoteServer.IListener
+public class DefaultLocalClient implements IClient, IServerToClientEventListener
 {
-	// All of this we have always
 	private final Settings settings;
 	private final List<ITransport> transports = new ArrayList<ITransport>();
-
-	// All of this we have after connect() call
 	private IRemoteServer server;
 	private ITileSource tileSource;
-
-	// All of this we have after onConnectionAccepted() event
-	private final List<Player> players = new ArrayList<Player>();
-	private Player player;
-
-	// All of this we have after onStart() event
 	private RemoteTileSequence sequence;
+	private final List<Client> clients = new ArrayList<Client>();
+	private Client client;
 	private Game game;
 
 	public DefaultLocalClient(final Settings settings)
@@ -55,6 +57,10 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 		
 		this.transports.add(new JabberTransport(settings.getJabberAddress()));
 	}
+	
+	// ============================================================================================
+	// === COMMANDS
+	// ============================================================================================
 	
 	public void connect(final IRemoteServer server)
 	{
@@ -87,36 +93,76 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 			throw new RuntimeException(exception);
 		}
 	}
+	
+	public void disconnect(DisconnectReason reason)
+	{
+		try
+		{
+			this.server.sendEvent(new ClientToServer_DisconnectNoticeEvent(reason));
+		}
+		catch (ServerConnectionException exception)
+		{
+			throw new RuntimeException(exception);
+		}
+		catch (RemoteServerException exception)
+		{
+			throw new RuntimeException(exception);
+		}
+	}
 
 	// ============================================================================================
 	// === EVENT HANDLERS
 	// ============================================================================================
 	
 	@Override
-	public synchronized void onParticipantAccepted(ServerToClient_PlayerAcceptedEvent event)
+	public synchronized void onConnectionAccepted(ServerToClient_ConnectionAcceptedEvent event)
 	{
-		for (String playerName : event.getExistingPlayers())
+		for (String clientName : event.getExistingPlayers())
 		{
-			this.players.add(new Player(playerName));
+			this.clients.add(new Client(clientName));
 		}
 		
-		this.player = this.players.get(this.players.size() - 1);
+		this.client = this.clients.get(this.clients.size() - 1);
 	}
 	
 	@Override
 	public synchronized void onClientConnected(ServerToClient_ClientConnectedEvent event)
 	{
-		this.players.add(new Player(event.getClientName()));
+		this.clients.add(new Client(event.getClientName()));
 	}
 	
 	@Override
 	public synchronized void onClientDisconnected(ServerToClient_ClientDisconnectedEvent event)
 	{
-		this.players.remove(event.getClientIndex());
+		this.clients.get(event.getClientIndex()).setDisconnected(event.getReason());
+	}
+	
+	@Override
+	public void onPlayerAccepted(ServerToClient_PlayerAcceptedEvent event)
+	{
+		this.clients.get(event.getClientIndex()).setAccepted();
+	}
+	
+	@Override
+	public void onPlayerRejected(ServerToClient_PlayerRejectedEvent event)
+	{
+		this.clients.get(event.getClientIndex()).setRejected();
+	}
+	
+	@Override
+	public void onSpectatorAccepted(ServerToClient_SpectatorAcceptedEvent event)
+	{
+		this.clients.get(event.getClientIndex()).setSpectator();
+	}
+	
+	@Override
+	public void onSpectatorRejected(ServerToClient_SpectatorRejectedEvent event)
+	{
+		this.clients.get(event.getClientIndex()).setRejected();
 	}
 
 	@Override
-	public synchronized void onStart(final ServerToClient_GameStartedEvent event)
+	public void onStart(final ServerToClient_GameStartedEvent event)
 	{
 		try
 		{
@@ -142,7 +188,7 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	}
 
 	@Override
-	public synchronized void onTurn(final ServerToClient_TurnEvent event)
+	public void onTurn(final ServerToClient_TurnEvent event)
 	{
 		if (event.getCurrentTileCode() == null)
 		{

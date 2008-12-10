@@ -1,46 +1,35 @@
 package info.reflectionsofmind.connexion.event.stc;
 
-import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.local.server.ServerUtil;
-import info.reflectionsofmind.connexion.remote.server.IRemoteServer.IListener;
-import info.reflectionsofmind.connexion.util.Util;
+import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 public class ServerToClient_PlayerAcceptedEvent extends ServerToClientEvent
 {
-	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":participant-accepted";
+	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":player-accepted";
 
 	private final int clientIndex;
-	private final String playerName;
 
-	public ServerToClient_PlayerAcceptedEvent(IServer server, Player player)
+	public ServerToClient_PlayerAcceptedEvent(IServer server, IRemoteClient client)
 	{
-		this(ServerUtil.getClients(server).indexOf(ServerUtil.getSlotByPlayer(server, player).getClient()), // 
-				player.getName());
+		this(server.getClients().indexOf(client));
 	}
 
-	public ServerToClient_PlayerAcceptedEvent(int clientIndex, String playerName)
+	public ServerToClient_PlayerAcceptedEvent(int clientIndex)
 	{
 		this.clientIndex = clientIndex;
-		this.playerName = playerName;
 	}
 
 	@Override
-	public void dispatch(IListener listener)
+	public void dispatch(IServerToClientEventListener listener)
 	{
-		listener.onParticipantAccepted(this);
+		listener.onPlayerAccepted(this);
 	}
 
 	public int getClientIndex()
 	{
 		return this.clientIndex;
-	}
-
-	public String getPlayerName()
-	{
-		return this.playerName;
 	}
 
 	@Override
@@ -61,13 +50,13 @@ public class ServerToClient_PlayerAcceptedEvent extends ServerToClientEvent
 		public ServerToClient_PlayerAcceptedEvent decode(String string)
 		{
 			final String[] tokens = split(PREFIX, string);
-			return new ServerToClient_PlayerAcceptedEvent(Integer.parseInt(tokens[0]), Util.decode(tokens[1]));
+			return new ServerToClient_PlayerAcceptedEvent(Integer.parseInt(tokens[0]));
 		}
 
 		@Override
 		public String encode(ServerToClient_PlayerAcceptedEvent event)
 		{
-			return join(PREFIX, String.valueOf(event.getClientIndex()), Util.encode(event.getPlayerName()));
+			return join(PREFIX, String.valueOf(event.getClientIndex()));
 		}
 	};
 }
