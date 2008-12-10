@@ -4,10 +4,8 @@ import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.event.cts.ClientToServerDecoder;
 import info.reflectionsofmind.connexion.event.cts.ClientToServerEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_DisconnectNoticeEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
@@ -66,29 +64,26 @@ public final class Slot implements ISlot, ITransport.IListener
 
 		if (getState() == State.OPEN)
 		{
-			for (ISlot slot : ServerUtil.getConnectedSlots(getServer()))
-			{
-				if (slot.getClient().getClientNode() == from) return;
-			}
+			if (ServerUtil.getSlotByClientNode(getServer(), from) != null) return;
 
 			if (event instanceof ClientToServer_ClientConnectionRequestEvent)
 			{
 				final String name = ((ClientToServer_ClientConnectionRequestEvent) event).getPlayerName();
 				setClient(new RemoteClient(getTransport(), from, name));
 				setState(State.CONNECTED);
-				getServer().onConnectionRequest(getClient(), (ClientToServer_ClientConnectionRequestEvent) event);
+				getServer().onConnectionRequest(from, (ClientToServer_ClientConnectionRequestEvent) event);
 			}
 		}
-		else if (getState() == State.CONNECTED || getState() == State.ACCEPTED)
+		else if (getState() == State.CONNECTED)
 		{
-			if (getClient().getClientNode() != from) return;
+			if (getClient().getNode() != from) return;
 
 			if (event instanceof ClientToServer_MessageEvent)
 			{
 				event.dispatch(getClient(), getServer());
 			}
 
-			if (event instanceof ClientToServer_ClientDisconnectedEvent)
+			if (event instanceof ClientToServer_DisconnectNoticeEvent)
 			{
 				event.dispatch(getClient(), getServer());
 			}
@@ -117,10 +112,9 @@ public final class Slot implements ISlot, ITransport.IListener
 	{
 		assertState(State.CLOSED);
 
-		this.transport.addListener(this);
-
 		try
 		{
+			this.transport.addListener(this);
 			this.transport.start();
 			setState(State.OPEN);
 		}
@@ -136,10 +130,9 @@ public final class Slot implements ISlot, ITransport.IListener
 	{
 		assertState(State.OPEN);
 
-		this.transport.removeListener(this);
-
 		try
 		{
+			this.transport.removeListener(this);
 			this.transport.stop();
 			setState(State.CLOSED);
 		}
@@ -151,36 +144,12 @@ public final class Slot implements ISlot, ITransport.IListener
 		fireAfterStateChange(State.OPEN);
 	}
 
-	public final void acceptAs(final Player player)
+	public final void disconnect(final DisconnectReason reason)
 	{
 		assertState(State.CONNECTED);
 
-		setPlayer(player);
-
 		try
 		{
-			getClient().sendEvent(new ServerToClient_ConnectionAcceptedEvent(getServer()));
-			setState(State.ACCEPTED);
-		}
-		catch (TransportException exception)
-		{
-			setError(exception);
-		}
-
-		fireAfterStateChange(State.CONNECTED);
-	}
-
-	public final void disconnect(final DisconnectReason reason)
-	{
-		assertState(State.CONNECTED, State.ACCEPTED);
-		final State previousState = getState();
-
-		try
-		{
-			final ServerToClient_PlayerDisconnectedEvent event = // 
-			new ServerToClient_PlayerDisconnectedEvent(getServer(), getPlayer(), reason);
-
-			this.transport.send((INode) getClient().getClientNode(), event.encode());
 			this.transport.removeListener(this);
 			this.transport.stop();
 			setState(State.CLOSED);
@@ -190,7 +159,7 @@ public final class Slot implements ISlot, ITransport.IListener
 			setError(exception);
 		}
 
-		fireAfterStateChange(previousState);
+		fireAfterStateChange(State.CONNECTED);
 	}
 
 	// ============================================================================================
@@ -206,6 +175,7 @@ public final class Slot implements ISlot, ITransport.IListener
 
 	private final void setClient(final IRemoteClient client)
 	{
+		assertState(State.OPEN);
 		this.client = client;
 	}
 
@@ -216,6 +186,7 @@ public final class Slot implements ISlot, ITransport.IListener
 
 	public void setPlayer(Player player)
 	{
+		assertState(State.CONNECTED);
 		this.player = player;
 	}
 

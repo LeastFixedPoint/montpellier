@@ -3,9 +3,10 @@ package info.reflectionsofmind.connexion.local.server;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.INode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,21 +17,21 @@ import com.google.common.collect.Lists;
 
 public class ServerUtil
 {
-	public static Collection<ISlot> getConnectedSlots(IServer server)
+	public static Collection<ISlot> getSlotsByStatus(final IServer server, final ISlot.State... states)
 	{
 		return Collections2.filter(server.getSlots(), new Predicate<ISlot>()
 		{
 			@Override
 			public boolean apply(ISlot slot)
 			{
-				return (slot.getState() == ISlot.State.CONNECTED) || (slot.getState() == ISlot.State.ACCEPTED);
+				return (Arrays.binarySearch(states, slot.getState()) > 0);
 			}
 		});
 	}
 
 	public static List<Player> getPlayers(IServer server)
 	{
-		return Lists.transform(new ArrayList<ISlot>(getConnectedSlots(server)), // 
+		return Lists.transform(new ArrayList<ISlot>(getSlotsByStatus(server, ISlot.State.ACCEPTED)), // 
 				new Function<ISlot, Player>()
 				{
 					@Override
@@ -41,41 +42,13 @@ public class ServerUtil
 				});
 	}
 
-	public static List<IRemoteClient> getClients(IServer server)
+	public static IRemoteClient getClientByNode(IServer server, INode node)
 	{
-		return Lists.transform(new ArrayList<ISlot>(getConnectedSlots(server)), // 
-				new Function<ISlot, IRemoteClient>()
-				{
-					@Override
-					public IRemoteClient apply(ISlot slot)
-					{
-						return slot.getClient();
-					}
-				});
-	}
-
-	
-	public static ISlot getSlotByClient(IServer server, IRemoteClient client)
-	{
-		for (ISlot slot : getConnectedSlots(server))
+		for (IRemoteClient client : server.getClients())
 		{
-			if (slot.getClient() == client) return slot;
+			if (client.getNode() == node) return client;
 		}
 		
-		throw new RuntimeException("Slot not found for client [" + client + "].");
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T findTransport(final IServer server, final Class<T> transportClass)
-	{
-		for (final ITransport transport : server.getTransports())
-		{
-			if (transportClass.isInstance(transport))
-			{
-				return (T) transport;
-			}
-		}
-	
 		return null;
 	}
 }

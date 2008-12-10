@@ -1,8 +1,7 @@
 package info.reflectionsofmind.connexion.event.cts;
 
 import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient.IListener;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
@@ -19,9 +18,9 @@ public class ClientToServer_TurnEvent extends ClientToServerEvent
 	}
 	
 	@Override
-	public void dispatch(IRemoteClient sender, IListener listener)
+	public void dispatch(INode origin, IClientToServerEventTarget target)
 	{
-		listener.onTurn(sender, this);
+		target.onTurnEvent(origin, this);
 	}
 
 	public Turn getTurn()

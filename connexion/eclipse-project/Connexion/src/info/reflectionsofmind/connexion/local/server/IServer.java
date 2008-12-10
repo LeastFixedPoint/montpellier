@@ -1,33 +1,19 @@
-package info.reflectionsofmind.connexion.local.server;
+package info.reflectionsofmind.connexion.local.server;	
 
 import info.reflectionsofmind.connexion.core.game.Game;
-import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.local.Settings;
-import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.transport.ITransport;
 
 import java.util.List;
 
-public interface IServer extends IRemoteClient.IListener
+public interface IServer
 {
-	void addSlot(ISlot slot);
-	List<ISlot> getSlots();
-
 	void startGame(String name);
 	Game getGame();
 	ITileSource getTileSource();
-	
+	List<IRemoteClient> getClients();
 	List<ITransport> getTransports();
 	Settings getSettings();
-	
-	void addPlayerListener(IPlayerListener listener);
-	
-	public interface IPlayerListener
-	{
-		void onMessage(Player player, String message);
-		void onAfterPlayerConnected(ISlot slot);
-		void onBeforePlayerDisconnected(ISlot slot, DisconnectReason reason);
-	}
 }

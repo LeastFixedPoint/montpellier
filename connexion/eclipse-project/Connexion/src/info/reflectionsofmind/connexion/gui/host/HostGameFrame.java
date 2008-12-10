@@ -6,7 +6,7 @@ import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
-import info.reflectionsofmind.connexion.local.server.IServer.IPlayerListener;
+import info.reflectionsofmind.connexion.local.server.IServer.IClientListener;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 
 import java.awt.event.ActionEvent;
@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameFrame extends JFrame implements ChatPane.IListener, IPlayerListener
+public class HostGameFrame extends JFrame implements ChatPane.IListener, IClientListener
 {
 	private static final long serialVersionUID = 1L;
 	private final DefaultLocalServer server;
@@ -66,12 +66,12 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IPlayer
 	}
 
 	@Override
-	public void onAfterPlayerConnected(ISlot slot)
+	public void onAfterClientConnected(ISlot slot)
 	{
 	}
 
 	@Override
-	public void onBeforePlayerDisconnected(ISlot slot, DisconnectReason reason)
+	public void onBeforeClientDisconnected(ISlot slot, DisconnectReason reason)
 	{
 	}
 

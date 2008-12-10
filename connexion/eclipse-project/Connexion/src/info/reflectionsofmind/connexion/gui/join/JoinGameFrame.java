@@ -1,11 +1,11 @@
 package info.reflectionsofmind.connexion.gui.join;
 
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
@@ -64,6 +64,7 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener, Ch
 		}
 		else
 		{
+			remoteServer.addListener(this);
 			this.serverTypes.add(new ServerType(remoteServer.getTransport().getName(), remoteServer.getTransport(), new LocalConnector(remoteServer)));
 		}
 
@@ -147,7 +148,7 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener, Ch
 	// ============================================================================================
 
 	@Override
-	public void onConnectionAccepted(final ServerToClient_ConnectionAcceptedEvent event)
+	public void onParticipantAccepted(final ServerToClient_PlayerAcceptedEvent event)
 	{
 		this.statusLabel.setText("Connection request accepted.");
 
@@ -156,13 +157,13 @@ public class JoinGameFrame extends JFrame implements IRemoteServer.IListener, Ch
 	}
 
 	@Override
-	public void onPlayerConnected(final ServerToClient_PlayerConnectedEvent event)
+	public void onClientConnected(final ServerToClient_ClientConnectedEvent event)
 	{
 
 	}
 
 	@Override
-	public void onPlayerDisconnected(final ServerToClient_PlayerDisconnectedEvent event)
+	public void onClientDisconnected(final ServerToClient_ClientDisconnectedEvent event)
 	{
 
 	}

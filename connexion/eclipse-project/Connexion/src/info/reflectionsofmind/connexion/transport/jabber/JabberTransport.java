@@ -2,6 +2,7 @@ package info.reflectionsofmind.connexion.transport.jabber;
 
 import info.reflectionsofmind.connexion.transport.AbstractTransport;
 import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -87,6 +88,12 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 		public JabberAddress getAddress()
 		{
 			return this.address;
+		}
+		
+		@Override
+		public ITransport getTransport()
+		{
+			return JabberTransport.this;
 		}
 	}
 }

@@ -1,45 +1,100 @@
 package info.reflectionsofmind.connexion.remote.client;
 
+import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
+import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.transport.INode;
-import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class RemoteClient implements IRemoteClient, ITransport.IListener
+public final class RemoteClient implements IRemoteClient
 {
-	private final List<IListener> listeners = new ArrayList<IListener>();
+	private final List<IStateListener> stateListeners = new ArrayList<IStateListener>();
+
+	private State state = State.PENDING;
+	private Player player;
 
 	private final String name;
-	private final ITransport transport;
-	private final INode clientNode;
+	private final INode node;
 
-	public RemoteClient(final ITransport transport, final INode clientNode, final String name)
+	public RemoteClient(final INode clientNode, final String name)
 	{
 		this.name = name;
-		this.transport = transport;
-		this.clientNode = clientNode;
+		this.node = clientNode;
+	}
+
+	// ====================================================================================================
+	// === COMMANDS
+	// ====================================================================================================
+
+	private State assertState(State... states)
+	{
+		for (State state : states)
+		{
+			if (this.state == state) return this.state;
+		}
+
+		throw new IllegalStateException(this.state.toString());
 	}
 
 	@Override
-	public void addListener(final IListener listener)
+	public void connect()
 	{
-		this.listeners.add(listener);
+		final State previousState = assertState(State.PENDING);
+
+		this.state = State.CONNECTED;
+		
+		fireStateChange(previousState);
+	}
+
+	public void acceptAs(Player player)
+	{
+		final State previousState = assertState(State.CONNECTED);
+
+		if (player != null)
+		{
+			this.player = player;
+			this.state = State.ACCEPTED;
+		}
+		else
+		{
+			this.state = State.SPECTATOR;
+		}
+		
+		fireStateChange(previousState);
+	}
+
+	public void reject()
+	{
+		final State previousState = assertState(State.ACCEPTED, State.SPECTATOR);
+
+		this.player = null;
+		this.state = State.CONNECTED;
+		
+		fireStateChange(previousState);
+	}
+
+	public void disconnect(DisconnectReason reason)
+	{
+		final State previousState = assertState(State.CONNECTED, State.ACCEPTED, State.SPECTATOR);
+
+		this.player = null;
+		this.state = State.DISCONNECTED;
+		
+		fireStateChange(previousState);
 	}
 
 	@Override
 	public void sendEvent(final ServerToClientEvent event) throws TransportException
 	{
-		this.transport.send(this.clientNode, event.encode());
+		getNode().getTransport().send(this.node, event.encode());
 	}
 
-	@Override
-	public void onMessage(INode from, String message)
-	{
-		
-	}
+	// ====================================================================================================
+	// === GETTERS
+	// ====================================================================================================
 
 	@Override
 	public String getName()
@@ -48,8 +103,36 @@ public final class RemoteClient implements IRemoteClient, ITransport.IListener
 	}
 
 	@Override
-	public INode getClientNode()
+	public INode getNode()
 	{
-		return this.clientNode;
+		return this.node;
+	}
+
+	@Override
+	public State getState()
+	{
+		return this.state;
+	}
+
+	@Override
+	public Player getPlayer()
+	{
+		return this.player;
+	}
+	
+	// ====================================================================================================
+	// === LISTENERS
+	// ====================================================================================================
+
+	@Override
+	public void addListener(final IStateListener listener)
+	{
+		this.stateListeners.add(listener);
+	}
+	
+	private void fireStateChange(final State previousState)
+	{
+		for (IStateListener listener : this.stateListeners)
+			listener.onAfterClientStateChange(this, previousState);
 	}
 }

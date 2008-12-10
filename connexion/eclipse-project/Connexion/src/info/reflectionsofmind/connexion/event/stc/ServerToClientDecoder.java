@@ -10,11 +10,11 @@ public class ServerToClientDecoder
 {
 	private final static List<ICoder<?>> CODERS = // 
 	ImmutableList.<ICoder<?>> of( //
-			ServerToClient_ConnectionAcceptedEvent.CODER, // 
-			ServerToClient_PlayerDisconnectedEvent.CODER, //
+			ServerToClient_PlayerAcceptedEvent.CODER, // 
+			ServerToClient_ClientDisconnectedEvent.CODER, //
 			ServerToClient_GameStartedEvent.CODER, //
 			ServerToClient_MessageEvent.CODER, //
-			ServerToClient_PlayerConnectedEvent.CODER, //
+			ServerToClient_ClientConnectedEvent.CODER, //
 			ServerToClient_TurnEvent.CODER);
 
 	public static ServerToClientEvent decode(String string)
