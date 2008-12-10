@@ -1,34 +1,63 @@
 package info.reflectionsofmind.connexion.remote.client;
 
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnectedEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
+import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
+import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
+/**
+ * <ul>
+ * <li><b>WILL</b> react to commands and notify state listeners.</li>
+ * </ul>
+ */
 public interface IRemoteClient
 {
-	void sendEvent(ServerToClientEvent event) throws TransportException;
-	
-	String getName();
-	INode getClientNode();
-	
-	void addListener(IListener listener);
-	
-	public interface IListener
+	public enum State
 	{
-		/** Client calls this when it wants to connect. */
-		void onConnectionRequest(IRemoteClient sender, ClientToServer_ClientConnectionRequestEvent event);
-		
-		/** Client calls this before it disconnects. */
-		void onDisconnect(IRemoteClient sender, ClientToServer_ClientDisconnectedEvent event);
-		
-		/** Client calls this when it makes a turn. */
-		void onTurn(IRemoteClient sender, ClientToServer_TurnEvent event);
-		
-		/** Client calls this when it send a message. */
-		void onMessage(IRemoteClient sender, ClientToServer_MessageEvent event);
+		PENDING, CONNECTED, ACCEPTED, SPECTATOR, DISCONNECTED;
+
+		public static boolean isConnected(State state)
+		{
+			return (state == CONNECTED) || (state == ACCEPTED) || (state == SPECTATOR);
+		}
+	};
+
+	// ====================================================================================================
+	// === COMMANDS
+	// ====================================================================================================
+
+	void sendEvent(ServerToClientEvent event) throws TransportException;
+
+	void connect();
+
+	void acceptAs(Player player);
+
+	void reject();
+
+	void disconnect(DisconnectReason disconnectReason);
+
+	// ====================================================================================================
+	// === GETTERS
+	// ====================================================================================================
+
+	String getName();
+
+	INode getNode();
+
+	State getState();
+
+	Player getPlayer();
+
+	// ====================================================================================================
+	// === LISTENERS
+	// ====================================================================================================
+
+	void addListener(IStateListener listener);
+
+	public interface IStateListener
+	{
+		/** This is called when client state changes. */
+		void onAfterClientStateChange(IRemoteClient client, State previousState);
 	}
 }

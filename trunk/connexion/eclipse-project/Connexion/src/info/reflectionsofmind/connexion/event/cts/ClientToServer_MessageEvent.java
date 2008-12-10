@@ -1,7 +1,6 @@
 package info.reflectionsofmind.connexion.event.cts;
 
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient.IListener;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
@@ -18,9 +17,9 @@ public class ClientToServer_MessageEvent extends ClientToServerEvent
 	}
 	
 	@Override
-	public void dispatch(IRemoteClient sender, IListener listener)
+	public void dispatch(INode origin, IClientToServerEventTarget target)
 	{
-		listener.onMessage(sender, this);
+		target.onMessageEvent(origin, this);
 	}
 
 	public String getMessage()

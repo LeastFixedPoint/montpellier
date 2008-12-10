@@ -1,12 +1,11 @@
 package info.reflectionsofmind.connexion.event.cts;
 
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient.IListener;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 /** Event: client has disconnected by its own initiative. */
-public class ClientToServer_ClientDisconnectedEvent extends ClientToServerEvent
+public class ClientToServer_DisconnectNoticeEvent extends ClientToServerEvent
 {
 	private final static String PREFIX = ClientToServerEvent.EVENT_PREFIX + ":disconnect";
 
@@ -17,15 +16,15 @@ public class ClientToServer_ClientDisconnectedEvent extends ClientToServerEvent
 
 	private final ClientSideDisconnectReason reason;
 
-	public ClientToServer_ClientDisconnectedEvent(final ClientSideDisconnectReason reason)
+	public ClientToServer_DisconnectNoticeEvent(final ClientSideDisconnectReason reason)
 	{
 		this.reason = reason;
 	}
 	
 	@Override
-	public void dispatch(IRemoteClient sender, IListener listener)
+	public void dispatch(INode origin, IClientToServerEventTarget target)
 	{
-		listener.onDisconnect(sender, this);
+		target.onDisconnectNoticeEvent(origin, this);
 	}
 
 	public ClientSideDisconnectReason getReason()
@@ -39,7 +38,7 @@ public class ClientToServer_ClientDisconnectedEvent extends ClientToServerEvent
 		return CODER.encode(this);
 	}
 
-	public final static ICoder<ClientToServer_ClientDisconnectedEvent> CODER = new AbstractCoder<ClientToServer_ClientDisconnectedEvent>()
+	public final static ICoder<ClientToServer_DisconnectNoticeEvent> CODER = new AbstractCoder<ClientToServer_DisconnectNoticeEvent>()
 	{
 		@Override
 		public boolean accepts(final String string)
@@ -48,15 +47,15 @@ public class ClientToServer_ClientDisconnectedEvent extends ClientToServerEvent
 		}
 
 		@Override
-		public ClientToServer_ClientDisconnectedEvent decode(final String string)
+		public ClientToServer_DisconnectNoticeEvent decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
 			final ClientSideDisconnectReason reason = ClientSideDisconnectReason.valueOf(tokens[0]);
-			return new ClientToServer_ClientDisconnectedEvent(reason);
+			return new ClientToServer_DisconnectNoticeEvent(reason);
 		}
 
 		@Override
-		public String encode(final ClientToServer_ClientDisconnectedEvent event)
+		public String encode(final ClientToServer_DisconnectNoticeEvent event)
 		{
 			return join(PREFIX, event.getReason().toString());
 		}

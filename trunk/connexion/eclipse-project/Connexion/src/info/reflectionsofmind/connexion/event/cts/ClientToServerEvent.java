@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.event.cts;
 
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.transport.INode;
 
 
 public abstract class ClientToServerEvent
@@ -9,5 +9,5 @@ public abstract class ClientToServerEvent
 	
 	public abstract String encode();
 	
-	public abstract void dispatch(IRemoteClient sender, IRemoteClient.IListener listener);
+	public abstract void dispatch(INode origin, IClientToServerEventTarget target);
 }

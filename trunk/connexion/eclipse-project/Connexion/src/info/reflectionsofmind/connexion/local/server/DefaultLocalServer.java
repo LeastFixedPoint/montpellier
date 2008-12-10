@@ -8,21 +8,30 @@ import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.RandomTileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
+import info.reflectionsofmind.connexion.event.cts.ClientToServerDecoder;
+import info.reflectionsofmind.connexion.event.cts.ClientToServerEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_DisconnectNoticeEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
+import info.reflectionsofmind.connexion.event.cts.IClientToServerEventTarget;
+import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.local.server.slot.ISlot;
+import info.reflectionsofmind.connexion.local.server.slot.ISlot.State;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.remote.client.RemoteClient;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
@@ -34,56 +43,130 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultLocalServer implements IServer, IRemoteClient.IListener
+public class DefaultLocalServer implements IServer, ITransport.IListener, IClientToServerEventTarget
 {
 	private final List<ITransport> transports = new ArrayList<ITransport>();
-	private final List<ISlot> slots = new ArrayList<ISlot>();
+	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();
 	private final Settings settings;
 
 	private Game game;
 	private ITileSource tileSource;
-	
-	private final List<IPlayerListener> playerListeners = new ArrayList<IPlayerListener>();
-	
+
 	public DefaultLocalServer(final Settings settings)
 	{
 		this.settings = settings;
-		
+
 		this.transports.add(new ServerLocalTransport(this));
 		this.transports.add(new JabberTransport(settings.getJabberAddress()));
+	}
+
+	private void fireEvent(ServerToClientEvent event)
+	{
+		for (IRemoteClient remoteClient : this.clients)
+		{
+			if (!IRemoteClient.State.isConnected(remoteClient.getState())) continue;
+
+			try
+			{
+				remoteClient.sendEvent(event);
+			}
+			catch (TransportException exception)
+			{
+				disconnect(remoteClient, DisconnectReason.CONNECTION_FAILURE);
+			}
+		}
+	}
+
+	private void disconnect(IRemoteClient disconnectedClient, DisconnectReason reason)
+	{
+		disconnectedClient.disconnect(reason);
+		fireEvent(new ServerToClient_ClientDisconnectedEvent(this, disconnectedClient, reason));
+	}
+
+	@Override
+	public void onMessage(INode origin, String message)
+	{
+		ClientToServerDecoder.decode(message).dispatch(origin, this);
+	}
+
+	@Override
+	public void onClientConnectionRequestEvent(INode origin, ClientToServer_ClientConnectionRequestEvent event)
+	{
+		final RemoteClient newRemoteClient = new RemoteClient(origin, event.getPlayerName());
+		this.clients.add(newRemoteClient);
+
+		try
+		{
+			newRemoteClient.sendEvent(new ServerToClient_ConnectionAcceptedEvent(this));
+			newRemoteClient.connect();
+			fireEvent(new ServerToClient_ClientConnectedEvent(newRemoteClient));
+		}
+		catch (TransportException exception)
+		{
+			disconnect(newRemoteClient, DisconnectReason.CONNECTION_FAILURE);
+		}
+	}
+
+	@Override
+	public void onDisconnectNoticeEvent(INode from, ClientToServer_DisconnectNoticeEvent event)
+	{
+		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
+		client.disconnect(DisconnectReason.CLIENT_REQUEST);
+		fireEvent(new ServerToClient_ClientDisconnectedEvent(this, client, DisconnectReason.CLIENT_REQUEST));
+	}
+
+	@Override
+	public void onMessageEvent(INode from, ClientToServer_MessageEvent event)
+	{
+
+	}
+
+	@Override
+	public void onTurnEvent(INode from, ClientToServer_TurnEvent event)
+	{
+		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
+
+		try
+		{
+			this.game.doTurn(event.getTurn());
+		}
+		catch (final GameTurnException exception)
+		{
+			client.disconnect(DisconnectReason.DESYNCHRONIZATION);
+			return;
+		}
+
+		for (final IRemoteClient client : ServerUtil.getClients(this))
+		{
+			try
+			{
+				final Turn turn = (client == sender) ? null : event.getTurn();
+				client.sendEvent(new ServerToClient_TurnEvent(turn, getGame().getCurrentTile().getCode()));
+			}
+			catch (final TransportException exception)
+			{
+				ServerUtil.getSlotByClient(this, sender).disconnect(DisconnectReason.CONNECTION_FAILURE);
+			}
+		}
 	}
 
 	// ====================================================================================================
 	// === IMPLEMENTATION
 	// ====================================================================================================
 
-	@Override
-	public void addPlayerListener(IPlayerListener listener)
-	{
-		this.playerListeners.add(listener);
-	}
-	
-	public void addSlot(ISlot slot)
-	{
-		if (this.game != null) throw new RuntimeException("Game already started.");
-		this.slots.add(slot);
-	}
-
 	private void sendStartEvents(final Tile initialTile)
 	{
-		for (final ISlot slot : this.slots)
+		for (final IRemoteClient client : this.clients)
 		{
-			if (slot.getState() == ISlot.State.CONNECTED)
+			if (!IRemoteClient.State.isConnected(client.getState())) continue;
+
+			try
 			{
-				try
-				{
-					slot.getClient().sendEvent(new ServerToClient_GameStartedEvent(getGame()));
-				}
-				catch (TransportException exception)
-				{
-					throw new RuntimeException();
-					// TODO Handle disconnect on game start
-				}
+				client.sendEvent(new ServerToClient_GameStartedEvent(getGame()));
+			}
+			catch (TransportException exception)
+			{
+				client.disconnect(DisconnectReason.CONNECTION_FAILURE);
 			}
 		}
 	}
@@ -161,21 +244,21 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	}
 
 	@Override
-	public List<ISlot> getSlots()
-	{
-		return ImmutableList.copyOf(this.slots);
-	}
-
-	@Override
 	public List<ITransport> getTransports()
 	{
 		return ImmutableList.copyOf(this.transports);
 	}
-	
+
 	@Override
 	public Settings getSettings()
 	{
 		return this.settings;
+	}
+
+	@Override
+	public List<IRemoteClient> getClients()
+	{
+		return this.clients;
 	}
 
 	// ============================================================================================
@@ -183,66 +266,51 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	// ============================================================================================
 
 	@Override
-	public void onConnectionRequest(IRemoteClient sender, ClientToServer_ClientConnectionRequestEvent event)
+	public void onConnectionRequest(INode sender, ClientToServer_ClientConnectionRequestEvent event)
 	{
-		final ISlot senderSlot = ServerUtil.getSlotByClient(this, sender);
+		final RemoteClient newRemoteClient = new RemoteClient(sender, event.getPlayerName());
+		this.clients.add(newRemoteClient);
+		newRemoteClient.connect();
 
-		final Player player = new Player(event.getPlayerName());
-		senderSlot.acceptAs(player);
-
-		try
+		for (IRemoteClient remoteClient : this.clients)
 		{
-			sender.sendEvent(new ServerToClient_ConnectionAcceptedEvent(this));
-		}
-		catch (TransportException exception)
-		{
-			senderSlot.disconnect(DisconnectReason.CONNECTION_FAILURE);
-		}
-
-		for (ISlot slot : ServerUtil.getConnectedSlots(this))
-		{
-			if (slot != senderSlot)
+			try
 			{
-				try
-				{
-					slot.getClient().sendEvent(new ServerToClient_PlayerConnectedEvent(player));
-				}
-				catch (TransportException exception)
-				{
-					senderSlot.disconnect(DisconnectReason.CONNECTION_FAILURE);
-				}
+				remoteClient.sendEvent(new ServerToClient_ClientConnectedEvent(newRemoteClient));
+			}
+			catch (TransportException exception)
+			{
+				remoteClient.disconnect(DisconnectReason.CONNECTION_FAILURE);
 			}
 		}
-		
-		for (IPlayerListener listener : this.playerListeners)
+
+		for (IClientListener listener : this.playerListeners)
 		{
-			listener.onAfterPlayerConnected(senderSlot);
+			listener.onAfterClientConnected(remoteClient);
 		}
 	}
 
 	@Override
 	public void onMessage(IRemoteClient sender, ClientToServer_MessageEvent event)
 	{
-		final Player player = ServerUtil.getSlotByClient(this, sender).getPlayer();
-		final int index = ServerUtil.getPlayers(this).indexOf(player);
-		
+		final int index = this.clients.indexOf(sender);
 		ServerToClient_MessageEvent serverEvent = new ServerToClient_MessageEvent(index, event.getMessage());
-		
-		for (ISlot slot : ServerUtil.getConnectedSlots(this))
+
+		for (IRemoteClient remoteClient : this.clients)
 		{
 			try
 			{
-				slot.getClient().sendEvent(serverEvent);
+				remoteClient.sendEvent(serverEvent);
 			}
 			catch (TransportException exception)
 			{
 				exception.printStackTrace();
 			}
 		}
-		
-		for (IPlayerListener listener : this.playerListeners)
+
+		for (IClientListener listener : this.playerListeners)
 		{
-			listener.onMessage(player, event.getMessage());
+			listener.onMessage(remoteClient, event.getMessage());
 		}
 	}
 
@@ -274,7 +342,7 @@ public class DefaultLocalServer implements IServer, IRemoteClient.IListener
 	}
 
 	@Override
-	public synchronized void onDisconnect(final IRemoteClient sender, ClientToServer_ClientDisconnectedEvent event)
+	public synchronized void onDisconnect(final IRemoteClient sender, ClientToServer_DisconnectNoticeEvent event)
 	{
 		throw new UnsupportedOperationException("Disconnects not supported yet.");
 	}

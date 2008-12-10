@@ -9,11 +9,11 @@ import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerConnectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
@@ -93,7 +93,7 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	// ============================================================================================
 	
 	@Override
-	public synchronized void onConnectionAccepted(ServerToClient_ConnectionAcceptedEvent event)
+	public synchronized void onParticipantAccepted(ServerToClient_PlayerAcceptedEvent event)
 	{
 		for (String playerName : event.getExistingPlayers())
 		{
@@ -104,15 +104,15 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	}
 	
 	@Override
-	public synchronized void onPlayerConnected(ServerToClient_PlayerConnectedEvent event)
+	public synchronized void onClientConnected(ServerToClient_ClientConnectedEvent event)
 	{
-		this.players.add(new Player(event.getPlayerName()));
+		this.players.add(new Player(event.getClientName()));
 	}
 	
 	@Override
-	public synchronized void onPlayerDisconnected(ServerToClient_PlayerDisconnectedEvent event)
+	public synchronized void onClientDisconnected(ServerToClient_ClientDisconnectedEvent event)
 	{
-		this.players.remove(event.getPlayerIndex());
+		this.players.remove(event.getClientIndex());
 	}
 
 	@Override
@@ -181,6 +181,7 @@ public class DefaultLocalClient implements IClient, IRemoteServer.IListener
 	@Override
 	public void onMessage(ServerToClient_MessageEvent event)
 	{
+		
 	}
 
 	// ============================================================================================

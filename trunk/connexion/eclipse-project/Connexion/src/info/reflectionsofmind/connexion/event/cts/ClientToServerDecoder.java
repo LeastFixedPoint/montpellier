@@ -11,7 +11,7 @@ public class ClientToServerDecoder
 	private final static List<ICoder<?>> CODERS = // 
 	ImmutableList.<ICoder<?>> of( //
 			ClientToServer_ClientConnectionRequestEvent.CODER, // 
-			ClientToServer_ClientDisconnectedEvent.CODER, //
+			ClientToServer_DisconnectNoticeEvent.CODER, //
 			ClientToServer_MessageEvent.CODER, //
 			ClientToServer_TurnEvent.CODER);
 
