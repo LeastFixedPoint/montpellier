@@ -1,13 +1,12 @@
 package info.reflectionsofmind.connexion.gui.host;
 
 import info.reflectionsofmind.connexion.core.game.Player;
+import info.reflectionsofmind.connexion.event.cts.IClientToServerEventListener;
 import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
-import info.reflectionsofmind.connexion.local.server.IServer.IClientListener;
-import info.reflectionsofmind.connexion.local.server.slot.ISlot;
 
 import java.awt.event.ActionEvent;
 
@@ -18,7 +17,7 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameFrame extends JFrame implements ChatPane.IListener, IClientListener
+public class HostGameFrame extends JFrame implements ChatPane.IListener, IClientToServerEventListener
 {
 	private static final long serialVersionUID = 1L;
 	private final DefaultLocalServer server;
@@ -45,6 +44,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IClient
 		add(this.configPanel, "grow, wrap");
 
 		this.clientsPanel = new ClientsPanel(this);
+		this.server.addListener(this.clientsPanel);
 		add(this.clientsPanel, "grow, wrap");
 
 		this.startButton = new JButton(new StartAction());
@@ -111,7 +111,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IClient
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			if (ServerUtil.getPlayers(getServer()).isEmpty())
+			if (ServerUtil.getPlayers(getRemoteServer()).isEmpty())
 			{
 				JOptionPane.showMessageDialog(HostGameFrame.this, "You must have at least one player!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;

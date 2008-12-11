@@ -12,11 +12,11 @@ import javax.swing.JComboBox;
 
 public class TransportCombo extends JComboBox implements ISlot.IServerToClientEventListener
 {
-	public TransportCombo(SlotPanel panel)
+	public TransportCombo(ClientPanel panel)
 	{
 		final List<ClientType> clientTypes = new ArrayList<ClientType>();
 		clientTypes.add(ClientType.NONE);
-		for (final ITransport availableTransport : panel.getPanel().getHostGameDialog().getServer().getTransports())
+		for (final ITransport availableTransport : panel.getPanel().getHostGameDialog().getRemoteServer().getTransports())
 		{
 			clientTypes.add(new ClientType(availableTransport));
 		}

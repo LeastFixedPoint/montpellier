@@ -127,7 +127,7 @@ public class GameWindow extends JFrame
 		try
 		{
 			this.turnMode = State.WAITING;
-			getClient().getServer().sendEvent(new ClientToServer_TurnEvent(this.turn));
+			getClient().getRemoteServer().sendEvent(new ClientToServer_TurnEvent(this.turn));
 		}
 		catch (final RemoteServerException exception)
 		{

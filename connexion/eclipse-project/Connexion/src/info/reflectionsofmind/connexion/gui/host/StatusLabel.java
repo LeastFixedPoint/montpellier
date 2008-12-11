@@ -16,9 +16,9 @@ public class StatusLabel extends JLabel implements ISlot.IServerToClientEventLis
 	private final static Icon CONNECTED_ICON = Colors.getEmptyIcon(ICON_SIZE);
 	private final static Icon ERROR_ICON = Colors.getEmptyIcon(ICON_SIZE);
 
-	private final SlotPanel panel;
+	private final ClientPanel panel;
 
-	public StatusLabel(SlotPanel panel)
+	public StatusLabel(ClientPanel panel)
 	{
 		super("Closed", CLOSED_ICON, JLabel.LEFT);
 		this.panel = panel;

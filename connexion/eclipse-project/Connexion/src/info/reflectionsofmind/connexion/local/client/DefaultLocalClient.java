@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.local.client;
 
+import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
@@ -11,20 +12,18 @@ import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_DisconnectNoticeEvent;
 import info.reflectionsofmind.connexion.event.stc.IServerToClientEventListener;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerRejectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_SpectatorAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_SpectatorRejectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.remote.client.RemoteClient;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
@@ -35,7 +34,6 @@ import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -168,6 +166,14 @@ public class DefaultLocalClient implements IClient, IServerToClientEventListener
 		{
 			this.sequence = new RemoteTileSequence(event.getTotalNumberOfTiles());
 			this.sequence.setCurrentTile(new Tile(event.getInitialTileCode()));
+			
+			final List<Player> players = new ArrayList<Player>();
+
+			for (Client client : this.clients)
+			{
+				players.add(new Player(client.getName()));
+			}
+
 			this.game = new Game(event.getGameName(), this.sequence, players);
 
 			final Turn turn = new Turn(false);
@@ -241,12 +247,6 @@ public class DefaultLocalClient implements IClient, IServerToClientEventListener
 	}
 
 	@Override
-	public Player getPlayer()
-	{
-		return this.player;
-	}
-
-	@Override
 	public Game getGame()
 	{
 		return this.game;
@@ -259,17 +259,23 @@ public class DefaultLocalClient implements IClient, IServerToClientEventListener
 	}
 
 	@Override
-	public IRemoteServer getServer()
+	public IRemoteServer getRemoteServer()
 	{
 		return this.server;
 	}
-	
+
 	@Override
-	public List<Player> getPlayers()
+	public List<Client> getClients()
 	{
-		return Collections.unmodifiableList(this.players);
+		return this.clients;
 	}
 	
+	@Override
+	public Client getClient()
+	{
+		return this.client;
+	}
+
 	@Override
 	public List<ITransport> getTransports()
 	{
