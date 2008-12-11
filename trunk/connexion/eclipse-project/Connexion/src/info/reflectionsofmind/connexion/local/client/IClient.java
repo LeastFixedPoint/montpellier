@@ -1,8 +1,9 @@
 package info.reflectionsofmind.connexion.local.client;
 
+import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.core.game.Game;
-import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.local.Settings;
+import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
@@ -15,12 +16,13 @@ public interface IClient
 {
 	String getName();
 	Game getGame();
-	Player getPlayer();
 	ITileSource getTileSource();
-	IRemoteServer getServer();
-	List<Player> getPlayers();
+	IRemoteServer getRemoteServer();
+	Client getClient();
+	List<Client> getClients();
 	List<ITransport> getTransports();
 	Settings getSettings();
 
 	void connect(IRemoteServer server) throws ServerConnectionException, RemoteServerException;
+	void disconnect(DisconnectReason reason);
 }

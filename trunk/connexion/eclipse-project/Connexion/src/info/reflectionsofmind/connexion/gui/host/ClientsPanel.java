@@ -1,5 +1,7 @@
 package info.reflectionsofmind.connexion.gui.host;
 
+import info.reflectionsofmind.connexion.local.server.IServer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,10 +11,10 @@ import javax.swing.JPanel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.swing.MigLayout;
 
-public class ClientsPanel extends JPanel
+public class ClientsPanel extends JPanel implements IServer.IListener
 {
 	private final HostGameFrame window;
-	private final List<SlotPanel> panels = new ArrayList<SlotPanel>();
+	private final List<ClientPanel> panels = new ArrayList<ClientPanel>();
 
 	public ClientsPanel(final HostGameFrame window)
 	{
@@ -32,7 +34,7 @@ public class ClientsPanel extends JPanel
 
 	private void addPanel()
 	{
-		final SlotPanel panel = new SlotPanel(this, this.panels.size());
+		final ClientPanel panel = new ClientPanel(this, this.panels.size());
 		this.panels.add(panel);
 
 		final int i = this.panels.indexOf(panel);
@@ -40,7 +42,7 @@ public class ClientsPanel extends JPanel
 		add(panel, new CC().grow().cell(i / 3, 1 + i % 3));
 	}
 
-	public void removePanel(final SlotPanel panel)
+	public void removePanel(final ClientPanel panel)
 	{
 		if (this.panels.size() > 1)
 		{
@@ -58,7 +60,7 @@ public class ClientsPanel extends JPanel
 	@Override
 	public void setEnabled(final boolean enabled)
 	{
-		for (final SlotPanel panel : this.panels)
+		for (final ClientPanel panel : this.panels)
 		{
 			panel.setEnabled(enabled);
 		}

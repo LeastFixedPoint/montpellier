@@ -111,7 +111,7 @@ public class JoinGameFrame extends JFrame implements IServerToClientEventListene
 	{
 		try
 		{
-			client.getServer().sendEvent(new ClientToServer_MessageEvent(message));
+			client.getRemoteServer().sendEvent(new ClientToServer_MessageEvent(message));
 		}
 		catch (ServerConnectionException exception)
 		{
@@ -172,7 +172,7 @@ public class JoinGameFrame extends JFrame implements IServerToClientEventListene
 	@Override
 	public void onStart(final ServerToClient_GameStartedEvent event)
 	{
-		this.client.getServer().removeListener(this);
+		this.client.getRemoteServer().removeListener(this);
 		dispose();
 		new GameWindow(this.client).setVisible(true);
 	}

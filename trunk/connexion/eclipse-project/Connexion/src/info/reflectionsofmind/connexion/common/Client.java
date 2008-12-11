@@ -1,32 +1,50 @@
-package info.reflectionsofmind.connexion.remote.client;
+package info.reflectionsofmind.connexion.common;
 
-import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
-import info.reflectionsofmind.connexion.transport.INode;
-import info.reflectionsofmind.connexion.transport.TransportException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class RemoteClient implements IRemoteClient
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
+public class Client
 {
-	private final List<IStateListener> stateListeners = new ArrayList<IStateListener>();
-
-	private State state = null;
-
-	private final String name;
-	private final INode node;
-
-	public RemoteClient(final INode clientNode, final String name)
+	public enum State
 	{
-		this.name = name;
-		this.node = clientNode;
+		CONNECTED, ACCEPTED, SPECTATOR, DISCONNECTED;
+
+		public static List<State> mapValueOf(List<String> strings)
+		{
+			return Lists.transform(strings, new Function<String, State>()
+			{
+				@Override
+				public State apply(String string)
+				{
+					return valueOf(string);
+				}
+			});
+		}
+
+		public static boolean isConnected(State state)
+		{
+			return (state == CONNECTED) || (state == ACCEPTED) || (state == SPECTATOR);
+		}
 	}
 
-	// ====================================================================================================
-	// === COMMANDS
-	// ====================================================================================================
+	private final List<IStateListener> stateListeners = new ArrayList<IStateListener>();
+
+	private final String name;
+	private State state = State.CONNECTED;
+
+	public Client(String name)
+	{
+		this.name = name;
+	}
+
+	// ============================================================================================
+	// === STATE CHANGES
+	// ============================================================================================
 
 	private State assertState(State... states)
 	{
@@ -36,16 +54,6 @@ public final class RemoteClient implements IRemoteClient
 		}
 
 		throw new IllegalStateException(this.state.toString());
-	}
-
-	@Override
-	public void setConnected()
-	{
-		final State previousState = assertState((State) null);
-
-		this.state = State.CONNECTED;
-
-		fireStateChange(previousState);
 	}
 
 	public void setAccepted()
@@ -84,39 +92,24 @@ public final class RemoteClient implements IRemoteClient
 		fireStateChange(previousState);
 	}
 
-	@Override
-	public void sendEvent(final ServerToClientEvent event) throws TransportException
-	{
-		getNode().getTransport().send(this.node, event.encode());
-	}
-
-	// ====================================================================================================
+	// ============================================================================================
 	// === GETTERS
-	// ====================================================================================================
+	// ============================================================================================
 
-	@Override
-	public String getName()
-	{
-		return this.name;
-	}
-
-	@Override
-	public INode getNode()
-	{
-		return this.node;
-	}
-
-	@Override
 	public State getState()
 	{
 		return this.state;
+	}
+
+	public String getName()
+	{
+		return this.name;
 	}
 
 	// ====================================================================================================
 	// === LISTENERS
 	// ====================================================================================================
 
-	@Override
 	public void addListener(final IStateListener listener)
 	{
 		this.stateListeners.add(listener);
@@ -126,5 +119,11 @@ public final class RemoteClient implements IRemoteClient
 	{
 		for (IStateListener listener : this.stateListeners)
 			listener.onAfterClientStateChange(this, previousState);
+	}
+
+	public static interface IStateListener
+	{
+		/** This is called when client state changes. */
+		void onAfterClientStateChange(Client client, State previousState);
 	}
 }

@@ -16,4 +16,11 @@ public interface IServer
 	List<IRemoteClient> getClients();
 	List<ITransport> getTransports();
 	Settings getSettings();
+	
+	void addListener(IListener listener);
+	
+	public interface IListener
+	{
+		void onClientConnected(IRemoteClient client);
+	}
 }

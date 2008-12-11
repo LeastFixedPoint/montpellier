@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.local.server;
 
+import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Turn;
@@ -124,7 +125,7 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	{
 		for (IRemoteClient remoteClient : this.clients)
 		{
-			if (!IRemoteClient.State.isConnected(remoteClient.getState())) continue;
+			if (!State.isConnected(remoteClient.getState())) continue;
 
 			try
 			{
@@ -155,8 +156,15 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 			{
 				tiles.add(new Tile(tileData.getCode()));
 			}
+			
+			final List<Player> players = new ArrayList<Player>();
 
-			this.game = new Game(name, new RandomTileSequence(tiles), ServerUtil.getPlayers(this));
+			for (IRemoteClient client : getClients())
+			{
+				players.add(new Player(client.getName()));
+			}
+			
+			this.game = new Game(name, new RandomTileSequence(tiles), players);
 		}
 		catch (final IOException exception)
 		{

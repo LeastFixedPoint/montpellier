@@ -1,18 +1,16 @@
 package info.reflectionsofmind.connexion.gui.host;
 
+import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
 import info.reflectionsofmind.connexion.local.server.DisconnectReason;
-import info.reflectionsofmind.connexion.local.server.slot.ISlot;
-import info.reflectionsofmind.connexion.local.server.slot.Slot;
-import info.reflectionsofmind.connexion.local.server.slot.ISlot.State;
 import info.reflectionsofmind.connexion.remote.server.LocalRemoteServer;
 import info.reflectionsofmind.connexion.transport.local.ServerLocalTransport;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -25,7 +23,7 @@ import net.miginfocom.swing.MigLayout;
 
 import com.google.common.collect.ImmutableMap;
 
-class SlotPanel extends JPanel implements IServerToClientEventListener.IListener, ItemListener
+class ClientPanel extends JPanel implements Client.IStateListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -33,34 +31,31 @@ class SlotPanel extends JPanel implements IServerToClientEventListener.IListener
 
 	private final int index;
 
-	private final Action listenAction = new ListenAction();
-	private final Action cancelAction = new CancelAction();
 	private final Action acceptAction = new AcceptAction();
+	private final Action spectateAction = new SpectateAction();
 	private final Action rejectAction = new RejectAction();
 	private final Action kickAction = new KickAction();
 
-	private final ISlot slot;
+	private final Client client;
 
-	private final Map<ISlot.State, ButtonPanel> buttonPanels = ImmutableMap.<ISlot.State, ButtonPanel> builder() //
-			.put(ISlot.State.CLOSED, new ButtonPanel("[grow]", this.listenAction)) // 
-			.put(ISlot.State.OPEN, new ButtonPanel("[grow]", this.cancelAction)) //
-			.put(ISlot.State.CONNECTED, new ButtonPanel("[grow 2][grow 1]", this.acceptAction, this.kickAction)) //
-			.put(ISlot.State.ACCEPTED, new ButtonPanel("[grow 2][grow 1]", this.rejectAction, this.kickAction)) //
-			.put(ISlot.State.ERROR, new ButtonPanel("[grow]", this.listenAction)) //
+	private final Map<State, ButtonPanel> buttonPanels = ImmutableMap.<State, ButtonPanel> builder() //
+			.put(State.CONNECTED, new ButtonPanel("[grow][grow][grow]", this.acceptAction, this.spectateAction, this.kickAction)) //
+			.put(State.ACCEPTED, new ButtonPanel("[grow][grow]", this.rejectAction, this.kickAction)) //
+			.put(State.SPECTATOR, new ButtonPanel("[grow][grow]", this.rejectAction, this.kickAction)) //
 			.build();
 
-	private ButtonPanel currentButtonPanel = this.buttonPanels.get(ISlot.State.CLOSED);
+	private ButtonPanel currentButtonPanel = this.buttonPanels.get(State.CONNECTED);
 
 	private final TransportCombo transportCombo;
 
 	private final StatusLabel statusLabel;
 
-	public SlotPanel(final ClientsPanel panel, final int index)
+	public ClientPanel(final ClientsPanel panel, final int index)
 	{
 		this.index = index;
 		this.panel = panel;
 		
-		this.slot = new Slot(panel.getHostGameDialog().getServer());
+		this.slot = new Slot(panel.getHostGameDialog().getRemoteServer());
 
 		setLayout(new MigLayout("ins 0 6 6 6", "[120]", "[24][24][24]"));
 		setBorder(BorderFactory.createTitledBorder("Slot " + (index + 1)));
@@ -204,6 +199,20 @@ class SlotPanel extends JPanel implements IServerToClientEventListener.IListener
 		public void actionPerformed(final ActionEvent e)
 		{
 			accept();
+		}
+	}
+
+	public class SpectateAction extends AbstractAction
+	{
+		public SpectateAction()
+		{
+			super("Spectate");
+		}
+
+		@Override
+		public void actionPerformed(final ActionEvent e)
+		{
+			spectate();
 		}
 	}
 
