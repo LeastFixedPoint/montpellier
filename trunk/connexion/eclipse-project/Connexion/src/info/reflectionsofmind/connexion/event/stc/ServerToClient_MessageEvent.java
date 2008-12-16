@@ -11,9 +11,9 @@ public class ServerToClient_MessageEvent extends ServerToClientEvent
 	private final int playerIndex;
 	private final String message;
 
-	public ServerToClient_MessageEvent(final int playerIndex, final String message)
+	public ServerToClient_MessageEvent(final int clientIndex, final String message)
 	{
-		this.playerIndex = playerIndex;
+		this.playerIndex = clientIndex;
 		this.message = message;
 	}
 	
@@ -23,7 +23,7 @@ public class ServerToClient_MessageEvent extends ServerToClientEvent
 		listener.onMessage(this);
 	}
 
-	public int getPlayerIndex()
+	public int getClientIndex()
 	{
 		return this.playerIndex;
 	}
@@ -51,15 +51,15 @@ public class ServerToClient_MessageEvent extends ServerToClientEvent
 		public ServerToClient_MessageEvent decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
-			final int playerIndex = Integer.valueOf(tokens[0]);
+			final int clientIndex = Integer.valueOf(tokens[0]);
 			final String message = Util.decode(tokens[1]);
-			return new ServerToClient_MessageEvent(playerIndex, message);
+			return new ServerToClient_MessageEvent(clientIndex, message);
 		}
 
 		@Override
 		public String encode(final ServerToClient_MessageEvent event)
 		{
-			return join(PREFIX, String.valueOf(event.getPlayerIndex()), Util.encode(event.message));
+			return join(PREFIX, String.valueOf(event.getClientIndex()), Util.encode(event.message));
 		}
 	};
 }

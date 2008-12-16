@@ -1,14 +1,14 @@
 package info.reflectionsofmind.connexion.gui.host;
 
 import info.reflectionsofmind.connexion.local.server.IServer;
+import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JLabel;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import net.miginfocom.layout.CC;
 import net.miginfocom.swing.MigLayout;
 
 public class ClientsPanel extends JPanel implements IServer.IListener
@@ -19,27 +19,27 @@ public class ClientsPanel extends JPanel implements IServer.IListener
 	public ClientsPanel(final HostGameFrame window)
 	{
 		this.window = window;
+		this.window.getServer().addListener(this);
 
-		setLayout(new MigLayout("ins 0", "[]6[]", "[]6[]6[]6[]"));
-
-		add(new JLabel(""), "span");
-
-		for (int i = 0; i < 6; i++)
-		{
-			addPanel();
-		}
+		setBorder(BorderFactory.createTitledBorder("Clients"));
+		setLayout(new MigLayout("ins 0", "[]", "[]"));
 
 		getLayout().layoutContainer(this);
 	}
-
-	private void addPanel()
+	
+	@Override
+	public void onClientConnected(IRemoteClient client)
 	{
-		final ClientPanel panel = new ClientPanel(this, this.panels.size());
+		final ClientPanel panel = new ClientPanel(this, client);
 		this.panels.add(panel);
 
-		final int i = this.panels.indexOf(panel);
-
-		add(panel, new CC().grow().cell(i / 3, 1 + i % 3));
+		add(panel, "grow, span");
+	}
+	
+	@Override
+	public void onClientMessage(IRemoteClient client, String message)
+	{
+		
 	}
 
 	public void removePanel(final ClientPanel panel)

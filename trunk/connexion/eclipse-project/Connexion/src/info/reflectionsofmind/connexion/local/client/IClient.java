@@ -25,4 +25,14 @@ public interface IClient
 
 	void connect(IRemoteServer server) throws ServerConnectionException, RemoteServerException;
 	void disconnect(DisconnectReason reason);
+	
+	public interface IListener
+	{
+		void onClientConnected(Client client);
+		void onMessage(Client sender, String message);
+		void onConnected();
+		void onDisconnected(DisconnectReason reason);
+		void onGameStarted();
+		void onTurn();
+	}
 }

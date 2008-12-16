@@ -38,7 +38,7 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class JoinGameFrame extends JFrame implements IServerToClientEventListener, ChatPane.IListener
+public class JoinGameFrame extends JFrame implements IClient.IListener, ChatPane.IListener
 {
 	private final List<ServerType> serverTypes = new ArrayList<ServerType>();
 
@@ -50,7 +50,7 @@ public class JoinGameFrame extends JFrame implements IServerToClientEventListene
 	private final JButton connectButton;
 	private final ChatPane chatPane;
 	private final JList playerList;
-
+	
 	public JoinGameFrame(final MainFrame mainFrame, final LocalRemoteServer remoteServer)
 	{
 		super("Connexion :: Join game");
@@ -186,7 +186,7 @@ public class JoinGameFrame extends JFrame implements IServerToClientEventListene
 	@Override
 	public void onMessage(final ServerToClient_MessageEvent event)
 	{
-		final String name = this.client.getPlayers().get(event.getPlayerIndex()).getName();
+		final String name = this.client.getClients().get(event.getClientIndex()).getName();
 		this.chatPane.writeMessage(name, event.getMessage());
 	}
 
@@ -199,14 +199,14 @@ public class JoinGameFrame extends JFrame implements IServerToClientEventListene
 		@Override
 		public Object getElementAt(final int index)
 		{
-			return JoinGameFrame.this.client.getPlayers().get(index);
+			return JoinGameFrame.this.client.getClients().get(index);
 		}
 
 		@Override
 		public int getSize()
 		{
 			final IClient client = JoinGameFrame.this.client;
-			return client == null ? 0 : client.getPlayers().size();
+			return client == null ? 0 : client.getClients().size();
 		}
 	}
 

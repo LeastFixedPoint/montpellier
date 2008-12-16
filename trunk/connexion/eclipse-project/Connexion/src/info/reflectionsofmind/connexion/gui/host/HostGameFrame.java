@@ -1,12 +1,13 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.event.cts.IClientToServerEventListener;
+import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.local.server.ServerUtil;
+import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 
 import java.awt.event.ActionEvent;
 
@@ -17,7 +18,7 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameFrame extends JFrame implements ChatPane.IListener, IClientToServerEventListener
+public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer.IListener, IRemoteClient.IStateListener
 {
 	private static final long serialVersionUID = 1L;
 	private final DefaultLocalServer server;
@@ -34,7 +35,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IClient
 
 		this.mainWindow = mainWindow;
 		this.server = new DefaultLocalServer(mainWindow.getApplication().getSettings());
-		this.server.addPlayerListener(this);
+		this.server.addListener(this);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(true);
@@ -43,12 +44,12 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IClient
 		this.configPanel = new ConfigPanel(this);
 		add(this.configPanel, "grow, wrap");
 
-		this.clientsPanel = new ClientsPanel(this);
-		this.server.addListener(this.clientsPanel);
-		add(this.clientsPanel, "grow, wrap");
-
 		this.startButton = new JButton(new StartAction());
 		add(this.startButton, "wrap, w 120");
+
+		this.clientsPanel = new ClientsPanel(this);
+		this.server.addListener(this.clientsPanel);
+		add(this.clientsPanel, "grow, wrap, h 240");
 
 		this.chatPane = new ChatPane();
 		this.chatPane.addListener(this);
@@ -66,19 +67,33 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IClient
 	}
 
 	@Override
-	public void onAfterClientConnected(ISlot slot)
+	public void onClientConnected(final IRemoteClient client)
 	{
+		client.addListener(this);
+		this.chatPane.writeSystem("<b>" + client.getName() + "</b> connected.");
 	}
 
 	@Override
-	public void onBeforeClientDisconnected(ISlot slot, DisconnectReason reason)
+	public void onClientMessage(final IRemoteClient client, final String message)
 	{
+		this.chatPane.writeMessage(client.getName(), message);
 	}
 
 	@Override
-	public void onMessage(Player player, String message)
+	public void onAfterClientStateChange(final IRemoteClient client, final State previousState)
 	{
-		this.chatPane.writeMessage(player.getName(), message);
+		switch (client.getState())
+		{
+			case ACCEPTED:
+				this.chatPane.writeSystem("<b>" + client.getName() + "</b> was accepted into the game as <b>player</b>.");
+				break;
+			case SPECTATOR:
+				this.chatPane.writeSystem("<b>" + client.getName() + "</b> was accepted into the game as <b>spectator</b>.");
+				break;
+			case DISCONNECTED:
+				this.chatPane.writeSystem("<b>" + client.getName() + "</b> disconnected.");
+				break;
+		}
 	}
 
 	// ====================================================================================================
@@ -111,7 +126,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IClient
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			if (ServerUtil.getPlayers(getRemoteServer()).isEmpty())
+			if (ServerUtil.getClientsByStates(getServer(), Client.State.ACCEPTED).isEmpty())
 			{
 				JOptionPane.showMessageDialog(HostGameFrame.this, "You must have at least one player!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
