@@ -22,5 +22,6 @@ public interface IServer
 	public interface IListener
 	{
 		void onClientConnected(IRemoteClient client);
+		void onClientMessage(IRemoteClient client, String message);
 	}
 }

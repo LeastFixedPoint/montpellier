@@ -3,6 +3,7 @@ package info.reflectionsofmind.connexion.local.server;
 import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
+import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.RandomTileSequence;
@@ -41,6 +42,7 @@ import com.google.common.collect.ImmutableList;
 
 public class DefaultLocalServer implements IServer, ITransport.IListener, IClientToServerEventListener
 {
+	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final List<ITransport> transports = new ArrayList<ITransport>();
 	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();
 	private final Settings settings;
@@ -55,7 +57,16 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 		this.transports.add(new ServerLocalTransport(this));
 		this.transports.add(new JabberTransport(settings.getJabberAddress()));
 	}
+	
+	// ====================================================================================================
+	// === LISTENER
+	// ====================================================================================================
 
+	public void addListener(IListener listener)
+	{
+		this.listeners.add(listener);
+	}
+	
 	// ============================================================================================
 	// === HANDLERS
 	// ============================================================================================
