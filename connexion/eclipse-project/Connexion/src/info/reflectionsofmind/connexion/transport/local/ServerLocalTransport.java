@@ -8,6 +8,8 @@ import info.reflectionsofmind.connexion.transport.TransportException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import com.google.common.collect.ImmutableList;
 
 public class ServerLocalTransport extends AbstractLocalTransport
@@ -21,9 +23,27 @@ public class ServerLocalTransport extends AbstractLocalTransport
 	}
 
 	@Override
-	protected void doStart() throws TransportException
+	public void start() throws TransportException
 	{
-		this.remoteServers.add(new LocalRemoteServer(new ClientLocalTransport(), this.node));
+		final String numberString = JOptionPane.showInputDialog("How many local players do you want?", 1);
+		
+		if (numberString == null)
+		{
+			throw new TransportException("Cancelled");
+		}
+		
+		final int number = Integer.parseInt(numberString);
+		
+		for (int index = 0; index < number; index++)
+		{
+			this.remoteServers.add(new LocalRemoteServer(new ClientLocalTransport(), this.node));
+		}
+	}
+	
+	@Override
+	public void stop() throws TransportException
+	{
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override

@@ -27,6 +27,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	private final JButton startButton;
 	private final ConfigPanel configPanel;
 	private final ClientsPanel clientsPanel;
+	private final TransportsPanel transportsPanel;
 	private final ChatPane chatPane;
 
 	public HostGameFrame(final MainFrame mainWindow)
@@ -39,10 +40,13 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(true);
-		setLayout(new MigLayout("", "[center, shrink 0]6[grow]", "[shrink 0]6[shrink 0]6[top, grow]"));
+		setLayout(new MigLayout("", "[center, shrink 0]6[grow]", "[shrink 0]6[shrink 0]6[shrink 0]6[top, grow]"));
 
 		this.configPanel = new ConfigPanel(this);
 		add(this.configPanel, "grow, wrap");
+
+		this.transportsPanel = new TransportsPanel(this);
+		add(this.transportsPanel, "grow, wrap");
 
 		this.startButton = new JButton(new StartAction());
 		add(this.startButton, "wrap, w 120");
@@ -53,7 +57,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 
 		this.chatPane = new ChatPane();
 		this.chatPane.addListener(this);
-		add(this.chatPane, "grow, cell 1 0, spany 3, w 480");
+		add(this.chatPane, "grow, cell 1 0, spany 4, w 480");
 
 		pack();
 		setLocationRelativeTo(null);

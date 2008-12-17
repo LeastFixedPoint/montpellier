@@ -1,6 +1,5 @@
 package info.reflectionsofmind.connexion.transport;
 
-
 public interface ITransport
 {
 	void start() throws TransportException;

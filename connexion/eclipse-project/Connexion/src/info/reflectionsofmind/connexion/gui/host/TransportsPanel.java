@@ -17,7 +17,7 @@ public class TransportsPanel extends JPanel
 	{
 		this.hostGameFrame = hostGameFrame;
 		
-		setLayout(new MigLayout("", "[]", ""));
+		setLayout(new MigLayout("ins 0 6 6 6", "[]", ""));
 		setBorder(BorderFactory.createTitledBorder("Transports"));
 		
 		for (ITransport transport : getHostGameFrame().getServer().getTransports())
