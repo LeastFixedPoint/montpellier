@@ -22,25 +22,34 @@ public class TransportPanel extends JPanel
 		this.transportsPanel = transportsPanel;
 		this.transport = transport;
 		
-		setLayout(new MigLayout("ins 0", "[90][60]", "[]"));
+		setLayout(new MigLayout("ins 0", "[]6[90]", "[]"));
 		
 		this.openCloseButton = new JButton(new OpenAction());
-		
-		add(new JLabel(transport.getName()), "grow");
 		add(this.openCloseButton, "grow");
+		add(new JLabel(transport.getName()), "grow");
+	}
+	
+	private void open()
+	{
+		this.openCloseButton.setAction(new CloseAction());
+	}
+	
+	private void close()
+	{
+		this.openCloseButton.setAction(new OpenAction());
 	}
 	
 	private final class OpenAction extends AbstractAction
 	{
 		public OpenAction()
 		{
-			super("Open");
+			super("Open...");
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			
+			open();
 		}
 	}
 	
@@ -54,7 +63,7 @@ public class TransportPanel extends JPanel
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			
+			close();
 		}
 	}
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/.svn/*" kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/mockito-all-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/google-collect-snapshot-20080820.jar"/>
@@ -11,6 +12,7 @@
 	<classpathentry kind="lib" path="lib/smackx-debug.jar"/>
 	<classpathentry kind="lib" path="lib/napkinlaf-swingset2.jar"/>
 	<classpathentry kind="lib" path="lib/napkinlaf.jar"/>
+	<classpathentry kind="lib" path="lib/testng-5.8-jdk15.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
