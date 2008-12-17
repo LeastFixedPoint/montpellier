@@ -1,87 +1,21 @@
 package info.reflectionsofmind.connexion.remote.client;
 
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
+import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class RemoteClient implements IRemoteClient
 {
-	private final List<IStateListener> stateListeners = new ArrayList<IStateListener>();
-
-	private State state = null;
-
-	private final String name;
+	private final Client client;
 	private final INode node;
 
-	public RemoteClient(final INode clientNode, final String name)
+	public RemoteClient(final Client client, final INode clientNode)
 	{
-		this.name = name;
+		this.client = client;
 		this.node = clientNode;
-	}
-
-	// ====================================================================================================
-	// === COMMANDS
-	// ====================================================================================================
-
-	private State assertState(State... states)
-	{
-		for (State state : states)
-		{
-			if (this.state == state) return this.state;
-		}
-
-		throw new IllegalStateException(this.state.toString());
-	}
-
-	@Override
-	public void setConnected()
-	{
-		final State previousState = assertState((State) null);
-
-		this.state = State.CONNECTED;
-
-		fireStateChange(previousState);
-	}
-
-	public void setAccepted()
-	{
-		final State previousState = assertState(State.CONNECTED);
-
-		this.state = State.ACCEPTED;
-
-		fireStateChange(previousState);
-	}
-
-	public void setSpectator()
-	{
-		final State previousState = assertState(State.CONNECTED);
-
-		this.state = State.SPECTATOR;
-
-		fireStateChange(previousState);
-	}
-
-	public void setRejected()
-	{
-		final State previousState = assertState(State.ACCEPTED, State.SPECTATOR);
-
-		this.state = State.CONNECTED;
-
-		fireStateChange(previousState);
-	}
-
-	public void setDisconnected(DisconnectReason reason)
-	{
-		final State previousState = assertState(State.CONNECTED, State.ACCEPTED, State.SPECTATOR);
-
-		this.state = State.DISCONNECTED;
-
-		fireStateChange(previousState);
 	}
 
 	@Override
@@ -89,42 +23,27 @@ public final class RemoteClient implements IRemoteClient
 	{
 		getNode().getTransport().send(this.node, event.encode());
 	}
+	
+	@Override
+	public void sendChatMessage(IServer server, IRemoteClient client, String message)
+	{
+		final int index = server.getClients().indexOf(client);
+		getNode().getTransport().send(getNode(), new ServerToClient_MessageEvent(index, message).);
+	}
 
 	// ====================================================================================================
 	// === GETTERS
 	// ====================================================================================================
 
 	@Override
-	public String getName()
+	public Client getClient()
 	{
-		return this.name;
+		return this.client;
 	}
 
 	@Override
 	public INode getNode()
 	{
 		return this.node;
-	}
-
-	@Override
-	public State getState()
-	{
-		return this.state;
-	}
-
-	// ====================================================================================================
-	// === LISTENERS
-	// ====================================================================================================
-
-	@Override
-	public void addListener(final IStateListener listener)
-	{
-		this.stateListeners.add(listener);
-	}
-
-	private void fireStateChange(final State previousState)
-	{
-		for (IStateListener listener : this.stateListeners)
-			listener.onAfterClientStateChange(this, previousState);
 	}
 }

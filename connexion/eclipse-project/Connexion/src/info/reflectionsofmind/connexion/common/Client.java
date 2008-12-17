@@ -1,7 +1,5 @@
 package info.reflectionsofmind.connexion.common;
 
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +10,7 @@ public class Client
 {
 	public enum State
 	{
-		CONNECTED, ACCEPTED, SPECTATOR, DISCONNECTED;
+		CONNECTED, ACCEPTED, SPECTATOR;
 
 		public static List<State> mapValueOf(List<String> strings)
 		{
@@ -24,11 +22,6 @@ public class Client
 					return valueOf(string);
 				}
 			});
-		}
-
-		public static boolean isConnected(State state)
-		{
-			return (state == CONNECTED) || (state == ACCEPTED) || (state == SPECTATOR);
 		}
 	}
 
@@ -79,15 +72,6 @@ public class Client
 		final State previousState = assertState(State.ACCEPTED, State.SPECTATOR);
 
 		this.state = State.CONNECTED;
-
-		fireStateChange(previousState);
-	}
-
-	public void setDisconnected(DisconnectReason reason)
-	{
-		final State previousState = assertState(State.CONNECTED, State.ACCEPTED, State.SPECTATOR);
-
-		this.state = State.DISCONNECTED;
 
 		fireStateChange(previousState);
 	}
