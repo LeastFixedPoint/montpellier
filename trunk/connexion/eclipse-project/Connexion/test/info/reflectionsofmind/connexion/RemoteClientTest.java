@@ -53,9 +53,7 @@ public class RemoteClientTest
 		
 		IRemoteClient remoteClient = new RemoteClient(client, nodeMock);
 		
-		remoteClient.sendConnected(serverMock, otherClientMock);
-		remoteClient.sendStatusChanged(serverMock, otherClientMock);
-		remoteClient.sendDisconnected(serverMock, otherClientMock);
-		remoteClient.sendChatMessage(serverMock, otherClientMock, "Message");
+		remoteClient.sendGameStarted(serverMock);
+		remoteClient.sendLastTurn(serverMock);
 	}
 }
