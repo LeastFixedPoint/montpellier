@@ -1,10 +1,9 @@
 package info.reflectionsofmind.connexion.local.client;
 
 import info.reflectionsofmind.connexion.common.Client;
-import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
+import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
@@ -23,7 +22,6 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_SpectatorAccept
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_SpectatorRejectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.Settings;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
@@ -40,6 +38,7 @@ import com.google.common.collect.ImmutableList;
 
 public class DefaultLocalClient implements IClient, IServerToClientEventListener
 {
+	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final Settings settings;
 	private final List<ITransport> transports = new ArrayList<ITransport>();
 	private IRemoteServer server;
@@ -121,18 +120,34 @@ public class DefaultLocalClient implements IClient, IServerToClientEventListener
 		}
 		
 		this.client = this.clients.get(this.clients.size() - 1);
+		
+		for (IListener listener : this.listeners)
+		{
+			listener.onConnectionAccepted();
+		}
 	}
 	
 	@Override
 	public synchronized void onClientConnected(ServerToClient_ClientConnectedEvent event)
 	{
-		this.clients.add(new Client(event.getClientName()));
+		final Client connectedClient = new Client(event.getClientName());
+		this.clients.add(connectedClient);
+		
+		for (IListener listener : this.listeners)
+		{
+			listener.onClientConnected(connectedClient);
+		}
 	}
 	
 	@Override
 	public synchronized void onClientDisconnected(ServerToClient_ClientDisconnectedEvent event)
 	{
-		this.clients.get(event.getClientIndex()).setDisconnected(event.getReason());
+		final Client disconnectedClient = this.clients.remove(event.getClientIndex());
+		
+		for (IListener listener : this.listeners)
+		{
+			listener.onClientDisconnected(disconnectedClient, event.getReason());
+		}
 	}
 	
 	@Override
@@ -165,7 +180,7 @@ public class DefaultLocalClient implements IClient, IServerToClientEventListener
 		try
 		{
 			this.sequence = new RemoteTileSequence(event.getTotalNumberOfTiles());
-			this.sequence.setCurrentTile(new Tile(event.getInitialTileCode()));
+			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
 			
 			final List<Player> players = new ArrayList<Player>();
 
@@ -174,18 +189,7 @@ public class DefaultLocalClient implements IClient, IServerToClientEventListener
 				players.add(new Player(client.getName()));
 			}
 
-			this.game = new Game(event.getGameName(), this.sequence, players);
-
-			final Turn turn = new Turn(false);
-			final IGeometry geometry = this.game.getBoard().getGeometry();
-			turn.addTilePlacement(geometry.getInitialLocation(), geometry.getDirections().get(0));
-
-			this.game.doTurn(turn);
-			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
-		}
-		catch (GameTurnException exception)
-		{
-			throw new RuntimeException(exception);
+			this.game = new Game(this.sequence, players);
 		}
 		catch (TileCodeFormatException exception)
 		{

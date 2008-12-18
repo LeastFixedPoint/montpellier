@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.event.cts;
 
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;

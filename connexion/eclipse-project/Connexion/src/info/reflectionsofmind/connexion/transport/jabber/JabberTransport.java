@@ -4,6 +4,8 @@ import info.reflectionsofmind.connexion.transport.AbstractTransport;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
+import info.reflectionsofmind.connexion.util.Form;
+import info.reflectionsofmind.connexion.util.Form.FieldType;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
@@ -17,33 +19,44 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 {
 	private XMPPConnection connection;
 
-	private JabberAddress address;
+	private final Form form;
+
+	private final Form.Field addressField;
 
 	public JabberTransport(final JabberAddress address)
 	{
-		this.address = address;
+		this.form = new Form();
+		this.addressField = new Form.Field(FieldType.STRING, "Server's jabber ID", address.asString());
+		this.form.addField(this.addressField);
 	}
-	
+
+	@Override
+	public Form getForm()
+	{
+		return this.form;
+	}
+
 	@Override
 	public void send(final INode to, final String string) throws TransportException
 	{
-		final Message message = new Message(((JabberNode)to).getAddress().asString());
+		final Message message = new Message(((JabberNode) to).getAddress().asString());
 		message.setBody(string);
 		this.connection.sendPacket(message);
 	}
 
 	@Override
-	protected void doFirstStart() throws TransportException
+	public void start() throws TransportException
 	{
 		try
 		{
-			
+			final JabberAddress address = new JabberAddress(this.addressField.getString());
+
 			final ConnectionConfiguration configuration = new ConnectionConfiguration( //
-					this.address.getHost(), this.address.getPort());
+					address.getHost(), address.getPort());
 			SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 			this.connection = new XMPPConnection(configuration);
 			this.connection.connect();
-			this.connection.login(this.address.getLogin(), this.address.getPassword());
+			this.connection.login(address.getLogin(), address.getPassword());
 
 			this.connection.addPacketListener(this, null);
 		}
@@ -54,7 +67,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	}
 
 	@Override
-	protected void doFinalStop() throws TransportException
+	public void stop() throws TransportException
 	{
 		this.connection.disconnect();
 	}
@@ -66,13 +79,13 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	}
 
 	@Override
-	public void processPacket(Packet packet)
+	public void processPacket(final Packet packet)
 	{
 		if (!(packet instanceof Message)) return;
 
 		final JabberNode sender = new JabberNode(new JabberAddress(packet.getFrom()));
 		final String string = ((Message) packet).getBody();
-		
+
 		fireMessage(sender, string);
 	}
 
@@ -89,7 +102,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 		{
 			return this.address;
 		}
-		
+
 		@Override
 		public ITransport getTransport()
 		{

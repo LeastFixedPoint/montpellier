@@ -1,8 +1,18 @@
 package info.reflectionsofmind.connexion.remote.client;
 
 import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.DisconnectReason;
+import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerRejectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_SpectatorAcceptedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.TransportException;
@@ -18,17 +28,85 @@ public final class RemoteClient implements IRemoteClient
 		this.node = clientNode;
 	}
 
-	@Override
-	public void sendEvent(final ServerToClientEvent event) throws TransportException
+	private void sendEvent(final ServerToClientEvent event)
 	{
-		getNode().getTransport().send(this.node, event.encode());
+		try
+		{
+			getNode().getTransport().send(getNode(), event.encode());
+		}
+		catch (TransportException exception)
+		{
+			exception.printStackTrace();
+		}
 	}
 	
+	@Override
+	public void sendConnectionAccepted(IServer server)
+	{
+		sendEvent(new ServerToClient_ConnectionAcceptedEvent(server));
+	}
+
 	@Override
 	public void sendChatMessage(IServer server, IRemoteClient client, String message)
 	{
 		final int index = server.getClients().indexOf(client);
-		getNode().getTransport().send(getNode(), new ServerToClient_MessageEvent(index, message).);
+		sendEvent(new ServerToClient_MessageEvent(index, message));
+	}
+
+	@Override
+	public void sendConnected(IServer server, IRemoteClient client)
+	{
+		sendEvent(new ServerToClient_ClientConnectedEvent(client.getClient().getName()));
+	}
+	
+	@Override
+	public void sendStateChanged(IServer server, IRemoteClient client, State previousState)
+	{
+		final int clientIndex = server.getClients().indexOf(client);
+		final ServerToClientEvent event;
+		
+		switch (client.getClient().getState())
+		{
+			case CONNECTED:
+				event = new ServerToClient_PlayerRejectedEvent(clientIndex);
+				break;
+				
+			case ACCEPTED:
+				event = new ServerToClient_PlayerAcceptedEvent(clientIndex);
+				break;
+				
+			case SPECTATOR:
+				event = new ServerToClient_SpectatorAcceptedEvent(clientIndex);
+				break;
+				
+			default:
+				throw new RuntimeException("Unknown client state [" + client.getClient().getState() + "]");
+		}
+		
+		sendEvent(event);
+	}
+
+	@Override
+	public void sendDisconnected(IServer server, IRemoteClient client, DisconnectReason reason)
+	{
+		final int index = server.getClients().indexOf(client);
+		sendEvent(new ServerToClient_ClientDisconnectedEvent(index, reason));
+	}
+
+	@Override
+	public void sendGameStarted(IServer server)
+	{
+		sendEvent(new ServerToClient_GameStartedEvent( //
+				server.getGame().getCurrentTile().getCode(), //
+				server.getGame().getSequence().getTotalNumberOfTiles()));
+	}
+	
+	@Override
+	public void sendLastTurn(IServer server)
+	{
+		sendEvent(new ServerToClient_TurnEvent( //
+				server.getGame().getTurns().get(server.getGame().getTurns().size() - 1), //
+				server.getGame().getCurrentTile().getCode()));
 	}
 
 	// ====================================================================================================

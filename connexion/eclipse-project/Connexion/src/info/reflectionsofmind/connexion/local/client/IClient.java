@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.local.client;
 
 import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.local.Settings;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
@@ -29,9 +29,11 @@ public interface IClient
 	public interface IListener
 	{
 		void onClientConnected(Client client);
+		void onClientDisconnected(Client client, DisconnectReason reason);
 		void onMessage(Client sender, String message);
-		void onConnected();
-		void onDisconnected(DisconnectReason reason);
+		
+		void onConnectionAccepted();
+		
 		void onGameStarted();
 		void onTurn();
 	}

@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
+
 public class Game
 {
 	public final int MEEPLE_COUNT = 6;
@@ -27,12 +29,11 @@ public class Game
 	private final List<Player> players = new ArrayList<Player>();
 	private int currentPlayerIndex = 0;
 	private final Board board;
-	private final String name;
 	private boolean finished = false;
+	private final List<Turn> turns = new ArrayList<Turn>();
 
-	public Game(final String name, final ITileSequence sequence, final List<Player> players)
+	public Game(final ITileSequence sequence, final List<Player> players)
 	{
-		this.name = name;
 		this.players.addAll(players);
 
 		for (final Player player : getPlayers())
@@ -77,6 +78,7 @@ public class Game
 			}
 		}
 
+		turns.add(turn);
 		endTurn(turn.isAdvancePlayer());
 	}
 
@@ -177,13 +179,13 @@ public class Game
 		return Collections.unmodifiableList(this.players);
 	}
 
-	public String getName()
-	{
-		return this.name;
-	}
-
 	public boolean isFinished()
 	{
 		return this.finished;
+	}
+	
+	public List<Turn> getTurns()
+	{
+		return ImmutableList.copyOf(this.turns);
 	}
 }

@@ -1,16 +1,11 @@
 package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_MessageEvent;
-import info.reflectionsofmind.connexion.event.stc.IServerToClientEventListener;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
+import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.DisconnectReason;
+import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.event.cts.ClientToServer_ChatMessageEvent;
 import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.gui.play.GameWindow;
 import info.reflectionsofmind.connexion.local.client.ClientUtil;
 import info.reflectionsofmind.connexion.local.client.DefaultLocalClient;
 import info.reflectionsofmind.connexion.local.client.IClient;
@@ -38,7 +33,7 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class JoinGameFrame extends JFrame implements IClient.IListener, ChatPane.IListener
+public class JoinGameFrame extends JFrame implements IClient.IListener, Client.IStateListener, ChatPane.IListener
 {
 	private final List<ServerType> serverTypes = new ArrayList<ServerType>();
 
@@ -65,7 +60,6 @@ public class JoinGameFrame extends JFrame implements IClient.IListener, ChatPane
 		}
 		else
 		{
-			remoteServer.addListener(this);
 			this.serverTypes.add(new ServerType(remoteServer.getTransport().getName(), remoteServer.getTransport(), new LocalConnector(remoteServer)));
 		}
 
@@ -111,7 +105,7 @@ public class JoinGameFrame extends JFrame implements IClient.IListener, ChatPane
 	{
 		try
 		{
-			client.getRemoteServer().sendEvent(new ClientToServer_MessageEvent(message));
+			client.getRemoteServer().sendEvent(new ClientToServer_ChatMessageEvent(message));
 		}
 		catch (ServerConnectionException exception)
 		{
@@ -147,7 +141,43 @@ public class JoinGameFrame extends JFrame implements IClient.IListener, ChatPane
 	// ============================================================================================
 	// === SERVER-TO-CLIENT EVENT HANDLERS
 	// ============================================================================================
+	
+	@Override
+	public void onConnectionAccepted()
+	{
+	}
 
+	@Override
+	public void onClientConnected(Client client)
+	{
+	}
+	
+	@Override
+	public void onClientDisconnected(Client client, DisconnectReason reason)
+	{
+	}
+	
+	@Override
+	public void onMessage(Client sender, String message)
+	{
+	}
+	
+	@Override
+	public void onGameStarted()
+	{
+	}
+	
+	@Override
+	public void onTurn()
+	{
+	}
+	
+	@Override
+	public void onAfterClientStateChange(Client client, State previousState)
+	{
+	}
+	
+	/*
 	@Override
 	public void onPlayerAccepted(final ServerToClient_PlayerAcceptedEvent event)
 	{
@@ -189,7 +219,7 @@ public class JoinGameFrame extends JFrame implements IClient.IListener, ChatPane
 		final String name = this.client.getClients().get(event.getClientIndex()).getName();
 		this.chatPane.writeMessage(name, event.getMessage());
 	}
-
+*/
 	// ============================================================================================
 	// === MODELS
 	// ============================================================================================

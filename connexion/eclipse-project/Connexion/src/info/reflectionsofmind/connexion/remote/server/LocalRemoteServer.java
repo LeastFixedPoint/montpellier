@@ -1,13 +1,12 @@
 package info.reflectionsofmind.connexion.remote.server;
 
+import info.reflectionsofmind.connexion.transport.local.AbstractLocalTransport;
 import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport;
-import info.reflectionsofmind.connexion.transport.local.AbstractLocalTransport.AbstractLocalNode;
-import info.reflectionsofmind.connexion.transport.local.ServerLocalTransport.ServerLocalNode;
 
-public class LocalRemoteServer extends RemoteServer<ClientLocalTransport, AbstractLocalNode>
+public class LocalRemoteServer extends RemoteServer<ClientLocalTransport, AbstractLocalTransport>
 {
-	public LocalRemoteServer(ClientLocalTransport transport, ServerLocalNode serverNode)
+	public LocalRemoteServer(ClientLocalTransport transport)
 	{
-		super(transport, serverNode);
+		super(transport, transport.getServerNode());
 	}
 }
