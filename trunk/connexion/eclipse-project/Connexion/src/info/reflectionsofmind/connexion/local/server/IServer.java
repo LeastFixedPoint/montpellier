@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.local.server;	
 
+import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
@@ -10,7 +11,9 @@ import java.util.List;
 
 public interface IServer
 {
-	void startGame(String name);
+	void disconnect(IRemoteClient client, DisconnectReason server_request);
+	void startGame();
+	
 	Game getGame();
 	ITileSource getTileSource();
 	List<IRemoteClient> getClients();
@@ -22,6 +25,7 @@ public interface IServer
 	public interface IListener
 	{
 		void onClientConnected(IRemoteClient client);
+		void onClientDisconnected(IRemoteClient client);
 		void onClientMessage(IRemoteClient client, String message);
 	}
 }

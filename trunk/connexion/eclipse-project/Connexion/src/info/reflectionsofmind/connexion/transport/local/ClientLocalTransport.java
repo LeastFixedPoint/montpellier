@@ -1,35 +1,33 @@
 package info.reflectionsofmind.connexion.transport.local;
 
-import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
+import info.reflectionsofmind.connexion.remote.server.LocalRemoteServer;
 import info.reflectionsofmind.connexion.transport.TransportException;
+import info.reflectionsofmind.connexion.util.Form;
 
 public class ClientLocalTransport extends AbstractLocalTransport
 {
-	private final ClientLocalNode node;
-
-	public ClientLocalTransport()
+	private final ServerLocalTransport serverNode;
+	
+	public ClientLocalTransport(ServerLocalTransport serverNode)
 	{
-		this.node = new ClientLocalNode(this);
+		this.serverNode = serverNode;
+	}
+
+	@Override
+	public Form getForm()
+	{
+		return null;
+	}
+	
+	public ServerLocalTransport getServerNode()
+	{
+		return this.serverNode;
 	}
 	
 	@Override
-	public void send(INode to, String message) throws TransportException
+	public void start() throws TransportException
 	{
-		((AbstractLocalNode)to).getTransport().receive(this.node, message);
-	}
-
-	public class ClientLocalNode implements AbstractLocalNode
-	{
-		private final ClientLocalTransport transport;
-
-		public ClientLocalNode(final ClientLocalTransport transport)
-		{
-			this.transport = transport;
-		}
-
-		public ClientLocalTransport getTransport()
-		{
-			return this.transport;
-		}
+		new JoinGameFrame(null, new LocalRemoteServer(this)).setVisible(true);
 	}
 }

@@ -18,10 +18,10 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer.IListener, IRemoteClient.IStateListener
+public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer.IListener, Client.IStateListener
 {
 	private static final long serialVersionUID = 1L;
-	private final DefaultLocalServer server;
+	private final IServer server;
 
 	private final MainFrame mainWindow;
 	private final JButton startButton;
@@ -73,18 +73,18 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	@Override
 	public void onClientConnected(final IRemoteClient client)
 	{
-		client.addListener(this);
-		this.chatPane.writeSystem("<b>" + client.getName() + "</b> connected.");
+		client.getClient().addListener(this);
+		this.chatPane.writeSystem("<b>" + client.getClient().getName() + "</b> connected.");
 	}
 
 	@Override
 	public void onClientMessage(final IRemoteClient client, final String message)
 	{
-		this.chatPane.writeMessage(client.getName(), message);
+		this.chatPane.writeMessage(client.getClient().getName(), message);
 	}
 
 	@Override
-	public void onAfterClientStateChange(final IRemoteClient client, final State previousState)
+	public void onAfterClientStateChange(final Client client, final State previousState)
 	{
 		switch (client.getState())
 		{
@@ -94,17 +94,23 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 			case SPECTATOR:
 				this.chatPane.writeSystem("<b>" + client.getName() + "</b> was accepted into the game as <b>spectator</b>.");
 				break;
-			case DISCONNECTED:
-				this.chatPane.writeSystem("<b>" + client.getName() + "</b> disconnected.");
+			case CONNECTED:
+				this.chatPane.writeSystem("<b>" + client.getName() + "</b> was rejected from game (will not participate).");
 				break;
 		}
 	}
-
+	
+	@Override
+	public void onClientDisconnected(IRemoteClient client)
+	{
+		this.chatPane.writeSystem("<b>" + client.getClient().getName() + "</b> disconnected.");
+	}
+	
 	// ====================================================================================================
 	// === GETTERS AND SETTERS
 	// ====================================================================================================
 
-	public DefaultLocalServer getServer()
+	public IServer getServer()
 	{
 		return this.server;
 	}
@@ -112,6 +118,11 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	public MainFrame getMainWindow()
 	{
 		return this.mainWindow;
+	}
+	
+	public ChatPane getChatPane()
+	{
+		return this.chatPane;
 	}
 
 	// ====================================================================================================
@@ -141,7 +152,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 
 			setEnabled(false);
 
-			HostGameFrame.this.server.startGame(HostGameFrame.this.configPanel.getGameName());
+			HostGameFrame.this.server.startGame();
 		}
 	}
 }

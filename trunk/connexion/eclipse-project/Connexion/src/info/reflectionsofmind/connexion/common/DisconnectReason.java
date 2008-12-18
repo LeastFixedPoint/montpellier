@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.server;
+package info.reflectionsofmind.connexion.common;
 
 public enum DisconnectReason
 {

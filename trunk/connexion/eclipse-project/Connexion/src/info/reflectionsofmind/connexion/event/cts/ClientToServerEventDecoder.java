@@ -12,7 +12,7 @@ public class ClientToServerEventDecoder
 	ImmutableList.<ICoder<?>> of( //
 			ClientToServer_ClientConnectionRequestEvent.CODER, // 
 			ClientToServer_DisconnectNoticeEvent.CODER, //
-			ClientToServer_MessageEvent.CODER, //
+			ClientToServer_ChatMessageEvent.CODER, //
 			ClientToServer_TurnEvent.CODER);
 
 	public static ClientToServerEvent decode(String string)

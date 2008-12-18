@@ -31,7 +31,7 @@ public class ServerUtil
 			@Override
 			public boolean apply(IRemoteClient client)
 			{
-				return Arrays.binarySearch(states, client.getState()) >= 0;
+				return Arrays.binarySearch(states, client.getClient().getState()) >= 0;
 			}
 		}).toArray(new IRemoteClient[] {}));
 	}
@@ -43,7 +43,7 @@ public class ServerUtil
 			@Override
 			public String apply(IRemoteClient client)
 			{
-				return client.getName();
+				return client.getClient().getName();
 			}
 		});
 	}
@@ -55,7 +55,7 @@ public class ServerUtil
 			@Override
 			public State apply(IRemoteClient client)
 			{
-				return client.getState();
+				return client.getClient().getState();
 			}
 		});
 	}

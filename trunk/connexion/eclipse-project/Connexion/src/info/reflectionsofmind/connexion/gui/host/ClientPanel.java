@@ -1,7 +1,8 @@
 package info.reflectionsofmind.connexion.gui.host;
 
 import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
+import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 
 import java.awt.event.ActionEvent;
@@ -17,7 +18,7 @@ import net.miginfocom.swing.MigLayout;
 
 import com.google.common.collect.ImmutableMap;
 
-class ClientPanel extends JPanel implements IRemoteClient.IStateListener
+class ClientPanel extends JPanel implements Client.IStateListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -46,16 +47,16 @@ class ClientPanel extends JPanel implements IRemoteClient.IStateListener
 		
 		setLayout(new MigLayout("ins 0 6 6 6", "[60][120]", "[]"));
 
-		this.nameLabel = new JLabel(client.getName());
+		this.nameLabel = new JLabel(client.getClient().getName());
 		
 		add(this.nameLabel, "grow, wrap");
 		add(this.currentButtonPanel, "grow, span");
 		
-		this.client.addListener(this);
+		this.client.getClient().addListener(this);
 	}
 	
 	@Override
-	public void onAfterClientStateChange(IRemoteClient client, State previousState)
+	public void onAfterClientStateChange(Client client, State previousState)
 	{
 		this.remove(this.currentButtonPanel);
 		this.currentButtonPanel = this.buttonPanels.get(client.getState());
@@ -92,7 +93,7 @@ class ClientPanel extends JPanel implements IRemoteClient.IStateListener
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			getClient().setAccepted();
+			getClient().getClient().setAccepted();
 		}
 	}
 
@@ -106,7 +107,7 @@ class ClientPanel extends JPanel implements IRemoteClient.IStateListener
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			getClient().setSpectator();
+			getClient().getClient().setSpectator();
 		}
 	}
 
@@ -120,7 +121,7 @@ class ClientPanel extends JPanel implements IRemoteClient.IStateListener
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			getClient().setRejected();
+			getClient().getClient().setRejected();
 		}
 	}
 
@@ -134,7 +135,7 @@ class ClientPanel extends JPanel implements IRemoteClient.IStateListener
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			getClient().setDisconnected(DisconnectReason.SERVER_REQUEST);
+			panel.getHostGameDialog().getServer().disconnect(getClient(), DisconnectReason.SERVER_REQUEST);
 		}
 	}
 

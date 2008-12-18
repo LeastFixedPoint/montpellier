@@ -1,7 +1,5 @@
 package info.reflectionsofmind.connexion.event.stc;
 
-import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
@@ -9,14 +7,9 @@ public class ServerToClient_PlayerRejectedEvent extends ServerToClientEvent
 {
 	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":player-rejected";
 	
-	public ServerToClient_PlayerRejectedEvent(IServer server, IRemoteClient client)
-	{
-		this(server.getClients().indexOf(client));
-	}
-	
 	private final int clientIndex;
 
-	private ServerToClient_PlayerRejectedEvent(final int clientIndex)
+	public ServerToClient_PlayerRejectedEvent(final int clientIndex)
 	{
 		this.clientIndex = clientIndex;
 	}

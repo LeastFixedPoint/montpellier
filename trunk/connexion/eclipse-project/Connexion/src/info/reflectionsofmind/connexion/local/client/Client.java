@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.local.client;
 
+import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.core.game.Player;
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
 
 import java.util.ArrayList;
 import java.util.List;

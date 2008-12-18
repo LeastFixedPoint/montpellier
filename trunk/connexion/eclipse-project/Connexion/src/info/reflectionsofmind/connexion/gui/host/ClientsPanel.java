@@ -11,6 +11,9 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 public class ClientsPanel extends JPanel implements IServer.IListener
 {
 	private final HostGameFrame window;
@@ -26,7 +29,7 @@ public class ClientsPanel extends JPanel implements IServer.IListener
 
 		getLayout().layoutContainer(this);
 	}
-	
+
 	@Override
 	public void onClientConnected(IRemoteClient client)
 	{
@@ -35,11 +38,27 @@ public class ClientsPanel extends JPanel implements IServer.IListener
 
 		add(panel, "grow, span");
 	}
-	
+
 	@Override
 	public void onClientMessage(IRemoteClient client, String message)
 	{
+		// Does not react to messages
+	}
+
+	@Override
+	public void onClientDisconnected(final IRemoteClient client)
+	{
+		final ClientPanel clientPanel = Iterables.find(this.panels, new Predicate<ClientPanel>()
+		{
+			@Override
+			public boolean apply(ClientPanel panel)
+			{
+				return panel.getClient() == client;
+			}
+		});
 		
+		this.panels.remove(clientPanel);
+		remove(clientPanel);
 	}
 
 	public void removePanel(final ClientPanel panel)

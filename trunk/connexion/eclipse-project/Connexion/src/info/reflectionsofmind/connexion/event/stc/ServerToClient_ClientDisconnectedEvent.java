@@ -1,8 +1,6 @@
 package info.reflectionsofmind.connexion.event.stc;
 
-import info.reflectionsofmind.connexion.local.server.DisconnectReason;
-import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
@@ -14,12 +12,7 @@ public class ServerToClient_ClientDisconnectedEvent extends ServerToClientEvent
 	private final int clientIndex;
 	private final DisconnectReason reason;
 
-	public ServerToClient_ClientDisconnectedEvent(final IServer server, final IRemoteClient client, final DisconnectReason reason)
-	{
-		this(server.getClients().indexOf(client), reason);
-	}
-
-	private ServerToClient_ClientDisconnectedEvent(final int clientIndex, final DisconnectReason reason)
+	public ServerToClient_ClientDisconnectedEvent(final int clientIndex, final DisconnectReason reason)
 	{
 		this.clientIndex = clientIndex;
 		this.reason = reason;
