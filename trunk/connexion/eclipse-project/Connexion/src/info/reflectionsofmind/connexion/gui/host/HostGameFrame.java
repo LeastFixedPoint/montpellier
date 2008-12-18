@@ -73,7 +73,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	@Override
 	public void onClientConnected(final IRemoteClient client)
 	{
-		client.getClient().addListener(this);
+		client.getClient().addStateListener(this);
 		this.chatPane.writeSystem("<b>" + client.getClient().getName() + "</b> connected.");
 	}
 

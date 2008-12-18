@@ -10,11 +10,12 @@ public class ServerToClientEventDecoder
 {
 	private final static List<ICoder<?>> CODERS = // 
 	ImmutableList.<ICoder<?>> of( //
-			ServerToClient_PlayerAcceptedEvent.CODER, // 
-			ServerToClient_ClientDisconnectedEvent.CODER, //
-			ServerToClient_GameStartedEvent.CODER, //
-			ServerToClient_MessageEvent.CODER, //
+			ServerToClient_ConnectionAcceptedEvent.CODER, //
 			ServerToClient_ClientConnectedEvent.CODER, //
+			ServerToClient_ClientStateChangedEvent.CODER, // 
+			ServerToClient_ClientDisconnectedEvent.CODER, //
+			ServerToClient_ChatMessageEvent.CODER, //
+			ServerToClient_GameStartedEvent.CODER, //
 			ServerToClient_TurnEvent.CODER);
 
 	public static ServerToClientEvent decode(String string)
@@ -27,6 +28,6 @@ public class ServerToClientEventDecoder
 			}
 		}
 
-		throw new RuntimeException("Cannot decode string [" + string + "] as a server-to-client event.");
+		throw new RuntimeException("Coder not found for [" + string + "] to decode it as a CtS event.");
 	}
 }

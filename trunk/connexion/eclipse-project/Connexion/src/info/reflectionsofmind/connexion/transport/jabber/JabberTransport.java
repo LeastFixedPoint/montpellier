@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.transport.jabber;
 
+import info.reflectionsofmind.connexion.transport.AbstractNode;
 import info.reflectionsofmind.connexion.transport.AbstractTransport;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
@@ -36,6 +37,12 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 		return this.form;
 	}
 
+	@Override
+	public INode getNode(String id)
+	{
+		return new JabberNode(new JabberAddress(id));
+	}
+	
 	@Override
 	public void send(final INode to, final String string) throws TransportException
 	{
@@ -89,7 +96,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 		fireMessage(sender, string);
 	}
 
-	public class JabberNode implements INode
+	public class JabberNode extends AbstractNode
 	{
 		private final JabberAddress address;
 

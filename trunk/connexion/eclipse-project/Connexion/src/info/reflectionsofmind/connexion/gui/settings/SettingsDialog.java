@@ -31,7 +31,7 @@ public class SettingsDialog extends JDialog
 		setResizable(false);
 		setLayout(new MigLayout("", "[480, center]", "[][]6[][]6[]"));
 
-		this.playerNameField = new JTextField(settings.getPlayerName());
+		this.playerNameField = new JTextField(settings.getClientName());
 		add(new JLabel("Player name"), "grow, span");
 		add(this.playerNameField, "grow, span");
 
@@ -57,7 +57,7 @@ public class SettingsDialog extends JDialog
 		public void actionPerformed(final ActionEvent event)
 		{
 			SettingsDialog.this.settings.setJabberAddress(new JabberAddress(SettingsDialog.this.jabberAddressField.getText()));
-			SettingsDialog.this.settings.setPlayerName(SettingsDialog.this.playerNameField.getText());
+			SettingsDialog.this.settings.setClientName(SettingsDialog.this.playerNameField.getText());
 
 			dispose();
 		}

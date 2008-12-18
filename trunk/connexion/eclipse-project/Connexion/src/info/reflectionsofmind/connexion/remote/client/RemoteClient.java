@@ -4,14 +4,12 @@ import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ChatMessageEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientStateChangedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_MessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerAcceptedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_PlayerRejectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_SpectatorAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.transport.INode;
@@ -50,7 +48,7 @@ public final class RemoteClient implements IRemoteClient
 	public void sendChatMessage(IServer server, IRemoteClient client, String message)
 	{
 		final int index = server.getClients().indexOf(client);
-		sendEvent(new ServerToClient_MessageEvent(index, message));
+		sendEvent(new ServerToClient_ChatMessageEvent(index, message));
 	}
 
 	@Override
@@ -63,27 +61,7 @@ public final class RemoteClient implements IRemoteClient
 	public void sendStateChanged(IServer server, IRemoteClient client, State previousState)
 	{
 		final int clientIndex = server.getClients().indexOf(client);
-		final ServerToClientEvent event;
-		
-		switch (client.getClient().getState())
-		{
-			case CONNECTED:
-				event = new ServerToClient_PlayerRejectedEvent(clientIndex);
-				break;
-				
-			case ACCEPTED:
-				event = new ServerToClient_PlayerAcceptedEvent(clientIndex);
-				break;
-				
-			case SPECTATOR:
-				event = new ServerToClient_SpectatorAcceptedEvent(clientIndex);
-				break;
-				
-			default:
-				throw new RuntimeException("Unknown client state [" + client.getClient().getState() + "]");
-		}
-		
-		sendEvent(event);
+		sendEvent(new ServerToClient_ClientStateChangedEvent(clientIndex, client.getClient().getState()));
 	}
 
 	@Override

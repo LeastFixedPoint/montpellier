@@ -52,7 +52,7 @@ class ClientPanel extends JPanel implements Client.IStateListener
 		add(this.nameLabel, "grow, wrap");
 		add(this.currentButtonPanel, "grow, span");
 		
-		this.client.getClient().addListener(this);
+		this.client.getClient().addStateListener(this);
 	}
 	
 	@Override

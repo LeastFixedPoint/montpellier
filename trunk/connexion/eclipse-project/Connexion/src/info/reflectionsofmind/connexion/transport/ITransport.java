@@ -13,6 +13,7 @@ public interface ITransport
 	void addListener(IListener listener);
 	void removeListener(IListener listener);
 	String getName();
+	INode getNode(String id);
 	
 	public interface IListener
 	{

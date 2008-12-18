@@ -3,24 +3,15 @@ package info.reflectionsofmind.connexion.gui.join;
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ChatMessageEvent;
-import info.reflectionsofmind.connexion.gui.MainFrame;
+import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.local.client.ClientUtil;
+import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.local.client.DefaultLocalClient;
-import info.reflectionsofmind.connexion.local.client.IClient;
-import info.reflectionsofmind.connexion.remote.server.IRemoteServer;
-import info.reflectionsofmind.connexion.remote.server.LocalRemoteServer;
-import info.reflectionsofmind.connexion.remote.server.RemoteServer;
-import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
-import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
-import info.reflectionsofmind.connexion.transport.jabber.JabberAddress;
-import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
-import info.reflectionsofmind.connexion.transport.jabber.JabberTransport.JabberNode;
+import info.reflectionsofmind.connexion.local.client.ILocalClient;
+import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.ITransport;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
@@ -29,46 +20,33 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class JoinGameFrame extends JFrame implements IClient.IListener, Client.IStateListener, ChatPane.IListener
+public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Client.IStateListener, ChatPane.IListener
 {
-	private final List<ServerType> serverTypes = new ArrayList<ServerType>();
-
-	private final IClient client;
-	private final MainFrame mainFrame;
+	private final ILocalClient client;
 
 	private final JLabel statusLabel;
-	private final JComboBox connectionTypeCombo;
+	private final JComboBox transportCombo;
 	private final JButton connectButton;
 	private final ChatPane chatPane;
 	private final JList playerList;
-	
-	public JoinGameFrame(final MainFrame mainFrame, final LocalRemoteServer remoteServer)
+
+	public JoinGameFrame(final Settings settings)
 	{
 		super("Connexion :: Join game");
 
-		this.mainFrame = mainFrame;
-		this.client = new DefaultLocalClient(this.mainFrame.getApplication().getSettings());
-
-		if (remoteServer == null)
-		{
-			final JabberTransport jabberTransport = new JabberTransport(client.getSettings().getJabberAddress());
-			this.serverTypes.add(new ServerType(jabberTransport.getName(), jabberTransport, new JabberConnector()));
-		}
-		else
-		{
-			this.serverTypes.add(new ServerType(remoteServer.getTransport().getName(), remoteServer.getTransport(), new LocalConnector(remoteServer)));
-		}
+		this.client = new DefaultLocalClient(settings);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setLayout(new MigLayout("", "[120]6[120]6[120]6[120]", "[]6[360]"));
 
-		this.connectionTypeCombo = new JComboBox(this.serverTypes.toArray());
-		add(this.connectionTypeCombo, "grow");
+		this.transportCombo = new JComboBox(getClient().getTransports().toArray());
+		add(this.transportCombo, "grow");
 
 		this.connectButton = new JButton(new AbstractAction("Connect...")
 		{
@@ -84,7 +62,7 @@ public class JoinGameFrame extends JFrame implements IClient.IListener, Client.I
 		add(this.statusLabel, "grow, span");
 
 		this.chatPane = new ChatPane();
-		this.chatPane.setEnabled(remoteServer != null);
+		this.chatPane.setEnabled(false);
 		this.chatPane.addListener(this);
 		add(this.chatPane, "grow, span 3");
 
@@ -95,131 +73,94 @@ public class JoinGameFrame extends JFrame implements IClient.IListener, Client.I
 		setLocationRelativeTo(null);
 	}
 
-	public JoinGameFrame(final MainFrame parent)
+	public void connect(INode serverNode)
 	{
-		this(parent, null);
+		getClient().connect(serverNode);
 	}
 
-	@Override
-	public void onChatPaneMessageSent(String message)
-	{
-		try
-		{
-			client.getRemoteServer().sendEvent(new ClientToServer_ChatMessageEvent(message));
-		}
-		catch (ServerConnectionException exception)
-		{
-			exception.printStackTrace();
-			chatPane.writeSystem("Connection failure when sending message.");
-		}
-		catch (RemoteServerException exception)
-		{
-			exception.printStackTrace();
-			chatPane.writeSystem("Server-side error when sending message.");
-		}
-	}
-	
 	public void connect()
 	{
-		for (ServerType serverType : this.serverTypes)
-		{
-			if (serverType == this.connectionTypeCombo.getSelectedItem())
-			{
-				serverType.getConnector().connect();
+		final String serverNodeId = JOptionPane.showInputDialog(this, "Enter server address");
 
-				JoinGameFrame.this.connectButton.setEnabled(false);
-				JoinGameFrame.this.connectionTypeCombo.setEnabled(false);
+		if (serverNodeId == null) return;
 
-				return;
-			}
-		}
+		final ITransport transport = (ITransport) this.transportCombo.getSelectedItem();
 
-		this.chatPane.writeSystem("Error: unknown server type [" + this.connectionTypeCombo.getSelectedItem() + "].");
-		return;
+		connect(transport.getNode(serverNodeId));
 	}
 
 	// ============================================================================================
-	// === SERVER-TO-CLIENT EVENT HANDLERS
+	// === CLIENT EVENT HANDLERS
 	// ============================================================================================
-	
+
 	@Override
 	public void onConnectionAccepted()
 	{
+		this.chatPane.writeSystem("Connected to [" + getClient().getServerNode() + "].");
 	}
 
 	@Override
 	public void onClientConnected(Client client)
 	{
+		this.chatPane.writeSystem("[" + client.getName() + "] connected.");
+		client.addStateListener(this);
 	}
-	
+
 	@Override
-	public void onClientDisconnected(Client client, DisconnectReason reason)
+	public void onClientDisconnected(Client client)
 	{
+		this.chatPane.writeSystem("[" + client.getName() + "] disconnected.");
 	}
-	
+
 	@Override
-	public void onMessage(Client sender, String message)
+	public void onChatMessage(Client sender, String message)
 	{
+		this.chatPane.writeMessage(sender.getName(), message);
 	}
-	
+
 	@Override
-	public void onGameStarted()
+	public void onStart()
 	{
+
 	}
-	
+
 	@Override
-	public void onTurn()
+	public void onTurn(Turn turn, String nextTileCode)
 	{
+
 	}
-	
+
+	@Override
+	public void onConnectionBroken(DisconnectReason reason)
+	{
+		this.chatPane.writeSystem("Disconnected. Reason: [" + reason + "].");
+	}
+
+	// ====================================================================================================
+	// === OTHER HANDLERS
+	// ====================================================================================================
+
+	@Override
+	public void onChatPaneMessageSent(String message)
+	{
+		getClient().sendChatMessage(message);
+	}
+
 	@Override
 	public void onAfterClientStateChange(Client client, State previousState)
 	{
+		this.chatPane.writeSystem("[" + client + "] is now [" + client.getState() + "].");
 	}
-	
-	/*
-	@Override
-	public void onPlayerAccepted(final ServerToClient_PlayerAcceptedEvent event)
+
+	// ====================================================================================================
+	// === GETTERS
+	// ====================================================================================================
+
+	public ILocalClient getClient()
 	{
-		this.statusLabel.setText("Connection request accepted.");
-
-		this.chatPane.setEnabled(true);
-		this.playerList.setEnabled(true);
+		return this.client;
 	}
 
-	@Override
-	public void onClientConnected(final ServerToClient_ClientConnectedEvent event)
-	{
-
-	}
-
-	@Override
-	public void onClientDisconnected(final ServerToClient_ClientDisconnectedEvent event)
-	{
-
-	}
-
-	@Override
-	public void onStart(final ServerToClient_GameStartedEvent event)
-	{
-		this.client.getRemoteServer().removeListener(this);
-		dispose();
-		new GameWindow(this.client).setVisible(true);
-	}
-
-	@Override
-	public void onTurn(final ServerToClient_TurnEvent event)
-	{
-		this.statusLabel.setText("Desynchronization error: game already started.");
-	}
-
-	@Override
-	public void onMessage(final ServerToClient_MessageEvent event)
-	{
-		final String name = this.client.getClients().get(event.getClientIndex()).getName();
-		this.chatPane.writeMessage(name, event.getMessage());
-	}
-*/
 	// ============================================================================================
 	// === MODELS
 	// ============================================================================================
@@ -235,109 +176,8 @@ public class JoinGameFrame extends JFrame implements IClient.IListener, Client.I
 		@Override
 		public int getSize()
 		{
-			final IClient client = JoinGameFrame.this.client;
+			final ILocalClient client = JoinGameFrame.this.client;
 			return client == null ? 0 : client.getClients().size();
-		}
-	}
-
-	public interface IConnector
-	{
-		void connect();
-	}
-
-	public final class LocalConnector implements IConnector
-	{
-		private final LocalRemoteServer server;
-		
-		public LocalConnector(LocalRemoteServer server)
-		{
-			this.server = server;
-		}
-
-		@Override
-		public void connect()
-		{
-			try
-			{
-				JoinGameFrame.this.chatPane.writeSystem("Launched in local client mode.");
-				server.start();
-				client.connect(server);
-			}
-			catch (final ServerConnectionException exception)
-			{
-				exception.printStackTrace();
-				JoinGameFrame.this.chatPane.writeSystem("Error.");
-				return;
-			}
-			catch (final RemoteServerException exception)
-			{
-				exception.printStackTrace();
-				JoinGameFrame.this.chatPane.writeSystem("Error.");
-				return;
-			}
-		}
-	}
-
-	public final class JabberConnector implements IConnector
-	{
-		@Override
-		public void connect()
-		{
-			final JabberConfigurationDialog dialog = new JabberConfigurationDialog(JoinGameFrame.this);
-			dialog.setVisible(true);
-
-			new Thread()
-			{
-				@Override
-				public void run()
-				{
-					final JabberAddress jabberServer = dialog.getServer();
-					final JabberAddress jabberClient = JoinGameFrame.this.mainFrame.getApplication().getSettings().getJabberAddress();
-
-					JoinGameFrame.this.chatPane.writeSystem("Connecting");
-					JoinGameFrame.this.chatPane.writeSystem("&nbsp;&nbsp;&nbsp;&nbsp;as: " + jabberClient.asString());
-					JoinGameFrame.this.chatPane.writeSystem("&nbsp;&nbsp;&nbsp;&nbsp;to: " + jabberServer.asString());
-
-					if (jabberServer == null || jabberClient == null) return;
-
-					final JabberTransport transport = ClientUtil.findTransport(client, JabberTransport.class);
-					final JabberNode serverNode = transport.new JabberNode(jabberServer);
-					final IRemoteServer server = new RemoteServer<JabberTransport, JabberNode>(transport, serverNode);
-
-					try
-					{
-						JoinGameFrame.this.chatPane.writeSystem("Initializing connection...");
-						server.start();
-						JoinGameFrame.this.chatPane.writeSystem("Connection established.");
-					}
-					catch (final ServerConnectionException exception)
-					{
-						exception.printStackTrace();
-						JoinGameFrame.this.chatPane.writeSystem("Connection failed.");
-						return;
-					}
-
-					try
-					{
-						JoinGameFrame.this.chatPane.writeSystem("Sending connection request... ");
-						client.connect(server);
-						JoinGameFrame.this.chatPane.writeSystem("Connection request sent.");
-						JoinGameFrame.this.chatPane.writeSystem("Waiting for response...");
-					}
-					catch (final ServerConnectionException exception)
-					{
-						exception.printStackTrace();
-						JoinGameFrame.this.chatPane.writeSystem("Cannot connect to the server.");
-						return;
-					}
-					catch (final RemoteServerException exception)
-					{
-						exception.printStackTrace();
-						JoinGameFrame.this.chatPane.writeSystem("Server-side failure.");
-						return;
-					}
-				}
-			}.start();
 		}
 	}
 }

@@ -10,7 +10,7 @@ import info.reflectionsofmind.connexion.core.game.GameUtil;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
-import info.reflectionsofmind.connexion.local.client.IClient;
+import info.reflectionsofmind.connexion.local.client.ILocalClient;
 import info.reflectionsofmind.connexion.local.client.exception.DesynchronizationException;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
@@ -32,7 +32,7 @@ public class GameWindow extends JFrame
 
 	private static final long serialVersionUID = 1L;
 
-	private final IClient client;
+	private final ILocalClient client;
 
 	private final CurrentTilePanel currentTilePanel;
 	private final PlayersPanel playersPanel;
@@ -43,7 +43,7 @@ public class GameWindow extends JFrame
 	private State turnMode = State.WAITING;
 	private Turn turn = null;
 
-	public GameWindow(final IClient client)
+	public GameWindow(final ILocalClient client)
 	{
 		super("Connexion :: Client :: " + client.getGame().getName() + " :: " + client.getPlayer().getName());
 
@@ -191,7 +191,7 @@ public class GameWindow extends JFrame
 		super.dispose();
 	}
 
-	public IClient getClient()
+	public ILocalClient getClient()
 	{
 		return this.client;
 	}

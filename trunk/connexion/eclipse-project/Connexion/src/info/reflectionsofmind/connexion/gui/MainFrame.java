@@ -72,7 +72,7 @@ public class MainFrame extends JFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			new JoinGameFrame(MainFrame.this).setVisible(true);
+			new JoinGameFrame(getApplication().getSettings()).setVisible(true);
 		}
 	}
 
