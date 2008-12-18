@@ -47,7 +47,7 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	{
 		this.settings = settings;
 
-		this.transports.add(new ServerLocalTransport());
+		this.transports.add(new ServerLocalTransport(settings));
 		this.transports.add(new JabberTransport(settings.getJabberAddress()));
 	}
 

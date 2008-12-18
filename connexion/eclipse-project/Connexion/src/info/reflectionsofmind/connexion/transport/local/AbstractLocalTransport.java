@@ -20,9 +20,21 @@ public abstract class AbstractLocalTransport extends AbstractTransport implement
 	}
 	
 	@Override
+	public INode getNode(String id)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	public void send(INode to, String message) throws TransportException
 	{
 		((AbstractLocalTransport)to).receive(this, message);
+	}
+	
+	@Override
+	public void send(String message) throws TransportException
+	{
+		getTransport().send(this, message);
 	}
 
 	protected final void receive(final INode from, final String message)

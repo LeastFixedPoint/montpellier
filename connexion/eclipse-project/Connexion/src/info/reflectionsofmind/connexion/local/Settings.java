@@ -6,13 +6,13 @@ import org.jivesoftware.smack.util.StringUtils;
 
 public class Settings
 {
-	private String playerName;
+	private String clientName;
 	private JabberAddress jabberAddress;
 
 	public void load()
 	{
 		this.jabberAddress = new JabberAddress("connexion:connexion@binaryfreedom.info:5222/connexion-client");
-		this.playerName = StringUtils.randomString(8);
+		this.clientName = StringUtils.randomString(8);
 	}
 
 	public JabberAddress getJabberAddress()
@@ -25,13 +25,13 @@ public class Settings
 		this.jabberAddress = jabberAddress;
 	}
 
-	public String getPlayerName()
+	public String getClientName()
 	{
-		return this.playerName;
+		return this.clientName;
 	}
 
-	public void setPlayerName(final String playerName)
+	public void setClientName(final String playerName)
 	{
-		this.playerName = playerName;
+		this.clientName = playerName;
 	}
 }

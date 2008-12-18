@@ -5,7 +5,7 @@ import info.reflectionsofmind.connexion.transport.ITransport;
 public class ClientUtil
 {
 	@SuppressWarnings("unchecked")
-	public static <T> T findTransport(final IClient client, final Class<T> transportClass)
+	public static <T> T findTransport(final ILocalClient client, final Class<T> transportClass)
 	{
 		for (final ITransport transport : client.getTransports())
 		{

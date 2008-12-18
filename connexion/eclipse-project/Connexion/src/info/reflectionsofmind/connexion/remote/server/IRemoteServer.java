@@ -4,10 +4,8 @@ import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.local.client.IClient;
+import info.reflectionsofmind.connexion.local.client.ILocalClient;
 import info.reflectionsofmind.connexion.transport.INode;
-
-import java.util.List;
 
 public interface IRemoteServer
 {
@@ -15,23 +13,24 @@ public interface IRemoteServer
 	// === COMMANDS
 	// ============================================================================================
 	
-	void disconnect(DisconnectReason reason);
-	void sendConnectionRequest(IClient client);
+	void sendConnectionRequest();
 	void sendChatMessage(String message);
 	void sendLastTurn(Game game);
+	void disconnect(DisconnectReason reason);
 
 	// ============================================================================================
 	// === GETTERS
 	// ============================================================================================
 
-	List<Client> getClients();
 	INode getServerNode();
+	ILocalClient getLocalClient();
 	
 	// ============================================================================================
 	// === LISTENERS
 	// ============================================================================================
 
 	void addListener(IListener listener);
+	void removeListener(IListener listener);
 	
 	public interface IListener
 	{
@@ -41,6 +40,8 @@ public interface IRemoteServer
 		void onClientStateChanged(Client client);
 		void onChatMessage(Client sender, String message);
 		void onConnectionBroken(DisconnectReason reason);
+		
+		void onStart();
 		void onTurn(Turn turn, String nextTileCode);
 	}
 }

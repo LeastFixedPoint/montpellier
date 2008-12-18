@@ -28,11 +28,17 @@ public class Client
 	private final List<IStateListener> stateListeners = new ArrayList<IStateListener>();
 
 	private final String name;
-	private State state = State.CONNECTED;
+	private State state;
 
 	public Client(String name)
 	{
+		this(name, State.CONNECTED);
+	}
+
+	public Client(String name, State state)
+	{
 		this.name = name;
+		this.state = state;
 	}
 
 	// ============================================================================================
@@ -76,6 +82,28 @@ public class Client
 		fireStateChange(previousState);
 	}
 
+	public void setState(State newState)
+	{
+		switch (newState)
+		{
+			case CONNECTED:
+				setRejected();
+				break;
+
+			case ACCEPTED:
+				setAccepted();
+				break;
+
+			case SPECTATOR:
+				setSpectator();
+				break;
+
+			default:
+				throw new RuntimeException("Unkown state [" + newState + "].");
+		}
+
+	}
+
 	// ============================================================================================
 	// === GETTERS
 	// ============================================================================================
@@ -94,7 +122,7 @@ public class Client
 	// === LISTENERS
 	// ====================================================================================================
 
-	public void addListener(final IStateListener listener)
+	public void addStateListener(final IStateListener listener)
 	{
 		this.stateListeners.add(listener);
 	}
