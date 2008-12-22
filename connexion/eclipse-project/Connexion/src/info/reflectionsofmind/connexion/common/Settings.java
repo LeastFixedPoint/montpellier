@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local;
+package info.reflectionsofmind.connexion.common;
 
 import info.reflectionsofmind.connexion.transport.jabber.JabberAddress;
 

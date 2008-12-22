@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.remote.client;
+package info.reflectionsofmind.connexion.server;
 
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
@@ -11,7 +11,6 @@ import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientStateChan
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
-import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.TransportException;
 

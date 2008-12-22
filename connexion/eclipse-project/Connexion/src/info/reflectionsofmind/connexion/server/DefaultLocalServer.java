@@ -1,7 +1,8 @@
-package info.reflectionsofmind.connexion.local.server;
+package info.reflectionsofmind.connexion.server;
 
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
+import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
@@ -16,9 +17,6 @@ import info.reflectionsofmind.connexion.event.cts.ClientToServer_DisconnectNotic
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_ChatMessageEvent;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.event.cts.IClientToServerEventListener;
-import info.reflectionsofmind.connexion.local.Settings;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.remote.client.RemoteClient;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;

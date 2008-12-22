@@ -1,13 +1,13 @@
 package info.reflectionsofmind.connexion.gui.join;
 
+import info.reflectionsofmind.connexion.client.DefaultLocalClient;
+import info.reflectionsofmind.connexion.client.ILocalClient;
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
+import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.local.Settings;
-import info.reflectionsofmind.connexion.local.client.DefaultLocalClient;
-import info.reflectionsofmind.connexion.local.client.ILocalClient;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 

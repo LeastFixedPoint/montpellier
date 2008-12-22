@@ -4,10 +4,10 @@ import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.local.server.DefaultLocalServer;
-import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.local.server.ServerUtil;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.server.DefaultLocalServer;
+import info.reflectionsofmind.connexion.server.IRemoteClient;
+import info.reflectionsofmind.connexion.server.IServer;
+import info.reflectionsofmind.connexion.server.ServerUtil;
 
 import java.awt.event.ActionEvent;
 

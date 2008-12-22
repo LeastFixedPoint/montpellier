@@ -3,7 +3,7 @@ package info.reflectionsofmind.connexion.gui.host;
 import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.server.IRemoteClient;
 
 import java.awt.event.ActionEvent;
 import java.util.Map;

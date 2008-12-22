@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.client.exception;
+package info.reflectionsofmind.connexion.client.exception;
 
 public class DesynchronizationException extends Exception
 {

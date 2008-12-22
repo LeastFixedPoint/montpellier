@@ -1,7 +1,6 @@
-package info.reflectionsofmind.connexion.local.server;
+package info.reflectionsofmind.connexion.server;
 
 import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
 import info.reflectionsofmind.connexion.transport.INode;
 
 import java.util.Arrays;

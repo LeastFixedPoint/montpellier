@@ -1,9 +1,8 @@
-package info.reflectionsofmind.connexion.remote.client;
+package info.reflectionsofmind.connexion.server;
 
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.local.server.IServer;
 import info.reflectionsofmind.connexion.transport.INode;
 
 public interface IRemoteClient

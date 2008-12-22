@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.server.exception;
+package info.reflectionsofmind.connexion.server.exception;
 
 public class RemoteClientException extends Exception
 {

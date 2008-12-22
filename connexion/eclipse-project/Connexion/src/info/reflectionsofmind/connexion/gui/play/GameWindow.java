@@ -1,5 +1,7 @@
 package info.reflectionsofmind.connexion.gui.play;
 
+import info.reflectionsofmind.connexion.client.ILocalClient;
+import info.reflectionsofmind.connexion.client.exception.DesynchronizationException;
 import info.reflectionsofmind.connexion.core.board.Meeple;
 import info.reflectionsofmind.connexion.core.board.exception.MeeplePlacementException;
 import info.reflectionsofmind.connexion.core.board.exception.TilePlacementException;
@@ -10,8 +12,6 @@ import info.reflectionsofmind.connexion.core.game.GameUtil;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
-import info.reflectionsofmind.connexion.local.client.ILocalClient;
-import info.reflectionsofmind.connexion.local.client.exception.DesynchronizationException;
 import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
 import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
 
