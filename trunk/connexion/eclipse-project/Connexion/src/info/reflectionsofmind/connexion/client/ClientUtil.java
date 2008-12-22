@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.local.client;
+package info.reflectionsofmind.connexion.client;
 
 import info.reflectionsofmind.connexion.transport.ITransport;
 

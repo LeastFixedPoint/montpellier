@@ -1,10 +1,10 @@
-package info.reflectionsofmind.connexion.local.client;
+package info.reflectionsofmind.connexion.client;
 
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
+import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;

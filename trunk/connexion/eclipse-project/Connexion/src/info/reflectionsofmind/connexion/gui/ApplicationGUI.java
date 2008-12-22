@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.gui;
 
-import info.reflectionsofmind.connexion.local.Settings;
+import info.reflectionsofmind.connexion.common.Settings;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;

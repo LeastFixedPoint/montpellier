@@ -8,9 +8,9 @@ import static org.mockito.Mockito.when;
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
-import info.reflectionsofmind.connexion.remote.client.RemoteClient;
+import info.reflectionsofmind.connexion.server.IRemoteClient;
+import info.reflectionsofmind.connexion.server.IServer;
+import info.reflectionsofmind.connexion.server.RemoteClient;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 

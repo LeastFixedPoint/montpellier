@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.transport.local;
 
+import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
-import info.reflectionsofmind.connexion.local.Settings;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.util.Form;
 

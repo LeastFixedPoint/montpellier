@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.local.server.IServer;
-import info.reflectionsofmind.connexion.remote.client.IRemoteClient;
+import info.reflectionsofmind.connexion.server.IRemoteClient;
+import info.reflectionsofmind.connexion.server.IServer;
 
 import java.util.ArrayList;
 import java.util.List;
