@@ -1,7 +1,9 @@
 package info.reflectionsofmind.connexion.transport.local;
 
 import info.reflectionsofmind.connexion.common.Settings;
+import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.TransportException;
+import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport.ServerToClientNode;
 import info.reflectionsofmind.connexion.util.Form;
 import info.reflectionsofmind.connexion.util.Form.FieldType;
 
@@ -26,13 +28,20 @@ public class ServerLocalTransport extends AbstractLocalTransport
 	}
 
 	@Override
+	public void send(INode to, String message) throws TransportException
+	{
+		final ClientLocalTransport clientTransport = ((ServerToClientNode) to).getClientTransport();
+		clientTransport.receive(clientTransport.getServerNode() , message);
+	}
+
+	@Override
 	public void start() throws TransportException
 	{
 		final int number = this.numberOfPlayersField.getInt();
 		
 		for (int index = 0; index < number; index++)
 		{
-			new ClientLocalTransport(this, this.settings);
+			new ClientLocalTransport(this.settings, this, index + 1);
 		}
 	}
 }

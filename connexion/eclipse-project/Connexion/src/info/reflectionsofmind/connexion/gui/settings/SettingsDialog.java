@@ -31,7 +31,7 @@ public class SettingsDialog extends JDialog
 		setResizable(false);
 		setLayout(new MigLayout("", "[480, center]", "[][]6[][]6[]"));
 
-		this.playerNameField = new JTextField(settings.getClientName());
+		this.playerNameField = new JTextField(settings.getDefaultClientName());
 		add(new JLabel("Player name"), "grow, span");
 		add(this.playerNameField, "grow, span");
 

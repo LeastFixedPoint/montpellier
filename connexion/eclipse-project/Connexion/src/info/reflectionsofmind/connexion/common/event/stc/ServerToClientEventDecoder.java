@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.event.stc;
+package info.reflectionsofmind.connexion.common.event.stc;
 
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 

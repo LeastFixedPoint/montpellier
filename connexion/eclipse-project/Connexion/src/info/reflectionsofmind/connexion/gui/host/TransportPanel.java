@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.gui.host;
 
+import info.reflectionsofmind.connexion.gui.common.TransportName;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.util.Form;
@@ -41,22 +42,33 @@ public class TransportPanel extends JPanel
 			@Override
 			protected void onSubmit()
 			{
+				doOpen();
+			}
+		}.setVisible(true);
+	}
+
+	private void doOpen()
+	{
+		TransportPanel.this.openCloseButton.setAction(new CloseAction());
+
+		new Thread()
+		{
+			@Override
+			public void run()
+			{
 				try
 				{
+					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Starting [" + TransportName.getName(TransportPanel.this.transport) + "] transport...");
 					TransportPanel.this.transport.start();
-					TransportPanel.this.openCloseButton.setAction(new CloseAction());
+					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Transport started. Now accepting [" + TransportName.getName(TransportPanel.this.transport) + "] connections.");
 				}
 				catch (final TransportException exception)
 				{
+					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Cannot start transport.");
 					exception.printStackTrace();
 				}
 			}
-
-			@Override
-			protected void onCancel()
-			{
-			}
-		}.setVisible(true);
+		}.start();
 	}
 
 	private void close()

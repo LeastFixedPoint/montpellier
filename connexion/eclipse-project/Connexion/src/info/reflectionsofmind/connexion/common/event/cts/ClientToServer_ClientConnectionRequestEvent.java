@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.event.cts;
+package info.reflectionsofmind.connexion.common.event.cts;
 
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.util.Util;

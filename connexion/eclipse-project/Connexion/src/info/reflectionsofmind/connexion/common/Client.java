@@ -1,12 +1,14 @@
 package info.reflectionsofmind.connexion.common;
 
+import info.reflectionsofmind.connexion.util.INamed;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-public class Client
+public class Client implements INamed
 {
 	public enum State
 	{

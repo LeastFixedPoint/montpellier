@@ -26,6 +26,7 @@ public interface ILocalClient
 	// === CLIENT GETTERS
 	// ====================================================================================================
 
+	void setName(String name);
 	String getName();
 	List<ITransport> getTransports();
 	Settings getSettings();

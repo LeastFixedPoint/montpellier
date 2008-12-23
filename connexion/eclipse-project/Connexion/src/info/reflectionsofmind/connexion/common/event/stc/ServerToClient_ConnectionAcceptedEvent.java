@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.event.stc;
+package info.reflectionsofmind.connexion.common.event.stc;
 
 import static info.reflectionsofmind.connexion.common.Client.State.ACCEPTED;
 import static info.reflectionsofmind.connexion.common.Client.State.CONNECTED;
@@ -10,6 +10,7 @@ import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,15 +68,15 @@ public class ServerToClient_ConnectionAcceptedEvent extends ServerToClientEvent
 		public ServerToClient_ConnectionAcceptedEvent decode(String string)
 		{
 			final String[] tokens = split(PREFIX, string);
-			final List<String> names = Util.mapDecode(Arrays.asList(tokens[0].split(",")));
-			final List<State> states = State.mapValueOf(Arrays.asList(tokens[1].split(",")));
+			final List<String> names = tokens[0].isEmpty() ? new ArrayList<String>() : Util.mapDecode(Arrays.asList(tokens[0].split(",")));
+			final List<State> states = tokens[1].isEmpty() ? new ArrayList<State>() : State.mapValueOf(Arrays.asList(tokens[1].split(",")));
 			return new ServerToClient_ConnectionAcceptedEvent(names, states);
 		}
 
 		@Override
 		public String encode(ServerToClient_ConnectionAcceptedEvent event)
 		{
-			return join(PREFIX, Util.join(Util.mapEncode(event.getExistingPlayers()), ","));
+			return join(PREFIX, Util.join(Util.mapEncode(event.getExistingPlayers()), ","), Util.join(event.getStates(), ","));
 		}
 	};
 }

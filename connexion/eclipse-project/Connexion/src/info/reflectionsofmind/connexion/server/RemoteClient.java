@@ -3,14 +3,14 @@ package info.reflectionsofmind.connexion.server;
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.event.stc.ServerToClientEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ChatMessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientStateChangedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClientEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ChatMessageEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ClientConnectedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ClientStateChangedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ConnectionAcceptedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
@@ -29,7 +29,7 @@ public final class RemoteClient implements IRemoteClient
 	{
 		try
 		{
-			getNode().getTransport().send(getNode(), event.encode());
+			getNode().send(event.encode());
 		}
 		catch (TransportException exception)
 		{

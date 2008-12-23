@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.event.stc;
+package info.reflectionsofmind.connexion.common.event.stc;
 
 import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.server.IRemoteClient;

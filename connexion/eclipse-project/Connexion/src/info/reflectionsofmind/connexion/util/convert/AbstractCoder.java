@@ -13,7 +13,7 @@ public abstract class AbstractCoder<T> implements ICoder<T>
 	
 	protected String[] split(String prefix, String string)
 	{
-		final String[] tokens = string.split(":");
+		final String[] tokens = string.split(":", Integer.MIN_VALUE);
 		return Arrays.copyOfRange(tokens, prefix.split(":").length, tokens.length);
 	}
 }

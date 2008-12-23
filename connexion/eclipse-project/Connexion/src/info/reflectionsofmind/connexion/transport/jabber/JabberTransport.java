@@ -115,5 +115,10 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 		{
 			return JabberTransport.this;
 		}
+		
+		public String getId()
+		{
+			return getAddress().asString();
+		}
 	}
 }

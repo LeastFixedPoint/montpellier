@@ -3,6 +3,12 @@ package info.reflectionsofmind.connexion.server;
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Settings;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServerEventDecoder;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ChatMessageEvent;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ClientConnectionRequestEvent;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_DisconnectNoticeEvent;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_TurnEvent;
+import info.reflectionsofmind.connexion.common.event.cts.IClientToServerEventListener;
 import info.reflectionsofmind.connexion.core.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
@@ -11,12 +17,6 @@ import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.RandomTileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
-import info.reflectionsofmind.connexion.event.cts.ClientToServerEventDecoder;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_DisconnectNoticeEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ChatMessageEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
-import info.reflectionsofmind.connexion.event.cts.IClientToServerEventListener;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
@@ -47,6 +47,11 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 
 		this.transports.add(new ServerLocalTransport(settings));
 		this.transports.add(new JabberTransport(settings.getJabberAddress()));
+		
+		for (ITransport transport : this.transports)
+		{
+			transport.addListener(this);
+		}
 	}
 
 	// ====================================================================================================
@@ -76,10 +81,11 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	public void onClientConnectionRequestEvent(INode origin, ClientToServer_ClientConnectionRequestEvent event)
 	{
 		final IRemoteClient newRemoteClient = new RemoteClient(new Client(event.getPlayerName()), origin);
-		this.clients.add(newRemoteClient);
 
 		newRemoteClient.sendConnectionAccepted(this);
 
+		this.clients.add(newRemoteClient);
+		
 		for (IRemoteClient client : getClients())
 		{
 			client.sendConnected(this, newRemoteClient);

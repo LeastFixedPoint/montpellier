@@ -74,7 +74,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	public void onClientConnected(final IRemoteClient client)
 	{
 		client.getClient().addStateListener(this);
-		this.chatPane.writeSystem("<b>" + client.getClient().getName() + "</b> connected.");
+		this.chatPane.writeSystem("[<red>" + client.getClient().getName() + "</red>] connected.");
 	}
 
 	@Override
@@ -89,13 +89,13 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 		switch (client.getState())
 		{
 			case ACCEPTED:
-				this.chatPane.writeSystem("<b>" + client.getName() + "</b> was accepted into the game as <b>player</b>.");
+				this.chatPane.writeSystem("[<red>" + client.getName() + "</red>] was accepted into the game as player.");
 				break;
 			case SPECTATOR:
-				this.chatPane.writeSystem("<b>" + client.getName() + "</b> was accepted into the game as <b>spectator</b>.");
+				this.chatPane.writeSystem("[<red>" + client.getName() + "</red>] was accepted into the game as spectator.");
 				break;
 			case CONNECTED:
-				this.chatPane.writeSystem("<b>" + client.getName() + "</b> was rejected from game (will not participate).");
+				this.chatPane.writeSystem("[<red>" + client.getName() + "</red>] was rejected from game (will not participate).");
 				break;
 		}
 	}
@@ -103,7 +103,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	@Override
 	public void onClientDisconnected(IRemoteClient client)
 	{
-		this.chatPane.writeSystem("<b>" + client.getClient().getName() + "</b> disconnected.");
+		this.chatPane.writeSystem("[<red>" + client.getClient().getName() + "</red>] disconnected.");
 	}
 	
 	// ====================================================================================================
