@@ -37,16 +37,16 @@ public class Util
 		return result;
 	}
 
-	public static String join(final List<String> existingPlayers, final String separator)
+	public static String join(final List<?> objects, final String separator)
 	{
-		if (existingPlayers.size() == 0) return "";
-		if (existingPlayers.size() == 1) return existingPlayers.get(0);
+		if (objects.size() == 0) return "";
+		if (objects.size() == 1) return objects.get(0).toString();
 
-		final StringBuilder builder = new StringBuilder(existingPlayers.get(0));
+		final StringBuilder builder = new StringBuilder(objects.get(0).toString());
 
-		for (int i = 1; i < existingPlayers.size(); i++)
+		for (int i = 1; i < objects.size(); i++)
 		{
-			builder.append(separator).append(existingPlayers.get(i));
+			builder.append(separator).append(objects.get(i));
 		}
 
 		return builder.toString();
@@ -96,5 +96,17 @@ public class Util
 		}
 
 		return builder.toString();
+	}
+
+	public static List<String> mapGetName(List<? extends INamed> nameds)
+	{
+		return Lists.transform(nameds, new Function<INamed, String>()
+		{
+			@Override
+			public String apply(final INamed named)
+			{
+				return named.getName();
+			}
+		});
 	}
 }

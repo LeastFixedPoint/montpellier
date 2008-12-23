@@ -11,7 +11,7 @@ public class Settings
 
 	public void load()
 	{
-		this.jabberAddress = new JabberAddress("connexion:connexion@binaryfreedom.info:5222/connexion-client");
+		this.jabberAddress = new JabberAddress("connexion:connexion@binaryfreedom.info:5222");
 		this.clientName = StringUtils.randomString(8);
 	}
 
@@ -25,7 +25,7 @@ public class Settings
 		this.jabberAddress = jabberAddress;
 	}
 
-	public String getClientName()
+	public String getDefaultClientName()
 	{
 		return this.clientName;
 	}

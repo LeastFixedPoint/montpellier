@@ -4,26 +4,26 @@ import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServerEvent;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ChatMessageEvent;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ClientConnectionRequestEvent;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_DisconnectNoticeEvent;
+import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_TurnEvent;
+import info.reflectionsofmind.connexion.common.event.stc.IServerToClientEventListener;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClientEventDecoder;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ChatMessageEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ClientConnectedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ClientDisconnectedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ClientStateChangedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ConnectionAcceptedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_GameStartedEvent;
+import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
 import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
-import info.reflectionsofmind.connexion.event.cts.ClientToServerEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ChatMessageEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_ClientConnectionRequestEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_DisconnectNoticeEvent;
-import info.reflectionsofmind.connexion.event.cts.ClientToServer_TurnEvent;
-import info.reflectionsofmind.connexion.event.stc.IServerToClientEventListener;
-import info.reflectionsofmind.connexion.event.stc.ServerToClientEventDecoder;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ChatMessageEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientConnectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientDisconnectedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ClientStateChangedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_ConnectionAcceptedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_GameStartedEvent;
-import info.reflectionsofmind.connexion.event.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.transport.INode;
@@ -42,6 +42,7 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 {
 	// Basic fields
 
+	private String name;
 	private final Settings settings;
 	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final List<ITransport> transports = new ArrayList<ITransport>();
@@ -60,6 +61,7 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 
 	public DefaultLocalClient(final Settings settings)
 	{
+		this.name = settings.getDefaultClientName();
 		this.settings = settings;
 		this.transports.add(new JabberTransport(settings.getJabberAddress()));
 
@@ -67,11 +69,11 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 		{
 			this.tileSource = new DefaultTileSource(getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/tilelist/DefaultTileList.properties"));
 		}
-		catch (IOException exception)
+		catch (final IOException exception)
 		{
 			throw new RuntimeException(exception);
 		}
-		catch (TileCodeFormatException exception)
+		catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -81,13 +83,13 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 	// === COMMANDS
 	// ============================================================================================
 
-	private void send(ClientToServerEvent event)
+	private void send(final ClientToServerEvent event)
 	{
 		try
 		{
 			getServerNode().send(event.encode());
 		}
-		catch (TransportException exception)
+		catch (final TransportException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -95,58 +97,49 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 
 	public void connect(final INode serverNode)
 	{
-		try
-		{
-			serverNode.getTransport().start();
-		}
-		catch (TransportException exception)
-		{
-			throw new RuntimeException();
-		}
-		
 		this.serverNode = serverNode;
 		getServerNode().getTransport().addListener(this);
-		send(new ClientToServer_ClientConnectionRequestEvent(getSettings().getClientName()));
+		send(new ClientToServer_ClientConnectionRequestEvent(getName()));
 	}
 
-	public void disconnect(DisconnectReason reason)
+	public void disconnect(final DisconnectReason reason)
 	{
 		send(new ClientToServer_DisconnectNoticeEvent(reason));
-		
+
 		try
 		{
 			this.serverNode.getTransport().stop();
 		}
-		catch (TransportException exception)
+		catch (final TransportException exception)
 		{
 			exception.printStackTrace();
 		}
-		
+
 		this.serverNode = null;
 		this.client = null;
 		this.clients.clear();
 		this.game = null;
 
-		for (IListener listener : this.listeners)
+		for (final IListener listener : this.listeners)
 		{
 			listener.onConnectionBroken(reason);
 		}
-		
+
 	}
 
 	@Override
-	public void sendChatMessage(String message)
+	public void sendChatMessage(final String message)
 	{
 		send(new ClientToServer_ChatMessageEvent(message));
 
-		for (IListener listener : this.listeners)
+		for (final IListener listener : this.listeners)
 		{
 			listener.onChatMessage(getClient(), message);
 		}
 	}
 
 	@Override
-	public void sendLastTurn(Game game)
+	public void sendLastTurn(final Game game)
 	{
 		send(new ClientToServer_TurnEvent(getGame().getTurns().get(getGame().getTurns().size() - 1)));
 	}
@@ -224,26 +217,26 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 	public void onStart(final ServerToClient_GameStartedEvent event)
 	{
 		this.sequence = new RemoteTileSequence(event.getTotalNumberOfTiles());
-		
+
 		try
 		{
 			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
 		}
-		catch (TileCodeFormatException exception)
+		catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
-		
+
 		final List<Player> players = new ArrayList<Player>();
-		
-		for (Client client : getClients())
+
+		for (final Client client : getClients())
 		{
 			if (client.getState() == Client.State.ACCEPTED)
 			{
 				players.add(new Player(client.getName()));
 			}
 		}
-		
+
 		this.game = new Game(this.sequence, players);
 	}
 
@@ -256,17 +249,17 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 			{
 				getGame().doTurn(event.getTurn());
 			}
-			catch (GameTurnException exception)
+			catch (final GameTurnException exception)
 			{
 				throw new RuntimeException(exception);
 			}
 		}
-		
+
 		try
 		{
 			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
 		}
-		catch (TileCodeFormatException exception)
+		catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -277,9 +270,15 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 	// ============================================================================================
 
 	@Override
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
+	@Override
 	public String getName()
 	{
-		return this.settings.getClientName();
+		return this.name;
 	}
 
 	@Override
@@ -323,7 +322,7 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 	{
 		return this.settings;
 	}
-	
+
 	// ============================================================================================
 	// === TILE SEQUENCE PROXY
 	// ============================================================================================
@@ -334,7 +333,7 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 		private boolean hasMoreTiles = true;
 		private final Integer totalNumberOfTiles;
 
-		public RemoteTileSequence(Integer totalNumberOfTiles)
+		public RemoteTileSequence(final Integer totalNumberOfTiles)
 		{
 			this.totalNumberOfTiles = totalNumberOfTiles;
 		}

@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -31,16 +32,22 @@ public class ClientsPanel extends JPanel implements IServer.IListener
 	}
 
 	@Override
-	public void onClientConnected(IRemoteClient client)
+	public void onClientConnected(final IRemoteClient client)
 	{
-		final ClientPanel panel = new ClientPanel(this, client);
-		this.panels.add(panel);
-
-		add(panel, "grow, span");
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				final ClientPanel panel = new ClientPanel(ClientsPanel.this, client);
+				ClientsPanel.this.panels.add(panel);
+				ClientsPanel.this.add(panel, "grow, span");
+			}
+		});
 	}
 
 	@Override
-	public void onClientMessage(IRemoteClient client, String message)
+	public void onClientMessage(final IRemoteClient client, final String message)
 	{
 		// Does not react to messages
 	}
@@ -51,12 +58,12 @@ public class ClientsPanel extends JPanel implements IServer.IListener
 		final ClientPanel clientPanel = Iterables.find(this.panels, new Predicate<ClientPanel>()
 		{
 			@Override
-			public boolean apply(ClientPanel panel)
+			public boolean apply(final ClientPanel panel)
 			{
 				return panel.getClient() == client;
 			}
 		});
-		
+
 		this.panels.remove(clientPanel);
 		remove(clientPanel);
 	}

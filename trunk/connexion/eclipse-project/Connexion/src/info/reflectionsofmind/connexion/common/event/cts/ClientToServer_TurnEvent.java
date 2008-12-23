@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.event.cts;
+package info.reflectionsofmind.connexion.common.event.cts;
 
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.transport.INode;

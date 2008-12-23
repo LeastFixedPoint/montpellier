@@ -70,9 +70,9 @@ public abstract class FormDialog extends JDialog
 	{
 		return this.form;
 	}
-	
+
 	// TODO Validation
-	
+
 	private void submitAndDispose()
 	{
 		Iterator<JTextField> textFieldIterator = textFields.iterator();
@@ -101,32 +101,34 @@ public abstract class FormDialog extends JDialog
 				}
 			}
 		}
-		
+
 		dispose();
 		onSubmit();
 	}
-	
+
 	protected abstract void onSubmit();
-	
+
 	private void cancelAndDispose()
 	{
 		this.cancelled = true;
 		dispose();
 		onCancel();
 	}
-	
-	protected abstract void onCancel();
-	
+
+	protected void onCancel()
+	{
+	}
+
 	public boolean isCancelled()
 	{
 		return this.cancelled;
 	}
-	
+
 	@Override
 	protected void processWindowEvent(WindowEvent e)
 	{
 		super.processWindowEvent(e);
-		
+
 		if (e.getID() == WindowEvent.WINDOW_CLOSING)
 		{
 			cancelAndDispose();
