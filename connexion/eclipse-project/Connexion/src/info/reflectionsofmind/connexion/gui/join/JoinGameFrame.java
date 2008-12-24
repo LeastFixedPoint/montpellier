@@ -182,7 +182,7 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 	@Override
 	public void onChatMessage(final Client sender, final String message)
 	{
-		this.chatPane.writeMessage(sender.getName(), message);
+		this.chatPane.writeMessage(sender, message);
 	}
 
 	@Override

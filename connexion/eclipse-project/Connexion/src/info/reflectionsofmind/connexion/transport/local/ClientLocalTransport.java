@@ -8,6 +8,8 @@ import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.util.Form;
 
+import javax.swing.SwingUtilities;
+
 public class ClientLocalTransport extends AbstractLocalTransport
 {
 	private final ServerToClientNode clientNode;
@@ -22,9 +24,16 @@ public class ClientLocalTransport extends AbstractLocalTransport
 		this.clientNode = new ServerToClientNode(serverTransport, this);
 		this.serverNode = new ClientToServerNode(this, serverTransport, index);
 
-		final JoinGameFrame joinGameFrame = new JoinGameFrame(this.settings);
-		joinGameFrame.setVisible(true);
-		joinGameFrame.connect(this.serverNode);
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				final JoinGameFrame joinGameFrame = new JoinGameFrame(ClientLocalTransport.this.settings);
+				joinGameFrame.setVisible(true);
+				joinGameFrame.connect(ClientLocalTransport.this.serverNode);
+			}
+		});
 	}
 
 	@Override
