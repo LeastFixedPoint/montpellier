@@ -2,7 +2,6 @@ package info.reflectionsofmind.connexion.gui.play;
 
 import info.reflectionsofmind.connexion.client.ILocalClient;
 import info.reflectionsofmind.connexion.client.exception.DesynchronizationException;
-import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_TurnEvent;
 import info.reflectionsofmind.connexion.core.board.Meeple;
 import info.reflectionsofmind.connexion.core.board.exception.MeeplePlacementException;
 import info.reflectionsofmind.connexion.core.board.exception.TilePlacementException;
@@ -12,8 +11,6 @@ import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.GameUtil;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Section;
-import info.reflectionsofmind.connexion.remote.server.RemoteServerException;
-import info.reflectionsofmind.connexion.remote.server.ServerConnectionException;
 
 import java.awt.Dimension;
 
@@ -45,7 +42,7 @@ public class GameWindow extends JFrame
 
 	public GameWindow(final ILocalClient client)
 	{
-		super("Connexion :: Client :: " + client.getGame().getName() + " :: " + client.getPlayer().getName());
+		super("Connexion :: Playing game :: " + client.getName());
 
 		this.client = client;
 
@@ -71,7 +68,7 @@ public class GameWindow extends JFrame
 		this.statusBarPanel = new StatusBarPanel(this);
 		add(this.statusBarPanel, "grow, span");
 
-		if (getClient().getGame().getCurrentPlayer() == getClient().getPlayer())
+		if (isMyTurn())
 		{
 			this.turnMode = State.PLACE_TILE;
 			this.turn = new Turn();
@@ -81,7 +78,15 @@ public class GameWindow extends JFrame
 
 		updateInterface();
 	}
-	
+
+	private boolean isMyTurn()
+	{
+		final int playerIndex = getClient().getGame().getPlayers().indexOf(getClient().getGame().getCurrentPlayer());
+		final int clientIndex = getClient().getClients().indexOf(getClient().getClient());
+
+		return playerIndex == clientIndex;
+	}
+
 	public void placeTile(final ILocation location, final IDirection direction)
 	{
 		if (getTurnMode() != State.PLACE_TILE) JOptionPane.showMessageDialog(this, "Cannot place tile now.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -95,7 +100,7 @@ public class GameWindow extends JFrame
 			JOptionPane.showMessageDialog(this, "Invalid tile location.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		
+
 		this.turn.addTilePlacement(location, direction);
 		this.turnMode = State.PLACE_MEEPLE;
 	}
@@ -105,9 +110,9 @@ public class GameWindow extends JFrame
 		if (getTurnMode() != State.PLACE_MEEPLE) JOptionPane.showMessageDialog(this, "Cannot place meeple now.", "Error", JOptionPane.ERROR_MESSAGE);
 
 		final Game game = getClient().getGame();
-		
+
 		final Meeple freeMeeple = GameUtil.getFreeMeepleOfType(game.getBoard(), game.getCurrentPlayer(), meepleType);
-		
+
 		try
 		{
 			game.getBoard().placeMeeple(freeMeeple, section);
@@ -124,20 +129,8 @@ public class GameWindow extends JFrame
 
 	public void endTurn()
 	{
-		try
-		{
-			this.turnMode = State.WAITING;
-			getClient().getRemoteServer().sendEvent(new ClientToServer_TurnEvent(this.turn));
-		}
-		catch (final RemoteServerException exception)
-		{
-			JOptionPane.showMessageDialog(this, "Server refused turn.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-		catch (final ServerConnectionException exception)
-		{
-			JOptionPane.showMessageDialog(this, "Cannot connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-
+		this.turnMode = State.WAITING;
+		getClient().sendLastTurn();
 		updateInterface();
 	}
 
@@ -152,7 +145,7 @@ public class GameWindow extends JFrame
 		{
 			this.turnMode = State.FINISHED;
 		}
-		else if (getClient().getGame().getCurrentPlayer() == getClient().getPlayer())
+		else if (isMyTurn())
 		{
 			this.turnMode = State.PLACE_TILE;
 			this.turn = new Turn();
@@ -166,7 +159,7 @@ public class GameWindow extends JFrame
 	{
 		if (this.turnMode == State.PLACE_TILE || this.turnMode == State.WAITING)
 		{
-			if (getClient().getGame().getCurrentPlayer() == getClient().getPlayer())
+			if (isMyTurn())
 			{
 				this.turnMode = State.PLACE_TILE;
 			}
@@ -205,7 +198,7 @@ public class GameWindow extends JFrame
 	{
 		return this.gameBoardPanel;
 	}
-	
+
 	public StatusBarPanel getStatusBarPanel()
 	{
 		return this.statusBarPanel;

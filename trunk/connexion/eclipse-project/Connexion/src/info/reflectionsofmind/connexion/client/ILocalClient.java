@@ -19,7 +19,7 @@ public interface ILocalClient
 
 	void connect(INode serverNode);
 	void sendChatMessage(String message);
-	void sendLastTurn(Game game);
+	void sendLastTurn();
 	void disconnect(DisconnectReason reason);
 
 	// ====================================================================================================
