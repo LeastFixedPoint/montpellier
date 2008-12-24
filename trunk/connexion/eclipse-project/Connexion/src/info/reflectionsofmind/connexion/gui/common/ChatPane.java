@@ -1,5 +1,7 @@
 package info.reflectionsofmind.connexion.gui.common;
 
+import info.reflectionsofmind.connexion.common.Client;
+
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,8 +88,9 @@ public class ChatPane extends JPanel
 		});
 	}
 
-	public void writeMessage(final String name, final String message)
+	public void writeMessage(final Client sender, final String message)
 	{
+		final String name = sender == null ? "Server" : sender.getName();
 		writeRaw("[<red>" + name + "</red>]: " + message + "<br>");
 	}
 
