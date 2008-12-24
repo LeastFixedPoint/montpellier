@@ -21,7 +21,6 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
@@ -78,7 +77,7 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 		transportCombo.setEnabled(false);
 		connectButton.setAction(new DisconnectAction());
 		statusLabel.setText("Connecting...");
-		
+
 		new Thread()
 		{
 			@Override
@@ -112,15 +111,15 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 
 	public void connect()
 	{
-		final String serverNodeId = JOptionPane.showInputDialog(this, "Enter server address");
-
-		if (serverNodeId == null) return;
-
 		final ITransport transport = this.transportCombo.getSelectedTransport();
 
-		new ChooseServerDialog(this, transport).setVisible(true);
-		
-		//connect(transport.getNode(serverNodeId));
+		final ChooseServerDialog dialog = new ChooseServerDialog(this, transport);
+		dialog.setVisible(true);
+
+		if (dialog.getServerNode() != null)
+		{
+			connect(dialog.getServerNode());
+		}
 	}
 
 	public void disconnect()

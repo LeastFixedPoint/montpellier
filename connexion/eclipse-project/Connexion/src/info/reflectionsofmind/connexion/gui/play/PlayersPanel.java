@@ -77,11 +77,6 @@ class PlayersPanel extends JPanel
 
 			final JLabel nameLabel = new JLabel(player.getName());
 
-			if (PlayersPanel.this.clientUI.getClient().getPlayer() == player)
-			{
-				nameLabel.setText(nameLabel.getText() + " (You)");
-			}
-
 			final int playerIndex = getClientUI().getClient().getGame().getPlayers().indexOf(player);
 
 			final BufferedImage image = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);

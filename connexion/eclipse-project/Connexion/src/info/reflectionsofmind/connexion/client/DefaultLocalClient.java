@@ -139,7 +139,7 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 	}
 
 	@Override
-	public void sendLastTurn(final Game game)
+	public void sendLastTurn()
 	{
 		send(new ClientToServer_TurnEvent(getGame().getTurns().get(getGame().getTurns().size() - 1)));
 	}
