@@ -67,7 +67,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	@Override
 	public void onChatPaneMessageSent(final String message)
 	{
-		this.chatPane.writeMessage("Server", message);
+		this.chatPane.writeMessage(null, message);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	@Override
 	public void onClientMessage(final IRemoteClient client, final String message)
 	{
-		this.chatPane.writeMessage(client.getClient().getName(), message);
+		this.chatPane.writeMessage(client.getClient(), message);
 	}
 
 	@Override
