@@ -3,6 +3,7 @@ package info.reflectionsofmind.connexion.server;
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Settings;
+import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServerEventDecoder;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ChatMessageEvent;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ClientConnectionRequestEvent;
@@ -31,7 +32,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultLocalServer implements IServer, ITransport.IListener, IClientToServerEventListener
+public class DefaultLocalServer implements IServer, ITransport.IListener, IClientToServerEventListener, Client.IStateListener
 {
 	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final List<ITransport> transports = new ArrayList<ITransport>();
@@ -47,7 +48,7 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 
 		this.transports.add(new ServerLocalTransport(settings));
 		this.transports.add(new JabberTransport(settings.getJabberAddress()));
-		
+
 		for (ITransport transport : this.transports)
 		{
 			transport.addListener(this);
@@ -85,7 +86,7 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 		newRemoteClient.sendConnectionAccepted(this);
 
 		this.clients.add(newRemoteClient);
-		
+
 		for (IRemoteClient client : getClients())
 		{
 			client.sendConnected(this, newRemoteClient);
@@ -95,6 +96,8 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 		{
 			listener.onClientConnected(newRemoteClient);
 		}
+
+		newRemoteClient.getClient().addStateListener(this);
 	}
 
 	@Override
@@ -148,23 +151,21 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	}
 
 	// ====================================================================================================
-	// === IMPLEMENTATION
+	// === CLIENT STATE LISTENER
 	// ====================================================================================================
 
-	public void disconnect(IRemoteClient disconnectedClient, DisconnectReason reason)
+	@Override
+	public void onAfterClientStateChange(Client client, State previousState)
 	{
-		this.clients.remove(disconnectedClient);
-
-		for (IRemoteClient client : getClients())
+		for (IRemoteClient remoteClient : getClients())
 		{
-			client.sendDisconnected(this, disconnectedClient, reason);
-		}
-
-		for (IServer.IListener listener : this.listeners)
-		{
-			listener.onClientDisconnected(disconnectedClient);
+			remoteClient.sendStateChanged(this, ServerUtil.getClient(this, client), previousState);
 		}
 	}
+
+	// ====================================================================================================
+	// === IMPLEMENTATION
+	// ====================================================================================================
 
 	private void createGame()
 	{
@@ -211,6 +212,22 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	// ============================================================================================
 
 	@Override
+	public void disconnect(IRemoteClient disconnectedClient, DisconnectReason reason)
+	{
+		this.clients.remove(disconnectedClient);
+
+		for (IRemoteClient client : getClients())
+		{
+			client.sendDisconnected(this, disconnectedClient, reason);
+		}
+
+		for (IServer.IListener listener : this.listeners)
+		{
+			listener.onClientDisconnected(disconnectedClient);
+		}
+	}
+
+	@Override
 	public synchronized void startGame()
 	{
 		createGame();
@@ -232,6 +249,15 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 		for (IRemoteClient client : getClients())
 		{
 			client.sendLastTurn(this);
+		}
+	}
+
+	@Override
+	public void sendMessage(String message)
+	{
+		for (IRemoteClient client : getClients())
+		{
+			client.sendChatMessage(this, null, message);
 		}
 	}
 
@@ -266,6 +292,6 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	@Override
 	public List<IRemoteClient> getClients()
 	{
-		return this.clients;
+		return ImmutableList.copyOf(this.clients);
 	}
 }

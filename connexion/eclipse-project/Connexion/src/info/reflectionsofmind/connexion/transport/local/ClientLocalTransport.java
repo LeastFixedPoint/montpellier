@@ -31,7 +31,7 @@ public class ClientLocalTransport extends AbstractLocalTransport
 			{
 				final JoinGameFrame joinGameFrame = new JoinGameFrame(ClientLocalTransport.this.settings);
 				joinGameFrame.setVisible(true);
-				joinGameFrame.connect(ClientLocalTransport.this.serverNode);
+				joinGameFrame.getClient().connect(ClientLocalTransport.this.serverNode);
 			}
 		});
 	}
@@ -43,9 +43,9 @@ public class ClientLocalTransport extends AbstractLocalTransport
 	}
 
 	@Override
-	public void send(final INode to, final String message) throws TransportException
+	public void send(final INode to, final String message)
 	{
-		((ClientToServerNode) to).getServerTransport().receive(this.clientNode, message);
+		((ClientToServerNode) to).getServerTransport().receive(ClientLocalTransport.this.clientNode, message);
 	}
 
 	@Override

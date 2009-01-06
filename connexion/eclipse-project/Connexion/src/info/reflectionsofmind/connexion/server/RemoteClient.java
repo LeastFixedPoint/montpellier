@@ -46,7 +46,7 @@ public final class RemoteClient implements IRemoteClient
 	@Override
 	public void sendChatMessage(IServer server, IRemoteClient client, String message)
 	{
-		final int index = server.getClients().indexOf(client);
+		final Integer index = (client == null) ? null : server.getClients().indexOf(client);
 		sendEvent(new ServerToClient_ChatMessageEvent(index, message));
 	}
 

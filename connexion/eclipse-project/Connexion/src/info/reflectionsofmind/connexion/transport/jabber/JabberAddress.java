@@ -2,18 +2,15 @@ package info.reflectionsofmind.connexion.transport.jabber;
 
 public class JabberAddress
 {
-	private final String address;
 	private final String login;
 	private final String password;
 	private final String host;
-	private int port;
+	private final Integer port;
 	private final String resource;
 
 	public JabberAddress(final String string)
 	{
-		this.address = string;
-
-		final int atPos = string.indexOf('@');
+		final int atPos = string.lastIndexOf('@');
 		final int slPos = string.indexOf('/');
 
 		final String loginPassword = string.substring(0, atPos);
@@ -29,7 +26,7 @@ public class JabberAddress
 		final int s2Pos = hostPort.indexOf(':');
 
 		this.host = (s1Pos == -1) ? hostPort : hostPort.substring(0, s2Pos);
-		this.port = (s1Pos == -1) ? 0 : Integer.parseInt(hostPort.substring(s2Pos + 1));
+		this.port = (s1Pos == -1) ? null : Integer.valueOf(hostPort.substring(s2Pos + 1));
 	}
 
 	public String getLogin()
@@ -47,7 +44,7 @@ public class JabberAddress
 		return this.host;
 	}
 
-	public int getPort()
+	public Integer getPort()
 	{
 		return this.port;
 	}
@@ -57,8 +54,22 @@ public class JabberAddress
 		return this.resource;
 	}
 
-	public String asString()
+	public String getLongString()
 	{
-		return this.address;
+		final StringBuilder builder = new StringBuilder();
+		builder.append(getLogin());
+		if (getPassword() != null) builder.append(":").append(getPassword());
+		builder.append("@").append(getHost());
+		if (getPort() != null) builder.append(":").append(getPort());
+		if (getResource() != null) builder.append("/").append(getResource());
+		return builder.toString();
+	}
+
+	public String getShortString()
+	{
+		final StringBuilder builder = new StringBuilder();
+		builder.append(getLogin());
+		builder.append(getHost());
+		return builder.toString();
 	}
 }

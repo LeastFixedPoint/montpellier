@@ -8,7 +8,6 @@ import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.gui.common.TransportName;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
@@ -85,7 +84,7 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 			{
 				try
 				{
-					JoinGameFrame.this.chatPane.writeSystem("Starting " + TransportName.getName(serverNode.getTransport()) + " transport...");
+					JoinGameFrame.this.chatPane.writeSystem("Starting " + ChatPane.format(serverNode.getTransport()) + " transport...");
 					serverNode.getTransport().start();
 					JoinGameFrame.this.chatPane.writeSystem("Transport started.");
 				}
@@ -102,9 +101,8 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 					getClient().setName(getClient().getName() + "." + i);
 				}
 
-				JoinGameFrame.this.chatPane.writeSystem("Sending connection request to [" + serverNode.getId() + "]...");
+				JoinGameFrame.this.chatPane.writeSystem("Sending connection request to " + ChatPane.format(serverNode) + "...");
 				getClient().connect(serverNode);
-				JoinGameFrame.this.chatPane.writeSystem("Connection request sent, waiting for reply...");
 			}
 		}.start();
 	}
@@ -135,7 +133,7 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 	@Override
 	public void onConnectionAccepted()
 	{
-		this.chatPane.writeSystem("Connected to [" + getClient().getServerNode().getId() + "].");
+		this.chatPane.writeSystem("Connected to " + ChatPane.format(getClient().getServerNode()) + ".");
 
 		if (!getClient().getClients().isEmpty())
 		{
@@ -144,7 +142,7 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 				@Override
 				public String apply(final Client client)
 				{
-					return "[<red>" + client.getName() + "</red>]";
+					return ChatPane.format(client);
 				}
 			}), ", ");
 
@@ -158,7 +156,7 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 	@Override
 	public void onConnectionBroken(final DisconnectReason reason)
 	{
-		this.chatPane.writeSystem("Disconnected. Reason: [" + reason + "].");
+		this.chatPane.writeSystem("Disconnected. Reason: " + reason + ".");
 
 		this.chatPane.setEnabled(false);
 		this.transportCombo.setEnabled(true);
@@ -169,14 +167,14 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 	@Override
 	public void onClientConnected(final Client client)
 	{
-		this.chatPane.writeSystem("[<red>" + client.getName() + "</red>] connected.");
+		this.chatPane.writeSystem(ChatPane.format(client) + " connected.");
 		client.addStateListener(this);
 	}
 
 	@Override
 	public void onClientDisconnected(final Client client)
 	{
-		this.chatPane.writeSystem("[" + client.getName() + "] disconnected.");
+		this.chatPane.writeSystem(ChatPane.format(client) + " sdisconnected.");
 	}
 
 	@Override
@@ -210,7 +208,7 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 	@Override
 	public void onAfterClientStateChange(final Client client, final State previousState)
 	{
-		this.chatPane.writeSystem("[" + client + "] is now [" + client.getState() + "].");
+		this.chatPane.writeSystem(ChatPane.format(client) + " is now [" + client.getState() + "].");
 	}
 
 	// ====================================================================================================

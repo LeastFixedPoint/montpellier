@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.mockito.Mockito;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class TileCodeParser
 {
@@ -73,24 +73,24 @@ public class TileCodeParser
 	public List<List<Section>> parseSidesCode(final String code, final Map<String, Section> sections) throws TileCodeFormatException
 	{
 		final List<List<Section>> sides = new ArrayList<List<Section>>();
-		
+
 		for (String subCode : code.split(","))
 		{
 			final List<Section> side = new ArrayList<Section>();
-			
+
 			for (int i = 0; i < subCode.length(); i += 2)
 			{
 				final String id = subCode.substring(i, i + 2);
 				final Section section = sections.get(id);
 
 				if (section == null) throw new TileCodeFormatException(subCode, "Section with id [" + id + "] referenced as adjacent, but not found.");
-				
+
 				side.add(section);
 			}
-			
+
 			sides.add(Collections.unmodifiableList(side));
 		}
-		
+
 		return Collections.unmodifiableList(sides);
 	}
 
@@ -142,8 +142,8 @@ public class TileCodeParser
 		{
 			for (String adjId : adjacentIds.get(srcId))
 			{
-				Assert.assertTrue("[" + srcId + "] is not adjacent to [" + adjId + "].", // 
-						sections.get(srcId).isAdjacentTo(sections.get(adjId)));
+				Assert.assertTrue(sections.get(srcId).isAdjacentTo(sections.get(adjId)), //
+						"[" + srcId + "] is not adjacent to [" + adjId + "].");
 			}
 		}
 	}
@@ -152,7 +152,7 @@ public class TileCodeParser
 	public void $_test_parseSidesCode_correct() throws TileCodeFormatException
 	{
 		final String sectionsCode = "c1c2f1f2f3f4r1r2mm";
-		
+
 		final Tile tile = Mockito.mock(Tile.class);
 		final Multi<Tile, Section> sectionsLink = new Multi<Tile, Section>(tile);
 		Mockito.when(tile.getSections()).thenReturn(sectionsLink);
@@ -168,14 +168,14 @@ public class TileCodeParser
 		sidesIds.add(Arrays.asList("f3", "r2", "f4"));
 
 		Assert.assertEquals(sidesIds.size(), sides.size());
-		
+
 		final Iterator<List<Section>> sidesIterator = sides.iterator();
 		for (List<String> sideIds : sidesIds)
 		{
 			final List<Section> side = sidesIterator.next();
 
 			Assert.assertEquals(sideIds.size(), side.size());
-			
+
 			final Iterator<Section> sideIterator = side.iterator();
 			for (String sideId : sideIds)
 			{

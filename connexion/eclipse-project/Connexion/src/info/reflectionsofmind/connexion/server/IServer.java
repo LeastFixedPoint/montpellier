@@ -12,6 +12,7 @@ public interface IServer
 {
 	void disconnect(IRemoteClient client, DisconnectReason server_request);
 	void startGame();
+	void sendMessage(String message);
 	
 	Game getGame();
 	ITileSource getTileSource();

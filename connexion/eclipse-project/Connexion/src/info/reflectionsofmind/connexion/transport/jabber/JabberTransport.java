@@ -27,7 +27,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	public JabberTransport(final JabberAddress address)
 	{
 		this.form = new Form();
-		this.addressField = new Form.Field(FieldType.STRING, "Server's jabber ID", address.asString());
+		this.addressField = new Form.Field(FieldType.STRING, "Server's jabber ID", address.getLongString());
 		this.form.addField(this.addressField);
 	}
 
@@ -46,7 +46,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	@Override
 	public void send(final INode to, final String string) throws TransportException
 	{
-		final Message message = new Message(((JabberNode) to).getAddress().asString());
+		final Message message = new Message(((JabberNode) to).getAddress().getLongString());
 		message.setBody(string);
 		this.connection.sendPacket(message);
 	}
@@ -118,7 +118,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 		
 		public String getId()
 		{
-			return getAddress().asString();
+			return getAddress().getLongString();
 		}
 	}
 }

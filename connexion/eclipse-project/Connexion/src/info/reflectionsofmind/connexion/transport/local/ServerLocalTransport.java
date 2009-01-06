@@ -17,10 +17,10 @@ public class ServerLocalTransport extends AbstractLocalTransport
 	{
 		this.settings = settings;
 		this.form = new Form();
-		numberOfPlayersField = new Form.Field(FieldType.INT, "Number of players", 1);
-		this.form.addField(numberOfPlayersField);
+		this.numberOfPlayersField = new Form.Field(FieldType.INT, "Number of players", 1);
+		this.form.addField(this.numberOfPlayersField);
 	}
-	
+
 	@Override
 	public Form getForm()
 	{
@@ -28,17 +28,24 @@ public class ServerLocalTransport extends AbstractLocalTransport
 	}
 
 	@Override
-	public void send(INode to, String message) throws TransportException
+	public void send(final INode to, final String message) throws TransportException
 	{
-		final ClientLocalTransport clientTransport = ((ServerToClientNode) to).getClientTransport();
-		clientTransport.receive(clientTransport.getServerNode() , message);
+		new Thread()
+		{
+			@Override
+			public void run()
+			{
+				final ClientLocalTransport clientTransport = ((ServerToClientNode) to).getClientTransport();
+				clientTransport.receive(clientTransport.getServerNode(), message);
+			}
+		}.start();
 	}
 
 	@Override
 	public void start() throws TransportException
 	{
 		final int number = this.numberOfPlayersField.getInt();
-		
+
 		for (int index = 0; index < number; index++)
 		{
 			new ClientLocalTransport(this.settings, this, index + 1);
