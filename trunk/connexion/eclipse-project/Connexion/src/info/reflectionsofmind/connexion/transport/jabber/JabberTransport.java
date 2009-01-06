@@ -27,8 +27,14 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	public JabberTransport(final JabberAddress address)
 	{
 		this.form = new Form();
-		this.addressField = new Form.Field(FieldType.STRING, "Server's jabber ID", address.getLongString());
+		this.addressField = new Form.Field("server-jabber-id", FieldType.STRING, "Server's jabber ID", address.getLongString());
 		this.form.addField(this.addressField);
+	}
+	
+	@Override
+	public boolean isServerSideOnly()
+	{
+		return false;
 	}
 
 	@Override
