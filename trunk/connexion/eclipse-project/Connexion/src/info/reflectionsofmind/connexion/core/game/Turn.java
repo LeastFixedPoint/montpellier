@@ -11,6 +11,8 @@ import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 public class Turn
 {
+	public final static String PREFIX = "turn";
+
 	private final boolean advancePlayer;
 
 	private IDirection direction;
@@ -69,23 +71,23 @@ public class Turn
 	{
 		public boolean accepts(String string)
 		{
-			return string.startsWith("turn:");
+			return string.startsWith(PREFIX + ":");
 		}
 
 		public String encode(Turn turn)
 		{
-			return join("turn:", //
-					String.valueOf(turn.isAdvancePlayer()), //
-					String.valueOf(((Location) turn.getLocation()).getX()), // 
-					String.valueOf(((Location) turn.getLocation()).getY()), //
-					String.valueOf(turn.getDirection().getIndex()), //
-					turn.getMeepleType().toString(), //
-					String.valueOf(turn.getSectionIndex()));
+			return join(PREFIX, //
+					/* 0 */String.valueOf(turn.isAdvancePlayer()), //
+					/* 1 */String.valueOf(((Location) turn.getLocation()).getX()), // 
+					/* 2 */String.valueOf(((Location) turn.getLocation()).getY()), //
+					/* 3 */String.valueOf(turn.getDirection().getIndex()), //
+					/* 4 */turn.getMeepleType() == null ? "" : turn.getMeepleType().toString(), //
+					/* 5 */String.valueOf(turn.getSectionIndex()));
 		}
 
 		public Turn decode(String string)
 		{
-			final String[] tokens = split("turn", string);
+			final String[] tokens = split(PREFIX, string);
 
 			final Geometry geometry = new Geometry();
 
@@ -95,8 +97,8 @@ public class Turn
 					new Location(geometry, Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2])), //
 					geometry.getDirections().get(Integer.parseInt(tokens[3])));
 
-			turn.addMeeplePlacement(Type.valueOf(tokens[4]), Integer.valueOf(tokens[5]));
-
+			final Type meepleType = tokens[4].isEmpty() ? null : Type.valueOf(tokens[4]);
+			turn.addMeeplePlacement(meepleType, Integer.valueOf(tokens[5]));
 			return turn;
 		}
 	};

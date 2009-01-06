@@ -9,13 +9,12 @@ import info.reflectionsofmind.connexion.core.util.Loop;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class Geometry implements IGeometry
 {
-	private final List<IDirection> DIRECTIONS = Arrays.<IDirection>asList( //
+	private final List<IDirection> DIRECTIONS = Arrays.<IDirection> asList( //
 			new Direction(this, 0), new Direction(this, 1), new Direction(this, 2), new Direction(this, 3));
 
 	// ============================================================================================

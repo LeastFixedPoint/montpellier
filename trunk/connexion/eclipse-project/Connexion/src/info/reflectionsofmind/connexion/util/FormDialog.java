@@ -30,6 +30,8 @@ public abstract class FormDialog extends JDialog
 
 		setLayout(new MigLayout("", "[]6[30][grow]", Util.copy(form.getFields().size(), "[]6") + "[]"));
 
+		final SubmitAction submitAction = new SubmitAction(submitActionName);
+
 		for (Field field : form.getFields())
 		{
 			add(new JLabel(field.getName()), "grow");
@@ -39,6 +41,10 @@ public abstract class FormDialog extends JDialog
 				case INT:
 				{
 					final JTextField textField = new JTextField(field.getInt().toString());
+					textField.setSelectionStart(0);
+					textField.setSelectionEnd(textField.getText().length());
+					textField.setAction(submitAction);
+					
 					add(textField, "grow, wrap");
 					textFields.add(textField);
 					break;
@@ -46,6 +52,8 @@ public abstract class FormDialog extends JDialog
 				case STRING:
 				{
 					final JTextField textField = new JTextField(field.getString().toString());
+					textField.setAction(submitAction);
+
 					add(textField, "grow, span");
 					textFields.add(textField);
 					break;
@@ -57,7 +65,7 @@ public abstract class FormDialog extends JDialog
 			}
 		}
 
-		add(new JButton(new SubmitAction(submitActionName)), "span, split, sg, right");
+		add(new JButton(submitAction), "span, split, sg, right");
 		add(new JButton(new CancelAction("Cancel")), "sg, right");
 
 		pack();

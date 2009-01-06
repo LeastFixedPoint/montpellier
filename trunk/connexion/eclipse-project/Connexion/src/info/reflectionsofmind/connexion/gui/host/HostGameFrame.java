@@ -52,7 +52,6 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 		add(this.startButton, "wrap, w 120");
 
 		this.clientsPanel = new ClientsPanel(this);
-		this.server.addListener(this.clientsPanel);
 		add(this.clientsPanel, "grow, wrap, h 240");
 
 		this.chatPane = new ChatPane();
@@ -68,6 +67,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	public void onChatPaneMessageSent(final String message)
 	{
 		this.chatPane.writeMessage(null, message);
+		this.server.sendMessage(message);
 	}
 
 	@Override
@@ -99,13 +99,13 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 				break;
 		}
 	}
-	
+
 	@Override
-	public void onClientDisconnected(IRemoteClient client)
+	public void onClientDisconnected(final IRemoteClient client)
 	{
 		this.chatPane.writeSystem("[<red>" + client.getClient().getName() + "</red>] disconnected.");
 	}
-	
+
 	// ====================================================================================================
 	// === GETTERS AND SETTERS
 	// ====================================================================================================
@@ -119,7 +119,7 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 	{
 		return this.mainWindow;
 	}
-	
+
 	public ChatPane getChatPane()
 	{
 		return this.chatPane;

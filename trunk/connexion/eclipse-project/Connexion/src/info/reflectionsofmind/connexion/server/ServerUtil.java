@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.server;
 
+import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.Client.State;
 import info.reflectionsofmind.connexion.transport.INode;
 
@@ -13,6 +14,16 @@ import com.google.common.collect.Lists;
 
 public class ServerUtil
 {
+	public static IRemoteClient getClient(IServer server, Client client)
+	{
+		for (IRemoteClient remoteClient : server.getClients())
+		{
+			if (remoteClient.getClient() == client) return remoteClient;
+		}
+		
+		return null;
+	}
+	
 	public static IRemoteClient getClientByNode(IServer server, INode node)
 	{
 		for (IRemoteClient client : server.getClients())

@@ -55,27 +55,24 @@ public class ClientsPanel extends JPanel implements IServer.IListener
 	@Override
 	public void onClientDisconnected(final IRemoteClient client)
 	{
-		final ClientPanel clientPanel = Iterables.find(this.panels, new Predicate<ClientPanel>()
+		SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override
-			public boolean apply(final ClientPanel panel)
+			public void run()
 			{
-				return panel.getClient() == client;
+				final ClientPanel clientPanel = Iterables.find(ClientsPanel.this.panels, new Predicate<ClientPanel>()
+				{
+					@Override
+					public boolean apply(final ClientPanel panel)
+					{
+						return panel.getClient() == client;
+					}
+				});
+		
+				ClientsPanel.this.panels.remove(clientPanel);
+				remove(clientPanel);
 			}
 		});
-
-		this.panels.remove(clientPanel);
-		remove(clientPanel);
-	}
-
-	public void removePanel(final ClientPanel panel)
-	{
-		if (this.panels.size() > 1)
-		{
-			remove(panel);
-			this.panels.remove(panel);
-			getLayout().layoutContainer(this);
-		}
 	}
 
 	public HostGameFrame getHostGameDialog()

@@ -35,7 +35,7 @@ public class SettingsDialog extends JDialog
 		add(new JLabel("Player name"), "grow, span");
 		add(this.playerNameField, "grow, span");
 
-		this.jabberAddressField = new JTextField(settings.getJabberAddress().asString());
+		this.jabberAddressField = new JTextField(settings.getJabberAddress().getLongString());
 		add(new JLabel("Jabber address"), "grow, span");
 		add(this.jabberAddressField, "grow, span");
 

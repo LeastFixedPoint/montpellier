@@ -205,7 +205,7 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 	@Override
 	public void onChatMessage(final ServerToClient_ChatMessageEvent event)
 	{
-		final Client client = this.clients.get(event.getClientIndex());
+		final Client client = event.getClientIndex() == null ? null : this.clients.get(event.getClientIndex());
 
 		for (final IListener listener : this.listeners)
 		{

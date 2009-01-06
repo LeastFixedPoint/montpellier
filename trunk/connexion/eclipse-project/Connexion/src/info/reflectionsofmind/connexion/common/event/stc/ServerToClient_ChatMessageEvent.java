@@ -8,12 +8,12 @@ public class ServerToClient_ChatMessageEvent extends ServerToClientEvent
 {
 	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":message";
 
-	private final int playerIndex;
+	private final Integer clientIndex;
 	private final String message;
 
-	public ServerToClient_ChatMessageEvent(final int clientIndex, final String message)
+	public ServerToClient_ChatMessageEvent(final Integer clientIndex, final String message)
 	{
-		this.playerIndex = clientIndex;
+		this.clientIndex = clientIndex;
 		this.message = message;
 	}
 	
@@ -23,9 +23,9 @@ public class ServerToClient_ChatMessageEvent extends ServerToClientEvent
 		listener.onChatMessage(this);
 	}
 
-	public int getClientIndex()
+	public Integer getClientIndex()
 	{
-		return this.playerIndex;
+		return this.clientIndex;
 	}
 
 	public String getMessage()
@@ -51,7 +51,7 @@ public class ServerToClient_ChatMessageEvent extends ServerToClientEvent
 		public ServerToClient_ChatMessageEvent decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
-			final int clientIndex = Integer.valueOf(tokens[0]);
+			final Integer clientIndex = tokens[0].isEmpty() ? null : Integer.valueOf(tokens[0]);
 			final String message = Util.decode(tokens[1]);
 			return new ServerToClient_ChatMessageEvent(clientIndex, message);
 		}
@@ -59,7 +59,8 @@ public class ServerToClient_ChatMessageEvent extends ServerToClientEvent
 		@Override
 		public String encode(final ServerToClient_ChatMessageEvent event)
 		{
-			return join(PREFIX, String.valueOf(event.getClientIndex()), Util.encode(event.message));
+			final String clientIndex = event.getClientIndex() == null ? "" : event.getClientIndex().toString();
+			return join(PREFIX, clientIndex, Util.encode(event.message));
 		}
 	};
 }

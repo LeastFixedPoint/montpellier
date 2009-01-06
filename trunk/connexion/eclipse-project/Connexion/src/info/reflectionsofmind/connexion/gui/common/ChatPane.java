@@ -1,6 +1,8 @@
 package info.reflectionsofmind.connexion.gui.common;
 
 import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.ITransport;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -69,12 +71,7 @@ public class ChatPane extends JPanel
 				{
 					final HTMLDocument document = (HTMLDocument) ChatPane.this.chatPane.getDocument();
 					final AbstractElement element = (AbstractElement) document.getRootElements()[0].getElement(0).getElement(0);
-
-					final String formattedText = text //
-							.replaceAll("<red>", "<font color=red><b>") //
-							.replaceAll("</red>", "</b></font>");
-
-					document.insertBeforeEnd(element, formattedText);
+					document.insertBeforeEnd(element, text);
 				}
 				catch (final IOException exception)
 				{
@@ -90,8 +87,7 @@ public class ChatPane extends JPanel
 
 	public void writeMessage(final Client sender, final String message)
 	{
-		final String name = sender == null ? "Server" : sender.getName();
-		writeRaw("[<red>" + name + "</red>]: " + message + "<br>");
+		writeRaw(format(sender) + ": " + message + "<br>");
 	}
 
 	public void writeSystem(final String text)
@@ -122,5 +118,20 @@ public class ChatPane extends JPanel
 			sendField.setText("");
 			sendField.requestFocus();
 		}
+	}
+
+	public static String format(Client client)
+	{
+		return "[<font color=red>" + (client == null ? "Server" : client.getName()) + "</font>]";
+	}
+
+	public static String format(ITransport transport)
+	{
+		return "[<font color=blue>" + transport.getName() + "</font>]";
+	}
+
+	public static String format(INode node)
+	{
+		return "[<font color=blue>" + node.getId() + "</font>]";
 	}
 }
