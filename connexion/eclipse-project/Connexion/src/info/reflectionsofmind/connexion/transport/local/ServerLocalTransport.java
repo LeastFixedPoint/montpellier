@@ -17,7 +17,7 @@ public class ServerLocalTransport extends AbstractLocalTransport
 	{
 		this.settings = settings;
 		this.form = new Form();
-		this.numberOfPlayersField = new Form.Field(FieldType.INT, "Number of players", 1);
+		this.numberOfPlayersField = new Form.Field("number-of-players", FieldType.INT, "Number of players", 1);
 		this.form.addField(this.numberOfPlayersField);
 	}
 
@@ -25,6 +25,12 @@ public class ServerLocalTransport extends AbstractLocalTransport
 	public Form getForm()
 	{
 		return this.form;
+	}
+	
+	@Override
+	public boolean isServerSideOnly()
+	{
+		return true;
 	}
 
 	@Override

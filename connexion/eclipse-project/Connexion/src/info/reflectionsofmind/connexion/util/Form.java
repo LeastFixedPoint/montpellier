@@ -26,15 +26,22 @@ public class Form
 
 	public static class Field
 	{
+		private final String id;
 		private final String name;
 		private final FieldType type;
 		private Object value;
 
-		public Field(FieldType type, String name, Object value)
+		public Field(String id, FieldType type, String name, Object value)
 		{
+			this.id = id;
 			this.type = type;
 			this.name = name;
 			this.value = value;
+		}
+
+		public String getId()
+		{
+			return this.id;
 		}
 
 		public String getName()
@@ -69,6 +76,15 @@ public class Form
 		{
 			if (this.type != FieldType.INT) throw new ClassCastException("Tried to set integer to field of type [" + this.type + "].");
 			this.value = value;
+		}
+		
+		public void setValue(String value)
+		{
+			switch (this.type)
+			{
+				case INT: setInt(Integer.valueOf(value));
+				case STRING: setString(value);
+			}
 		}
 	}
 }

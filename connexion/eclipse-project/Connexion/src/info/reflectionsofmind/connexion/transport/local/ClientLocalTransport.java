@@ -41,6 +41,12 @@ public class ClientLocalTransport extends AbstractLocalTransport
 	{
 		return null;
 	}
+	
+	@Override
+	public boolean isServerSideOnly()
+	{
+		throw new UnsupportedOperationException("Cannot be used directly");
+	}
 
 	@Override
 	public void send(final INode to, final String message)

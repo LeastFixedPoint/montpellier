@@ -20,11 +20,11 @@ public class ApplicationGUI
 
 	private void start()
 	{
-		this.settings = new Settings();
-		this.settings.load();
-		
 		try
 		{
+			this.settings = new Settings();
+			this.settings.load();
+
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			UIManager.setLookAndFeel(new SubstanceBusinessLookAndFeel());
 
