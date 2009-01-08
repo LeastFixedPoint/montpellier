@@ -3,25 +3,28 @@ package info.reflectionsofmind.connexion.common;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.jabber.JabberAddress;
 import info.reflectionsofmind.connexion.util.FormUtil;
-import info.reflectionsofmind.connexion.util.Form.Field;
+import info.reflectionsofmind.connexion.util.Form.Parameter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jivesoftware.smack.util.StringUtils;
 
+import com.google.common.collect.ImmutableMap;
+
 public class Settings
 {
 	private final static Pattern TRANSPORT_CLASS_KEY = Pattern.compile("^transport\\.(.+)\\.class$");
 
-	private String clientName;
-	private JabberAddress jabberAddress;
+	private Configuration root;
 
-	private List<ITransport> transports = new ArrayList<ITransport>();
+	private final List<ITransport> transports = new ArrayList<ITransport>();
 
 	public void load() throws InitializationException
 	{
@@ -35,20 +38,8 @@ public class Settings
 		{
 			throw new InitializationException(exception);
 		}
-
-		for (Object key : properties.keySet())
-		{
-			Matcher matcher = TRANSPORT_CLASS_KEY.matcher((String) key);
-
-			if (matcher.matches())
-			{
-				final String transportName = matcher.group(1);
-				transports.add(createTransport(transportName, properties));
-			}
-		}
-
-		this.jabberAddress = new JabberAddress("connexion:connexion@binaryfreedom.info:5222");
-		this.clientName = StringUtils.randomString(8);
+		
+		this.root = new Configuration((Map)properties);
 	}
 
 	private ITransport createTransport(String transportName, Properties properties) throws InitializationException
@@ -67,7 +58,7 @@ public class Settings
 				{
 					final String fieldName = key.substring(key.indexOf('.', key.indexOf('.') + 1) + 1);
 					final String fieldValue = properties.getProperty(key);
-					final Field field = FormUtil.getFieldById(transport.getForm(), fieldName);
+					final Parameter field = FormUtil.getFieldById(transport.getForm(), fieldName);
 					field.setValue(fieldValue);
 				}
 			}
@@ -79,24 +70,56 @@ public class Settings
 			throw new InitializationException(exception);
 		}
 	}
+	
+	// ============================================================================================
+	// === CATEGORY CLASS
+	// ============================================================================================
 
-	public JabberAddress getJabberAddress()
+	public class Configuration
 	{
-		return this.jabberAddress;
+		private final Map<String, Configuration> categories = new HashMap<String, Configuration>();
+		private final Map<String, String> values = new HashMap<String, String>();
+		
+		public Configuration(Map<String, String> properties)
+		{
+			for (String key : properties.keySet())
+			{
+				final String[] tokens = key.split("\\.");
+				
+				Configuration category = this;
+				
+				for (int i = 0; i < tokens.length - 1; i++)
+				{
+					if (categories.get(tokens[i]) == null)
+					{
+						categories.put(tokens[i], new Configuration());
+					}
+					
+					category = categories.get(tokens[i]);
+				}
+				
+				category.values.put(tokens[tokens.length - 1], properties.get(key));
+			}
+		}
+		
+		public Configuration()
+		{
+			
+		}
+
+		public Map<String, Configuration> getCategories()
+		{
+			return ImmutableMap.copyOf(this.categories);
+		}
+
+		public Map<String, String> getValues()
+		{
+			return ImmutableMap.copyOf(this.values);
+		}
 	}
 
-	public void setJabberAddress(final JabberAddress jabberAddress)
+	public Configuration getRoot()
 	{
-		this.jabberAddress = jabberAddress;
-	}
-
-	public String getDefaultClientName()
-	{
-		return this.clientName;
-	}
-
-	public void setClientName(final String playerName)
-	{
-		this.clientName = playerName;
+		return this.root;
 	}
 }

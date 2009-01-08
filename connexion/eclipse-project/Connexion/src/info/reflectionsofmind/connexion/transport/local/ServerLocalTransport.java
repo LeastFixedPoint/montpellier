@@ -1,32 +1,34 @@
 package info.reflectionsofmind.connexion.transport.local;
 
+import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport.ServerToClientNode;
 import info.reflectionsofmind.connexion.util.Form;
-import info.reflectionsofmind.connexion.util.Form.FieldType;
+import info.reflectionsofmind.connexion.util.FormUtil;
 
 public class ServerLocalTransport extends AbstractLocalTransport
 {
-	private final Form form;
-	private final Settings settings;
-	private final Form.Field numberOfPlayersField;
+	private static final String PARAMETER_NUMBER_OF_PLAYERS = "number-of-players";
 
-	public ServerLocalTransport(final Settings settings)
+	private final Form configuration = FormUtil.newBuilder() //
+			.addInteger(PARAMETER_NUMBER_OF_PLAYERS, "Number of players") //
+			.build();
+
+	private final IApplication application;
+
+	public ServerLocalTransport(final IApplication application)
 	{
-		this.settings = settings;
-		this.form = new Form();
-		this.numberOfPlayersField = new Form.Field("number-of-players", FieldType.INT, "Number of players", 1);
-		this.form.addField(this.numberOfPlayersField);
+		this.application = application;
 	}
 
 	@Override
 	public Form getForm()
 	{
-		return this.form;
+		return this.configuration;
 	}
-	
+
 	@Override
 	public boolean isServerSideOnly()
 	{
@@ -50,11 +52,11 @@ public class ServerLocalTransport extends AbstractLocalTransport
 	@Override
 	public void start() throws TransportException
 	{
-		final int number = this.numberOfPlayersField.getInt();
+		final int number = FormUtil.getFieldById(this.configuration, PARAMETER_NUMBER_OF_PLAYERS).getInteger();
 
 		for (int index = 0; index < number; index++)
 		{
-			new ClientLocalTransport(this.settings, this, index + 1);
+			new ClientLocalTransport(this.application, this, index + 1);
 		}
 	}
 }

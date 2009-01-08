@@ -3,49 +3,35 @@ package info.reflectionsofmind.connexion.gui;
 import info.reflectionsofmind.connexion.gui.host.HostGameFrame;
 import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
 import info.reflectionsofmind.connexion.gui.settings.SettingsDialog;
+import info.reflectionsofmind.connexion.util.JConnexionFrame;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
 
-public class MainFrame extends JFrame
+public class MainFrame extends JConnexionFrame
 {
-	private final ApplicationGUI application;
-
-	public MainFrame(ApplicationGUI application)
+	public MainFrame()
 	{
-		super("Connexion");
-
-		this.application = application;
+		setTitle("Connexion");
 
 		setLocationRelativeTo(null);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setLayout(new MigLayout("", "[240, center]", "[24]6[24]6[24]6[24]6[24]24[24]"));
+		setLayout(new MigLayout("", "[240, center]", "[24]6[24]6[24]6[24]6[24]6[24]24[24]"));
 
 		add(new JLabel("Connexion"), "span");
-
 		add(new JButton(new HostGameAction("Host game")), "span, grow");
-
 		add(new JButton(new JoinGameAction("Join game")), "span, grow");
-
 		add(new JButton("Play online"), "span, grow");
-
+		add(new JButton("Create hub"), "span, grow");
 		add(new JButton(new SettingsAction("Settings")), "span, grow");
-
 		add(new JButton(new ExitAction("Exit")), "span");
 
 		pack();
 		setVisible(true);
-	}
-
-	public ApplicationGUI getApplication()
-	{
-		return this.application;
 	}
 
 	private final class ExitAction extends AbstractAction
@@ -72,7 +58,7 @@ public class MainFrame extends JFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			new JoinGameFrame(getApplication().getSettings()).setVisible(true);
+			createChild("join", JoinGameFrame.class).setVisible(true);
 		}
 	}
 
@@ -86,7 +72,7 @@ public class MainFrame extends JFrame
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			new HostGameFrame(MainFrame.this).setVisible(true);
+			createChild("host", HostGameFrame.class).setVisible(true);
 		}
 	}
 

@@ -6,7 +6,7 @@ import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.util.Form;
-import info.reflectionsofmind.connexion.util.Form.FieldType;
+import info.reflectionsofmind.connexion.util.FormUtil;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
@@ -18,19 +18,14 @@ import org.jivesoftware.smack.packet.Packet;
 
 public class JabberTransport extends AbstractTransport implements PacketListener
 {
+	private static final String PARAMETER_SERVER_JABBER_ID = "server-jabber-id";
+
 	private XMPPConnection connection;
 
-	private final Form form;
+	private final Form configuration = FormUtil.newBuilder() //
+			.addString(PARAMETER_SERVER_JABBER_ID, "Server's jabber ID") //
+			.build();
 
-	private final Form.Field addressField;
-
-	public JabberTransport(final JabberAddress address)
-	{
-		this.form = new Form();
-		this.addressField = new Form.Field("server-jabber-id", FieldType.STRING, "Server's jabber ID", address.getLongString());
-		this.form.addField(this.addressField);
-	}
-	
 	@Override
 	public boolean isServerSideOnly()
 	{
@@ -40,7 +35,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	@Override
 	public Form getForm()
 	{
-		return this.form;
+		return this.configuration;
 	}
 
 	@Override
@@ -48,7 +43,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	{
 		return new JabberNode(new JabberAddress(id));
 	}
-	
+
 	@Override
 	public void send(final INode to, final String string) throws TransportException
 	{
@@ -62,10 +57,12 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	{
 		try
 		{
-			final JabberAddress address = new JabberAddress(this.addressField.getString());
+			final JabberAddress address = new JabberAddress( //
+					FormUtil.getFieldById(this.configuration, PARAMETER_SERVER_JABBER_ID).getString());
 
 			final ConnectionConfiguration configuration = new ConnectionConfiguration( //
 					address.getHost(), address.getPort());
+			
 			SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 			this.connection = new XMPPConnection(configuration);
 			this.connection.connect();
@@ -121,7 +118,7 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 		{
 			return JabberTransport.this;
 		}
-		
+
 		public String getId()
 		{
 			return getAddress().getLongString();

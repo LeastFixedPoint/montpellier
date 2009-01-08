@@ -1,17 +1,19 @@
 package info.reflectionsofmind.connexion.transport;
 
 import info.reflectionsofmind.connexion.util.Form;
+import info.reflectionsofmind.connexion.util.IComponent;
 
-/** Server-side transport interface. */
-public interface ITransport
+public interface ITransport extends IComponent
 {
 	Form getForm();
 
 	String getName();
 	boolean isServerSideOnly();
 	
+	void configure(Form configuration);
 	void start() throws TransportException;
 	void stop() throws TransportException;
+
 	void send(INode to, String message) throws TransportException;
 	INode getNode(String id);
 
@@ -22,4 +24,5 @@ public interface ITransport
 	{
 		void onTransportMessage(INode from, String message);
 	}
+
 }

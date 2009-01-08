@@ -8,6 +8,7 @@ import info.reflectionsofmind.connexion.server.DefaultLocalServer;
 import info.reflectionsofmind.connexion.server.IRemoteClient;
 import info.reflectionsofmind.connexion.server.IServer;
 import info.reflectionsofmind.connexion.server.ServerUtil;
+import info.reflectionsofmind.connexion.util.JConnexionFrame;
 
 import java.awt.event.ActionEvent;
 
@@ -18,7 +19,7 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer.IListener, Client.IStateListener
+public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener, IServer.IListener, Client.IStateListener
 {
 	private static final long serialVersionUID = 1L;
 	private final IServer server;
@@ -32,10 +33,10 @@ public class HostGameFrame extends JFrame implements ChatPane.IListener, IServer
 
 	public HostGameFrame(final MainFrame mainWindow)
 	{
-		super("Connexion :: Host game");
+		setTitle("Connexion :: Host game");
 
 		this.mainWindow = mainWindow;
-		this.server = new DefaultLocalServer(mainWindow.getApplication().getSettings());
+		this.server = createChild("server", DefaultLocalServer.class);
 		this.server.addListener(this);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);

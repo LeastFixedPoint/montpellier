@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.util;
 
-import info.reflectionsofmind.connexion.util.Form.Field;
+import info.reflectionsofmind.connexion.util.Form.Parameter;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
@@ -32,7 +32,7 @@ public abstract class FormDialog extends JDialog
 
 		final SubmitAction submitAction = new SubmitAction(submitActionName);
 
-		for (Field field : form.getFields())
+		for (Parameter field : form.getFields())
 		{
 			add(new JLabel(field.getName()), "grow");
 
@@ -40,7 +40,7 @@ public abstract class FormDialog extends JDialog
 			{
 				case INT:
 				{
-					final JTextField textField = new JTextField(field.getInt().toString());
+					final JTextField textField = new JTextField(field.getInteger().toString());
 					textField.setSelectionStart(0);
 					textField.setSelectionEnd(textField.getText().length());
 					textField.setAction(submitAction);
@@ -84,11 +84,11 @@ public abstract class FormDialog extends JDialog
 	private void submitAndDispose()
 	{
 		Iterator<JTextField> textFieldIterator = textFields.iterator();
-		Iterator<Field> formFieldIterator = form.getFields().iterator();
+		Iterator<Parameter> formFieldIterator = form.getFields().iterator();
 
 		while (textFieldIterator.hasNext() && formFieldIterator.hasNext())
 		{
-			Field formField = formFieldIterator.next();
+			Parameter formField = formFieldIterator.next();
 			JTextField textField = textFieldIterator.next();
 
 			switch (formField.getType())
