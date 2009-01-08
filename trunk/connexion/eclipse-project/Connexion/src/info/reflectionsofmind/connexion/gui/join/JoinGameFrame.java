@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.gui.join;
 
+import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.client.DefaultLocalClient;
 import info.reflectionsofmind.connexion.client.ILocalClient;
 import info.reflectionsofmind.connexion.common.Client;
@@ -12,6 +13,7 @@ import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport.ClientToServerNode;
+import info.reflectionsofmind.connexion.util.JConnexionFrame;
 import info.reflectionsofmind.connexion.util.Util;
 
 import java.awt.event.ActionEvent;
@@ -27,7 +29,7 @@ import net.miginfocom.swing.MigLayout;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Client.IStateListener, ChatPane.IListener
+public class JoinGameFrame extends JConnexionFrame implements ILocalClient.IListener, Client.IStateListener, ChatPane.IListener
 {
 	private final ILocalClient client;
 
@@ -37,13 +39,12 @@ public class JoinGameFrame extends JFrame implements ILocalClient.IListener, Cli
 	private final ChatPane chatPane;
 	private final PlayerList playerList;
 
-	public JoinGameFrame(final Settings settings)
+	public JoinGameFrame(final IApplication application)
 	{
-		super("Connexion :: Join game");
+		setTitle("Connexion :: Join game");
 
-		this.client = new DefaultLocalClient(settings);
+		this.client = createChild("client", DefaultLocalClient.class);
 
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setLayout(new MigLayout("", "[120]6[120]6[120]6[120]", "[]6[360]"));
 

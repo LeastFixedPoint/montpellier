@@ -29,7 +29,10 @@ import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
+import info.reflectionsofmind.connexion.transport.TransportUtil;
 import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
+import info.reflectionsofmind.connexion.util.Component;
+import info.reflectionsofmind.connexion.util.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,12 +41,12 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultLocalClient implements ILocalClient, ITransport.IListener, IServerToClientEventListener
+public class DefaultLocalClient extends Component implements ILocalClient, ITransport.IListener, IServerToClientEventListener
 {
+	private final static String PROPERTY_PLAYER_NAME = "player-name";
+	
 	// Basic fields
 
-	private String name;
-	private final Settings settings;
 	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final List<ITransport> transports = new ArrayList<ITransport>();
 	private final ITileSource tileSource;
@@ -59,11 +62,17 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 	private RemoteTileSequence sequence;
 	private Game game;
 
-	public DefaultLocalClient(final Settings settings)
+	@Override
+	protected void afterConfigure()
 	{
-		this.name = settings.getDefaultClientName();
-		this.settings = settings;
-		this.transports.add(new JabberTransport(settings.getJabberAddress()));
+		final Configuration transportsCategory = getConfiguration().getCategories().get("transports");
+		
+		for (Configuration transportConfiguration : transportsCategory.getCategories().values())
+		{
+			TransportUtil.createTransport(transportConfiguration);
+		}
+		
+		this.transports.add(new JabberTransport());
 
 		try
 		{
@@ -78,7 +87,7 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 			throw new RuntimeException(exception);
 		}
 	}
-
+	
 	// ============================================================================================
 	// === COMMANDS
 	// ============================================================================================
@@ -270,15 +279,9 @@ public class DefaultLocalClient implements ILocalClient, ITransport.IListener, I
 	// ============================================================================================
 
 	@Override
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-	
-	@Override
 	public String getName()
 	{
-		return this.name;
+		return getConfiguration().getValues().get(PROPERTY_PLAYER_NAME);
 	}
 
 	@Override

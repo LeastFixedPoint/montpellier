@@ -1,6 +1,9 @@
 package info.reflectionsofmind.connexion.gui;
 
-import info.reflectionsofmind.connexion.common.Settings;
+import info.reflectionsofmind.connexion.IApplication;
+import info.reflectionsofmind.connexion.config.ConfigurationUtil;
+import info.reflectionsofmind.connexion.util.Component;
+import info.reflectionsofmind.connexion.util.Configuration;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -9,22 +12,20 @@ import javax.swing.UIManager;
 
 import org.jvnet.substance.skin.SubstanceBusinessLookAndFeel;
 
-public class ApplicationGUI
+public class ApplicationGUI extends Component implements IApplication
 {
-	private Settings settings;
-	
 	public static void main(final String[] args)
 	{
-		new ApplicationGUI().start();
+		Configuration configuration = ConfigurationUtil.loadFromFile("connexion.properties");
+		final ApplicationGUI application = new ApplicationGUI();
+		application.configure(configuration);
+		application.start();
 	}
 
 	private void start()
 	{
 		try
 		{
-			this.settings = new Settings();
-			this.settings.load();
-
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			UIManager.setLookAndFeel(new SubstanceBusinessLookAndFeel());
 
@@ -32,7 +33,8 @@ public class ApplicationGUI
 			{
 				public void run()
 				{
-					new MainFrame(ApplicationGUI.this).setVisible(true);
+					final MainFrame mainFrame = createChild("gui", MainFrame.class);
+					mainFrame.setVisible(true);
 				}
 			});
 		}
@@ -41,10 +43,5 @@ public class ApplicationGUI
 			JOptionPane.showMessageDialog(null, "Internal error", "Connexion", JOptionPane.ERROR_MESSAGE);
 			exception.printStackTrace();
 		}
-	}
-
-	public Settings getSettings()
-	{
-		return this.settings;
 	}
 }

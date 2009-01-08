@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.transport.local;
 
+import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
 import info.reflectionsofmind.connexion.transport.AbstractNode;
@@ -15,11 +16,11 @@ public class ClientLocalTransport extends AbstractLocalTransport
 	private final ServerToClientNode clientNode;
 	private final ClientToServerNode serverNode;
 
-	private final Settings settings;
+	private final IApplication application;
 
-	public ClientLocalTransport(final Settings settings, final ServerLocalTransport serverTransport, final int index)
+	public ClientLocalTransport(final IApplication application, final ServerLocalTransport serverTransport, final int index)
 	{
-		this.settings = settings;
+		this.application = application;
 
 		this.clientNode = new ServerToClientNode(serverTransport, this);
 		this.serverNode = new ClientToServerNode(this, serverTransport, index);
@@ -29,7 +30,7 @@ public class ClientLocalTransport extends AbstractLocalTransport
 			@Override
 			public void run()
 			{
-				final JoinGameFrame joinGameFrame = new JoinGameFrame(ClientLocalTransport.this.settings);
+				final JoinGameFrame joinGameFrame = new JoinGameFrame(ClientLocalTransport.this.application);
 				joinGameFrame.setVisible(true);
 				joinGameFrame.getClient().connect(ClientLocalTransport.this.serverNode);
 			}

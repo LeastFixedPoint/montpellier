@@ -7,31 +7,31 @@ import com.google.common.collect.ImmutableList;
 
 public class Form
 {
-	public enum FieldType
-	{
-		STRING, INT;
-	}
+	private final List<Parameter> fields = new ArrayList<Parameter>();
 
-	private final List<Field> fields = new ArrayList<Field>();
-
-	public void addField(Field field)
+	public void addField(Parameter field)
 	{
 		this.fields.add(field);
 	}
 
-	public List<Field> getFields()
+	public List<Parameter> getFields()
 	{
 		return ImmutableList.copyOf(this.fields);
 	}
 
-	public static class Field
+	public static class Parameter
 	{
+		public enum Type
+		{
+			STRING, INT;
+		}
+
 		private final String id;
 		private final String name;
-		private final FieldType type;
+		private final Type type;
 		private Object value;
 
-		public Field(String id, FieldType type, String name, Object value)
+		public Parameter(String id, Type type, String name, Object value)
 		{
 			this.id = id;
 			this.type = type;
@@ -49,32 +49,32 @@ public class Form
 			return this.name;
 		}
 
-		public FieldType getType()
+		public Type getType()
 		{
 			return this.type;
 		}
 
 		public String getString()
 		{
-			if (this.type != FieldType.STRING) throw new ClassCastException("Tried to get string from field of type [" + this.type + "].");
+			if (this.type != Type.STRING) throw new ClassCastException("Tried to get string from field of type [" + this.type + "].");
 			return (String) value;
 		}
 		
 		public void setString(String value)
 		{
-			if (this.type != FieldType.STRING) throw new ClassCastException("Tried to set string to field of type [" + this.type + "].");
+			if (this.type != Type.STRING) throw new ClassCastException("Tried to set string to field of type [" + this.type + "].");
 			this.value = value;
 		}
 
-		public Integer getInt()
+		public Integer getInteger()
 		{
-			if (this.type != FieldType.INT) throw new ClassCastException("Tried to get integer from field of type [" + this.type + "].");
+			if (this.type != Type.INT) throw new ClassCastException("Tried to get integer from field of type [" + this.type + "].");
 			return (Integer) value;
 		}
 		
 		public void setInt(Integer value)
 		{
-			if (this.type != FieldType.INT) throw new ClassCastException("Tried to set integer to field of type [" + this.type + "].");
+			if (this.type != Type.INT) throw new ClassCastException("Tried to set integer to field of type [" + this.type + "].");
 			this.value = value;
 		}
 		
