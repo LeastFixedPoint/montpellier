@@ -24,5 +24,4 @@ public interface ITransport extends IComponent
 	{
 		void onTransportMessage(INode from, String message);
 	}
-
 }
