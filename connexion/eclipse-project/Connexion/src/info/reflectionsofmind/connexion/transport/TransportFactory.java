@@ -1,8 +1,6 @@
 package info.reflectionsofmind.connexion.transport;
 
-import info.reflectionsofmind.connexion.util.Component;
-
-public final class TransportFactory extends Component implements ITransportFactory
+public final class TransportFactory implements ITransportFactory
 {
 	@SuppressWarnings("unchecked")
 	@Override
