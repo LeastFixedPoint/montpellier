@@ -1,53 +1,82 @@
 package info.reflectionsofmind.connexion.transport.jabber;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import info.reflectionsofmind.connexion.transport.AbstractServerTransport;
-import info.reflectionsofmind.connexion.transport.InvalidInitStringException;
+import info.reflectionsofmind.connexion.transport.DefaultClientPacket;
+import info.reflectionsofmind.connexion.transport.IClientNode;
+import info.reflectionsofmind.connexion.transport.IClientPacket;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
-public class JabberServerTransport extends AbstractServerTransport
+import org.jivesoftware.smack.XMPPException;
+
+public class JabberServerTransport extends AbstractServerTransport implements JabberCore.IListener
 {
-	private static final String NODE = "[\\a\\d\\-\\.\\_\\~\\!\\$\\(\\)\\*\\+\\,\\;\\=]+";
-	private static final String HOST = "[\\a\\d\\-\\.\\_\\~\\!\\$\\(\\)\\*\\+\\,\\;\\=\\&\\']+";
-	private static final String PASSWORD = ".+";
-	private static final String RESOURCE = "[\\a\\d\\-\\.\\_\\~\\!\\$\\(\\)\\*\\+\\,\\;\\=\\&\\'\\:]+";
-
-	private static final Pattern INIT_STRING_PATTERN = Pattern.compile( //
-			String.format("(%s):(%s)@(%s)(/(%s))?", NODE, PASSWORD, HOST, RESOURCE));
-
 	private final JabberCore core;
 
 	public JabberServerTransport(String initString) throws TransportException
 	{
-		final Matcher matcher = INIT_STRING_PATTERN.matcher(initString);
-
-		if (!matcher.matches()) throw new InvalidInitStringException(initString);
-
-		final String node = matcher.group(0);
-		final String password = matcher.group(1);
-		final String host = matcher.group(2);
-		final String resource = matcher.groupCount() > 3 ? matcher.group(4) : null;
-
-		this.core = new JabberCore(new JabberAddress( //
-				node + ":" + password + "@" + host + (resource == null ? "" : ("/" + resource))));
+		this.core = new JabberCore(new JabberConnectionInfo(initString));
+		this.core.addListener(this);
 	}
-	
-	public void send(String message) throws TransportException
+
+	@Override
+	public void onPacket(String from, String content)
 	{
-		
+		final JabberClientNode node = new JabberClientNode(from);
+		final IClientPacket packet = new DefaultClientPacket(node, content);
+
+		for (IListener listener : getListeners())
+		{
+			listener.onPacket(packet);
+		}
+	}
+
+	public void send(JabberClientNode to, String contents) throws TransportException
+	{
+		this.core.send(to.getAddress(), contents);
 	}
 
 	@Override
 	public void start() throws TransportException
 	{
-		this.core.start();
+		try
+		{
+			this.core.start();
+		}
+		catch (XMPPException exception)
+		{
+			throw new TransportException(exception);
+		}
 	}
 
 	@Override
 	public void stop()
 	{
 		this.core.stop();
+	}
+
+	public class JabberClientNode implements IClientNode
+	{
+		private final String address;
+
+		public JabberClientNode(String address)
+		{
+			this.address = address;
+		}
+
+		public String getAddress()
+		{
+			return this.address;
+		}
+
+		public JabberServerTransport getTransport()
+		{
+			return JabberServerTransport.this;
+		}
+
+		@Override
+		public void send(String contents) throws TransportException
+		{
+			JabberServerTransport.this.send(this, contents);
+		}
 	}
 }

@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.common.event.cts;
 
 import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.IClientNode;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
@@ -18,9 +18,9 @@ public class ClientToServer_DisconnectNoticeEvent extends ClientToServerEvent
 	}
 	
 	@Override
-	public void dispatch(INode origin, IClientToServerEventListener target)
+	public void dispatch(IClientNode from, IClientToServerEventListener target)
 	{
-		target.onDisconnectNoticeEvent(origin, this);
+		target.onDisconnectNoticeEvent(from, this);
 	}
 
 	public DisconnectReason getReason()

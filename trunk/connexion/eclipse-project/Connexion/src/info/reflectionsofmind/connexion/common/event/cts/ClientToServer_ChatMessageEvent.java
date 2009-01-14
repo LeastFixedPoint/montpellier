@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.common.event.cts;
 
-import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.IClientNode;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
@@ -17,9 +17,9 @@ public class ClientToServer_ChatMessageEvent extends ClientToServerEvent
 	}
 	
 	@Override
-	public void dispatch(INode origin, IClientToServerEventListener target)
+	public void dispatch(IClientNode from, IClientToServerEventListener target)
 	{
-		target.onMessageEvent(origin, this);
+		target.onMessageEvent(from, this);
 	}
 
 	public String getMessage()

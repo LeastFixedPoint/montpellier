@@ -3,7 +3,7 @@ package info.reflectionsofmind.connexion.server;
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.IClientNode;
 
 public interface IRemoteClient
 {
@@ -27,5 +27,5 @@ public interface IRemoteClient
 	// ====================================================================================================
 
 	Client getClient();
-	INode getNode();
+	IClientNode getNode();
 }

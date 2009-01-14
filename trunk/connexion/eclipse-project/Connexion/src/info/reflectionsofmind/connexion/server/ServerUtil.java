@@ -2,7 +2,7 @@ package info.reflectionsofmind.connexion.server;
 
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.IClientNode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +24,7 @@ public class ServerUtil
 		return null;
 	}
 	
-	public static IRemoteClient getClientByNode(IServer server, INode node)
+	public static IRemoteClient getClientByNode(IServer server, IClientNode node)
 	{
 		for (IRemoteClient client : server.getClients())
 		{

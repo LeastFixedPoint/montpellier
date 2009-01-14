@@ -21,10 +21,10 @@ import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
-import info.reflectionsofmind.connexion.transport.INode;
-import info.reflectionsofmind.connexion.transport.ITransport;
-import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
-import info.reflectionsofmind.connexion.transport.local.ServerLocalTransport;
+import info.reflectionsofmind.connexion.transport.IClientNode;
+import info.reflectionsofmind.connexion.transport.IClientPacket;
+import info.reflectionsofmind.connexion.transport.IServerTransport;
+import info.reflectionsofmind.connexion.transport.TransportException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,10 +32,9 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultLocalServer implements IServer, ITransport.IListener, IClientToServerEventListener, Client.IStateListener
+public class DefaultLocalServer implements IServer, IServerTransport.IListener, IClientToServerEventListener, Client.IStateListener
 {
 	private final List<IListener> listeners = new ArrayList<IListener>();
-	private final List<ITransport> transports = new ArrayList<ITransport>();
 	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();
 	private final Settings settings;
 
@@ -45,14 +44,6 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	public DefaultLocalServer(final Settings settings)
 	{
 		this.settings = settings;
-
-		this.transports.add(new ServerLocalTransport(settings));
-		this.transports.add(new JabberTransport(settings.getJabberAddress()));
-
-		for (ITransport transport : this.transports)
-		{
-			transport.addListener(this);
-		}
 	}
 
 	// ====================================================================================================
@@ -69,9 +60,15 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	// ============================================================================================
 
 	@Override
-	public void onTransportMessage(INode origin, String message)
+	public void onPacket(IClientPacket packet)
 	{
-		ClientToServerEventDecoder.decode(message).dispatch(origin, this);
+		ClientToServerEventDecoder.decode(packet.getContents()).dispatch(packet.getFrom(), this);
+	}
+	
+	@Override
+	public void onError(TransportException exception)
+	{
+		exception.printStackTrace();
 	}
 
 	// ============================================================================================
@@ -79,9 +76,9 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	// ============================================================================================
 
 	@Override
-	public void onClientConnectionRequestEvent(INode origin, ClientToServer_ClientConnectionRequestEvent event)
+	public void onClientConnectionRequestEvent(IClientNode from, ClientToServer_ClientConnectionRequestEvent event)
 	{
-		final IRemoteClient newRemoteClient = new RemoteClient(new Client(event.getPlayerName()), origin);
+		final IRemoteClient newRemoteClient = new RemoteClient(new Client(event.getPlayerName()), from);
 
 		newRemoteClient.sendConnectionAccepted(this);
 
@@ -101,14 +98,14 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	}
 
 	@Override
-	public void onDisconnectNoticeEvent(INode from, ClientToServer_DisconnectNoticeEvent event)
+	public void onDisconnectNoticeEvent(IClientNode from, ClientToServer_DisconnectNoticeEvent event)
 	{
 		final IRemoteClient disconnectedClient = ServerUtil.getClientByNode(this, from);
 		disconnect(disconnectedClient, event.getReason());
 	}
-
+	
 	@Override
-	public void onMessageEvent(INode from, ClientToServer_ChatMessageEvent event)
+	public void onMessageEvent(IClientNode from, ClientToServer_ChatMessageEvent event)
 	{
 		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
 
@@ -127,7 +124,7 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	}
 
 	@Override
-	public void onTurnEvent(INode from, ClientToServer_TurnEvent event)
+	public void onTurnEvent(IClientNode from, ClientToServer_TurnEvent event)
 	{
 		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
 
@@ -275,12 +272,6 @@ public class DefaultLocalServer implements IServer, ITransport.IListener, IClien
 	public ITileSource getTileSource()
 	{
 		return this.tileSource;
-	}
-
-	@Override
-	public List<ITransport> getTransports()
-	{
-		return ImmutableList.copyOf(this.transports);
 	}
 
 	@Override

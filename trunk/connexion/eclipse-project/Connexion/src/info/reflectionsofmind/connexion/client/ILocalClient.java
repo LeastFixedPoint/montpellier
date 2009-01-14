@@ -2,12 +2,10 @@ package info.reflectionsofmind.connexion.client;
 
 import info.reflectionsofmind.connexion.common.Client;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
-import info.reflectionsofmind.connexion.transport.INode;
-import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport;
 
 import java.util.List;
 
@@ -17,26 +15,27 @@ public interface ILocalClient
 	// === COMMANDS
 	// ====================================================================================================
 
-	void connect(INode serverNode);
-	void sendChatMessage(String message);
-	void sendLastTurn();
+	/** Will {@link ClientLocalTransport#start()} the transport. */
+	void connect(ClientLocalTransport transport);
+
+	/** Will {@link ClientLocalTransport#stop()} the transport. */
 	void disconnect(DisconnectReason reason);
 
+	void sendChatMessage(String message);
+	void sendLastTurn();
+	
 	// ====================================================================================================
 	// === CLIENT GETTERS
 	// ====================================================================================================
 
 	void setName(String name);
 	String getName();
-	List<ITransport> getTransports();
-	Settings getSettings();
 	ITileSource getTileSource();
 
 	// ====================================================================================================
 	// === CONNECTED-STATE GETTERS
 	// ====================================================================================================
 
-	INode getServerNode();
 	Client getClient();
 	List<Client> getClients();
 

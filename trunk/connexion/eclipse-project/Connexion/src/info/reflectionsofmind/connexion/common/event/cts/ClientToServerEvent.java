@@ -1,7 +1,6 @@
 package info.reflectionsofmind.connexion.common.event.cts;
 
-import info.reflectionsofmind.connexion.transport.INode;
-
+import info.reflectionsofmind.connexion.transport.IClientNode;
 
 public abstract class ClientToServerEvent
 {
@@ -9,5 +8,5 @@ public abstract class ClientToServerEvent
 	
 	public abstract String encode();
 	
-	public abstract void dispatch(INode origin, IClientToServerEventListener target);
+	public abstract void dispatch(IClientNode from, IClientToServerEventListener target);
 }

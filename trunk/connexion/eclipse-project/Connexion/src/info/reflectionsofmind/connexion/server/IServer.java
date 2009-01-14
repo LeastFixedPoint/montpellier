@@ -4,7 +4,6 @@ import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
-import info.reflectionsofmind.connexion.transport.ITransport;
 
 import java.util.List;
 
@@ -17,7 +16,6 @@ public interface IServer
 	Game getGame();
 	ITileSource getTileSource();
 	List<IRemoteClient> getClients();
-	List<ITransport> getTransports();
 	Settings getSettings();
 	
 	void addListener(IListener listener);
