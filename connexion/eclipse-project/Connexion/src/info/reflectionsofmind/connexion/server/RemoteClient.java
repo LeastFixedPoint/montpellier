@@ -11,15 +11,15 @@ import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ClientSt
 import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ConnectionAcceptedEvent;
 import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_GameStartedEvent;
 import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_TurnEvent;
-import info.reflectionsofmind.connexion.transport.INode;
+import info.reflectionsofmind.connexion.transport.IClientNode;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
 public final class RemoteClient implements IRemoteClient
 {
 	private final Client client;
-	private final INode node;
+	private final IClientNode node;
 
-	public RemoteClient(final Client client, final INode clientNode)
+	public RemoteClient(final Client client, final IClientNode clientNode)
 	{
 		this.client = client;
 		this.node = clientNode;
@@ -97,7 +97,7 @@ public final class RemoteClient implements IRemoteClient
 	}
 
 	@Override
-	public INode getNode()
+	public IClientNode getNode()
 	{
 		return this.node;
 	}

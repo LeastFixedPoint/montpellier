@@ -1,7 +1,5 @@
 package info.reflectionsofmind.connexion.transport;
 
-import info.reflectionsofmind.connexion.transport.IServerTransport.IClientNode;
-import info.reflectionsofmind.connexion.transport.IServerTransport.IClientPacket;
 
 public final class DefaultClientPacket implements IClientPacket
 {

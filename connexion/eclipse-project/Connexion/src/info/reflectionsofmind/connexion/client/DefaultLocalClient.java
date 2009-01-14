@@ -26,35 +26,29 @@ import info.reflectionsofmind.connexion.core.tile.Tile;
 import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
-import info.reflectionsofmind.connexion.transport.INode;
-import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.IClientTransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
-import info.reflectionsofmind.connexion.transport.TransportUtil;
-import info.reflectionsofmind.connexion.transport.jabber.JabberTransport;
-import info.reflectionsofmind.connexion.util.Component;
-import info.reflectionsofmind.connexion.util.Configuration;
+import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
-public class DefaultLocalClient extends Component implements ILocalClient, ITransport.IListener, IServerToClientEventListener
+public class DefaultLocalClient implements ILocalClient, IClientTransport.IListener, IServerToClientEventListener
 {
 	private final static String PROPERTY_PLAYER_NAME = "player-name";
 	
 	// Basic fields
 
 	private final List<IListener> listeners = new ArrayList<IListener>();
-	private final List<ITransport> transports = new ArrayList<ITransport>();
 	private final ITileSource tileSource;
+	private String name;
 
 	// Connected-state fields
 
 	private final List<Client> clients = new ArrayList<Client>();
-	private INode serverNode;
+	private ClientLocalTransport transport;
 	private Client client;
 
 	// Game-state fields
@@ -62,18 +56,8 @@ public class DefaultLocalClient extends Component implements ILocalClient, ITran
 	private RemoteTileSequence sequence;
 	private Game game;
 
-	@Override
-	protected void afterConfigure()
+	public DefaultLocalClient()
 	{
-		final Configuration transportsCategory = getConfiguration().getCategories().get("transports");
-		
-		for (Configuration transportConfiguration : transportsCategory.getCategories().values())
-		{
-			TransportUtil.createTransport(transportConfiguration);
-		}
-		
-		this.transports.add(new JabberTransport());
-
 		try
 		{
 			this.tileSource = new DefaultTileSource(getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/tilelist/DefaultTileList.properties"));
@@ -96,7 +80,7 @@ public class DefaultLocalClient extends Component implements ILocalClient, ITran
 	{
 		try
 		{
-			getServerNode().send(event.encode());
+			getTransport().send(event.encode());
 		}
 		catch (final TransportException exception)
 		{
@@ -104,27 +88,29 @@ public class DefaultLocalClient extends Component implements ILocalClient, ITran
 		}
 	}
 
-	public void connect(final INode serverNode)
+	public void connect(final ClientLocalTransport transport)
 	{
-		this.serverNode = serverNode;
-		getServerNode().getTransport().addListener(this);
+		this.transport = transport;
+		getTransport().addListener(this);
+		
+		try
+		{
+			getTransport().start();
+		}
+		catch (TransportException exception)
+		{
+			throw new RuntimeException(exception);
+		}
+		
 		send(new ClientToServer_ClientConnectionRequestEvent(getName()));
 	}
 
 	public void disconnect(final DisconnectReason reason)
 	{
 		send(new ClientToServer_DisconnectNoticeEvent(reason));
+		getTransport().stop();
 
-		try
-		{
-			this.serverNode.getTransport().stop();
-		}
-		catch (final TransportException exception)
-		{
-			exception.printStackTrace();
-		}
-
-		this.serverNode = null;
+		this.transport = null;
 		this.client = null;
 		this.clients.clear();
 		this.game = null;
@@ -133,7 +119,6 @@ public class DefaultLocalClient extends Component implements ILocalClient, ITran
 		{
 			listener.onConnectionBroken(reason);
 		}
-
 	}
 
 	@Override
@@ -154,14 +139,24 @@ public class DefaultLocalClient extends Component implements ILocalClient, ITran
 	}
 
 	// ============================================================================================
-	// === EVENT HANDLERS
+	// === TRANSPORT LISTENERS
 	// ============================================================================================
 
 	@Override
-	public void onTransportMessage(final INode from, final String message)
+	public void onPacket(String contents)
 	{
-		ServerToClientEventDecoder.decode(message).dispatch(this);
+		ServerToClientEventDecoder.decode(contents).dispatch(this);
 	}
+	
+	@Override
+	public void onError(TransportException exception)
+	{
+	}
+	
+	// ============================================================================================
+	// === EVENT HANDLERS
+	// ============================================================================================
+
 
 	@Override
 	public void onConnectionAccepted(final ServerToClient_ConnectionAcceptedEvent event)
@@ -281,9 +276,15 @@ public class DefaultLocalClient extends Component implements ILocalClient, ITran
 	@Override
 	public String getName()
 	{
-		return getConfiguration().getValues().get(PROPERTY_PLAYER_NAME);
+		return this.name;
 	}
 
+	@Override
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
 	@Override
 	public Game getGame()
 	{
@@ -296,12 +297,11 @@ public class DefaultLocalClient extends Component implements ILocalClient, ITran
 		return this.tileSource;
 	}
 
-	@Override
-	public INode getServerNode()
+	public ClientLocalTransport getTransport()
 	{
-		return this.serverNode;
+		return this.transport;
 	}
-
+	
 	@Override
 	public List<Client> getClients()
 	{
@@ -312,18 +312,6 @@ public class DefaultLocalClient extends Component implements ILocalClient, ITran
 	public Client getClient()
 	{
 		return this.client;
-	}
-
-	@Override
-	public List<ITransport> getTransports()
-	{
-		return ImmutableList.copyOf(this.transports);
-	}
-
-	@Override
-	public Settings getSettings()
-	{
-		return this.settings;
 	}
 
 	// ============================================================================================

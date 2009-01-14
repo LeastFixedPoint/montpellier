@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.transport;
 
+
 public interface IClientTransport
 {
 	void start() throws TransportException;
