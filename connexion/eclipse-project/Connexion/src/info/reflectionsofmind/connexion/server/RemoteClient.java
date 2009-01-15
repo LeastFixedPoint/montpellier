@@ -1,8 +1,8 @@
 package info.reflectionsofmind.connexion.server;
 
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.common.event.stc.ServerToClientEvent;
 import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ChatMessageEvent;
 import info.reflectionsofmind.connexion.common.event.stc.ServerToClient_ClientConnectedEvent;
@@ -16,10 +16,10 @@ import info.reflectionsofmind.connexion.transport.TransportException;
 
 public final class RemoteClient implements IRemoteClient
 {
-	private final Client client;
+	private final Participant client;
 	private final IClientNode node;
 
-	public RemoteClient(final Client client, final IClientNode clientNode)
+	public RemoteClient(final Participant client, final IClientNode clientNode)
 	{
 		this.client = client;
 		this.node = clientNode;
@@ -91,7 +91,7 @@ public final class RemoteClient implements IRemoteClient
 	// ====================================================================================================
 
 	@Override
-	public Client getClient()
+	public Participant getClient()
 	{
 		return this.client;
 	}

@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.common.Client.State;
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.Participant.State;
+import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.server.IRemoteClient;
 
@@ -18,7 +18,7 @@ import net.miginfocom.swing.MigLayout;
 
 import com.google.common.collect.ImmutableMap;
 
-class ClientPanel extends JPanel implements Client.IStateListener
+class ClientPanel extends JPanel implements Participant.IStateListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -56,7 +56,7 @@ class ClientPanel extends JPanel implements Client.IStateListener
 	}
 	
 	@Override
-	public void onAfterClientStateChange(Client client, State previousState)
+	public void onAfterClientStateChange(Participant client, State previousState)
 	{
 		this.remove(this.currentButtonPanel);
 		this.currentButtonPanel = this.buttonPanels.get(client.getState());

@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.client;
 
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.common.Settings;
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Participant;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServerEvent;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ChatMessageEvent;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ClientConnectionRequestEvent;
@@ -35,43 +35,42 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class DefaultLocalClient implements ILocalClient, IClientTransport.IListener, IServerToClientEventListener
+public class DefaultClient implements IClient, IClientTransport.IListener, IServerToClientEventListener
 {
-	private final static String PROPERTY_PLAYER_NAME = "player-name";
-	
 	// Basic fields
 
+	private final IApplication application;
 	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final ITileSource tileSource;
-	private String name;
+	private String name = "Anonymous";
 
 	// Connected-state fields
 
-	private final List<Client> clients = new ArrayList<Client>();
+	private final List<Participant> participants = new ArrayList<Participant>();
 	private ClientLocalTransport transport;
-	private Client client;
+	private Participant participant;
 
 	// Game-state fields
 
 	private RemoteTileSequence sequence;
 	private Game game;
 
-	public DefaultLocalClient()
+	public DefaultClient(IApplication application)
 	{
+		this.application = application;
+
 		try
 		{
 			this.tileSource = new DefaultTileSource(getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/tilelist/DefaultTileList.properties"));
-		}
-		catch (final IOException exception)
+		} catch (final IOException exception)
 		{
 			throw new RuntimeException(exception);
-		}
-		catch (final TileCodeFormatException exception)
+		} catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
 	}
-	
+
 	// ============================================================================================
 	// === COMMANDS
 	// ============================================================================================
@@ -81,8 +80,7 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 		try
 		{
 			getTransport().send(event.encode());
-		}
-		catch (final TransportException exception)
+		} catch (final TransportException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -92,16 +90,15 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 	{
 		this.transport = transport;
 		getTransport().addListener(this);
-		
+
 		try
 		{
 			getTransport().start();
-		}
-		catch (TransportException exception)
+		} catch (TransportException exception)
 		{
 			throw new RuntimeException(exception);
 		}
-		
+
 		send(new ClientToServer_ClientConnectionRequestEvent(getName()));
 	}
 
@@ -111,8 +108,8 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 		getTransport().stop();
 
 		this.transport = null;
-		this.client = null;
-		this.clients.clear();
+		this.participant = null;
+		this.participants.clear();
 		this.game = null;
 
 		for (final IListener listener : this.listeners)
@@ -128,7 +125,7 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 
 		for (final IListener listener : this.listeners)
 		{
-			listener.onChatMessage(getClient(), message);
+			listener.onChatMessage(getParticipant(), message);
 		}
 	}
 
@@ -147,16 +144,15 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 	{
 		ServerToClientEventDecoder.decode(contents).dispatch(this);
 	}
-	
+
 	@Override
 	public void onError(TransportException exception)
 	{
 	}
-	
+
 	// ============================================================================================
 	// === EVENT HANDLERS
 	// ============================================================================================
-
 
 	@Override
 	public void onConnectionAccepted(final ServerToClient_ConnectionAcceptedEvent event)
@@ -166,7 +162,7 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 
 		while (names.hasNext() && states.hasNext())
 		{
-			this.clients.add(new Client(names.next(), states.next()));
+			this.participants.add(new Participant(names.next(), states.next()));
 		}
 
 		for (final IListener listener : this.listeners)
@@ -178,8 +174,8 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 	@Override
 	public void onClientConnected(final ServerToClient_ClientConnectedEvent event)
 	{
-		final Client newClient = new Client(event.getClientName());
-		this.clients.add(newClient);
+		final Participant newClient = new Participant(event.getClientName());
+		this.participants.add(newClient);
 
 		for (final IListener listener : this.listeners)
 		{
@@ -190,15 +186,15 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 	@Override
 	public void onClientStateChanged(final ServerToClient_ClientStateChangedEvent event)
 	{
-		final Client client = this.clients.get(event.getClientIndex());
+		final Participant client = this.participants.get(event.getClientIndex());
 		client.setState(event.getNewState());
 	}
 
 	@Override
 	public void onClientDisconnected(final ServerToClient_ClientDisconnectedEvent event)
 	{
-		final Client client = this.clients.get(event.getClientIndex());
-		this.clients.remove(client);
+		final Participant client = this.participants.get(event.getClientIndex());
+		this.participants.remove(client);
 
 		for (final IListener listener : this.listeners)
 		{
@@ -209,7 +205,7 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 	@Override
 	public void onChatMessage(final ServerToClient_ChatMessageEvent event)
 	{
-		final Client client = event.getClientIndex() == null ? null : this.clients.get(event.getClientIndex());
+		final Participant client = event.getClientIndex() == null ? null : this.participants.get(event.getClientIndex());
 
 		for (final IListener listener : this.listeners)
 		{
@@ -225,17 +221,16 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 		try
 		{
 			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
-		}
-		catch (final TileCodeFormatException exception)
+		} catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
 
 		final List<Player> players = new ArrayList<Player>();
 
-		for (final Client client : getClients())
+		for (final Participant client : getParticipants())
 		{
-			if (client.getState() == Client.State.ACCEPTED)
+			if (client.getState() == Participant.State.ACCEPTED)
 			{
 				players.add(new Player(client.getName()));
 			}
@@ -252,8 +247,7 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 			try
 			{
 				getGame().doTurn(event.getTurn());
-			}
-			catch (final GameTurnException exception)
+			} catch (final GameTurnException exception)
 			{
 				throw new RuntimeException(exception);
 			}
@@ -262,8 +256,7 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 		try
 		{
 			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
-		}
-		catch (final TileCodeFormatException exception)
+		} catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -284,7 +277,7 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 	{
 		this.name = name;
 	}
-	
+
 	@Override
 	public Game getGame()
 	{
@@ -301,17 +294,22 @@ public class DefaultLocalClient implements ILocalClient, IClientTransport.IListe
 	{
 		return this.transport;
 	}
-	
+
 	@Override
-	public List<Client> getClients()
+	public List<Participant> getParticipants()
 	{
-		return this.clients;
+		return this.participants;
 	}
 
 	@Override
-	public Client getClient()
+	public Participant getParticipant()
 	{
-		return this.client;
+		return this.participant;
+	}
+
+	public IApplication getApplication()
+	{
+		return this.application;
 	}
 
 	// ============================================================================================

@@ -1,8 +1,12 @@
 package info.reflectionsofmind.connexion.transport;
 
+import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.util.INamed;
+import info.reflectionsofmind.connexion.util.form.Form;
 
 public interface IClientTransportFactory extends INamed
 {
-	IClientTransport createTransport(String initString) throws TransportException;
+	IClientTransport createTransport(Form form) throws TransportException;
+	IApplication getApplication();
+	Form getConfigurationForm();
 }

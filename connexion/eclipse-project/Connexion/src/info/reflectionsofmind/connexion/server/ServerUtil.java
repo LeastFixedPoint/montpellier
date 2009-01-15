@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.server;
 
-import info.reflectionsofmind.connexion.common.Client;
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Participant;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.transport.IClientNode;
 
 import java.util.Arrays;
@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 
 public class ServerUtil
 {
-	public static IRemoteClient getClient(IServer server, Client client)
+	public static IRemoteClient getClient(IServer server, Participant client)
 	{
 		for (IRemoteClient remoteClient : server.getClients())
 		{

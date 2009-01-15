@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.common.event.stc;
 
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.server.IRemoteClient;
 import info.reflectionsofmind.connexion.server.IServer;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;

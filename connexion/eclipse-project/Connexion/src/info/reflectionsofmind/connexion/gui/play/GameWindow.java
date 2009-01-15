@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.gui.play;
 
-import info.reflectionsofmind.connexion.client.ILocalClient;
+import info.reflectionsofmind.connexion.client.IClient;
 import info.reflectionsofmind.connexion.client.exception.DesynchronizationException;
 import info.reflectionsofmind.connexion.core.board.Meeple;
 import info.reflectionsofmind.connexion.core.board.exception.MeeplePlacementException;
@@ -29,7 +29,7 @@ public class GameWindow extends JFrame
 
 	private static final long serialVersionUID = 1L;
 
-	private final ILocalClient client;
+	private final IClient client;
 
 	private final CurrentTilePanel currentTilePanel;
 	private final PlayersPanel playersPanel;
@@ -40,7 +40,7 @@ public class GameWindow extends JFrame
 	private State turnMode = State.WAITING;
 	private Turn turn = null;
 
-	public GameWindow(final ILocalClient client)
+	public GameWindow(final IClient client)
 	{
 		super("Connexion :: Playing game :: " + client.getName());
 
@@ -82,7 +82,7 @@ public class GameWindow extends JFrame
 	private boolean isMyTurn()
 	{
 		final int playerIndex = getClient().getGame().getPlayers().indexOf(getClient().getGame().getCurrentPlayer());
-		final int clientIndex = getClient().getClients().indexOf(getClient().getClient());
+		final int clientIndex = getClient().getParticipants().indexOf(getClient().getParticipant());
 
 		return playerIndex == clientIndex;
 	}
@@ -184,7 +184,7 @@ public class GameWindow extends JFrame
 		super.dispose();
 	}
 
-	public ILocalClient getClient()
+	public IClient getClient()
 	{
 		return this.client;
 	}

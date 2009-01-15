@@ -3,8 +3,8 @@ package info.reflectionsofmind.connexion.gui.host;
 import info.reflectionsofmind.connexion.gui.common.TransportName;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
-import info.reflectionsofmind.connexion.util.Form;
-import info.reflectionsofmind.connexion.util.FormDialog;
+import info.reflectionsofmind.connexion.util.form.Form;
+import info.reflectionsofmind.connexion.util.form.FormDialog;
 
 import java.awt.event.ActionEvent;
 

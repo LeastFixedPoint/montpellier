@@ -1,12 +1,12 @@
 package info.reflectionsofmind.connexion.gui.join;
 
 import info.reflectionsofmind.connexion.IApplication;
-import info.reflectionsofmind.connexion.client.DefaultLocalClient;
-import info.reflectionsofmind.connexion.client.ILocalClient;
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.client.DefaultClient;
+import info.reflectionsofmind.connexion.client.IClient;
+import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Settings;
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.transport.INode;
@@ -29,9 +29,9 @@ import net.miginfocom.swing.MigLayout;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-public class JoinGameFrame extends JConnexionFrame implements ILocalClient.IListener, Client.IStateListener, ChatPane.IListener
+public class JoinGameFrame extends JConnexionFrame implements IClient.IListener, Participant.IStateListener, ChatPane.IListener
 {
-	private final ILocalClient client;
+	private final IClient client;
 
 	private final JLabel statusLabel;
 	private final TransportComboBox transportCombo;
@@ -43,7 +43,7 @@ public class JoinGameFrame extends JConnexionFrame implements ILocalClient.IList
 	{
 		setTitle("Connexion :: Join game");
 
-		this.client = createChild("client", DefaultLocalClient.class);
+		this.client = createChild("client", DefaultClient.class);
 
 		setResizable(false);
 		setLayout(new MigLayout("", "[120]6[120]6[120]6[120]", "[]6[360]"));
@@ -136,12 +136,12 @@ public class JoinGameFrame extends JConnexionFrame implements ILocalClient.IList
 	{
 		this.chatPane.writeSystem("Connected to " + ChatPane.format(getClient().getServerNode()) + ".");
 
-		if (!getClient().getClients().isEmpty())
+		if (!getClient().getParticipants().isEmpty())
 		{
-			final String alreadyPresent = Util.join(Lists.transform(getClient().getClients(), new Function<Client, String>()
+			final String alreadyPresent = Util.join(Lists.transform(getClient().getParticipants(), new Function<Participant, String>()
 			{
 				@Override
-				public String apply(final Client client)
+				public String apply(final Participant client)
 				{
 					return ChatPane.format(client);
 				}
@@ -166,20 +166,20 @@ public class JoinGameFrame extends JConnexionFrame implements ILocalClient.IList
 	}
 
 	@Override
-	public void onClientConnected(final Client client)
+	public void onClientConnected(final Participant client)
 	{
 		this.chatPane.writeSystem(ChatPane.format(client) + " connected.");
 		client.addStateListener(this);
 	}
 
 	@Override
-	public void onClientDisconnected(final Client client)
+	public void onClientDisconnected(final Participant client)
 	{
 		this.chatPane.writeSystem(ChatPane.format(client) + " sdisconnected.");
 	}
 
 	@Override
-	public void onChatMessage(final Client sender, final String message)
+	public void onChatMessage(final Participant sender, final String message)
 	{
 		this.chatPane.writeMessage(sender, message);
 	}
@@ -207,7 +207,7 @@ public class JoinGameFrame extends JConnexionFrame implements ILocalClient.IList
 	}
 
 	@Override
-	public void onAfterClientStateChange(final Client client, final State previousState)
+	public void onAfterClientStateChange(final Participant client, final State previousState)
 	{
 		this.chatPane.writeSystem(ChatPane.format(client) + " is now [" + client.getState() + "].");
 	}
@@ -216,7 +216,7 @@ public class JoinGameFrame extends JConnexionFrame implements ILocalClient.IList
 	// === GETTERS
 	// ====================================================================================================
 
-	public ILocalClient getClient()
+	public IClient getClient()
 	{
 		return this.client;
 	}
