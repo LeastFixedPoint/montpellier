@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.gui;
 
+import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.gui.host.HostGameFrame;
 import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
 import info.reflectionsofmind.connexion.gui.settings.SettingsDialog;
-import info.reflectionsofmind.connexion.util.JConnexionFrame;
 
 import java.awt.event.ActionEvent;
 
@@ -15,8 +15,9 @@ import net.miginfocom.swing.MigLayout;
 
 public class MainFrame extends JConnexionFrame
 {
-	public MainFrame()
+	public MainFrame(IApplication application)
 	{
+		super(application);
 		setTitle("Connexion");
 
 		setLocationRelativeTo(null);
@@ -58,7 +59,7 @@ public class MainFrame extends JConnexionFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			createChild("join", JoinGameFrame.class).setVisible(true);
+			new JoinGameFrame(getApplication()).setVisible(true);
 		}
 	}
 
@@ -72,7 +73,7 @@ public class MainFrame extends JConnexionFrame
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			createChild("host", HostGameFrame.class).setVisible(true);
+			new HostGameFrame(getApplication()).setVisible(true);
 		}
 	}
 

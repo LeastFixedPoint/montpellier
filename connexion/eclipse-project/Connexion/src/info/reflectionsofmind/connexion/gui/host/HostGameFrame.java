@@ -2,13 +2,13 @@ package info.reflectionsofmind.connexion.gui.host;
 
 import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.Participant.State;
+import info.reflectionsofmind.connexion.gui.JConnexionFrame;
 import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.server.DefaultServer;
 import info.reflectionsofmind.connexion.server.IRemoteClient;
 import info.reflectionsofmind.connexion.server.IServer;
 import info.reflectionsofmind.connexion.server.ServerUtil;
-import info.reflectionsofmind.connexion.util.JConnexionFrame;
 
 import java.awt.event.ActionEvent;
 
