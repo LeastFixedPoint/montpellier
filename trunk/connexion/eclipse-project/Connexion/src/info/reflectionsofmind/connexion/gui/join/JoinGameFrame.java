@@ -8,12 +8,12 @@ import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Settings;
 import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.gui.JConnexionFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport.ClientToServerNode;
-import info.reflectionsofmind.connexion.util.JConnexionFrame;
 import info.reflectionsofmind.connexion.util.Util;
 
 import java.awt.event.ActionEvent;
