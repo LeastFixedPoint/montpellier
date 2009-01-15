@@ -1,6 +1,9 @@
-package info.reflectionsofmind.connexion.util;
+package info.reflectionsofmind.connexion.util.form;
 
-import info.reflectionsofmind.connexion.util.Form.Parameter;
+import info.reflectionsofmind.connexion.util.Util;
+import info.reflectionsofmind.connexion.util.form.Form.Field;
+import info.reflectionsofmind.connexion.util.form.Form.IntField;
+import info.reflectionsofmind.connexion.util.form.Form.StringField;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
@@ -32,36 +35,32 @@ public abstract class FormDialog extends JDialog
 
 		final SubmitAction submitAction = new SubmitAction(submitActionName);
 
-		for (Parameter field : form.getFields())
+		for (Field<?> field : form.getFields())
 		{
-			add(new JLabel(field.getName()), "grow");
+			add(new JLabel(field.getTitle()), "grow");
 
-			switch (field.getType())
+			if (field instanceof IntField)
 			{
-				case INT:
-				{
-					final JTextField textField = new JTextField(field.getInteger().toString());
-					textField.setSelectionStart(0);
-					textField.setSelectionEnd(textField.getText().length());
-					textField.setAction(submitAction);
-					
-					add(textField, "grow, wrap");
-					textFields.add(textField);
-					break;
-				}
-				case STRING:
-				{
-					final JTextField textField = new JTextField(field.getString().toString());
-					textField.setAction(submitAction);
+				final JTextField textField = new JTextField(((IntField) field).getValue().toString());
+				textField.setSelectionStart(0);
+				textField.setSelectionEnd(textField.getText().length());
+				textField.setAction(submitAction);
 
-					add(textField, "grow, span");
-					textFields.add(textField);
-					break;
-				}
-				default:
-				{
-					throw new RuntimeException("Unknown field type [" + field.getType() + "]");
-				}
+				add(textField, "grow, wrap");
+				textFields.add(textField);
+			}
+			else if (field instanceof StringField)
+			{
+				final JTextField textField = new JTextField(((StringField) field).getValue());
+				textField.setAction(submitAction);
+
+				add(textField, "grow, span");
+				textFields.add(textField);
+				break;
+			}
+			else
+			{
+				throw new RuntimeException("Unknown field class [" + field.getClass() + "]");
 			}
 		}
 
@@ -73,7 +72,6 @@ public abstract class FormDialog extends JDialog
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setLocationRelativeTo(parent);
 	}
-
 	public Form getForm()
 	{
 		return this.form;
@@ -84,29 +82,26 @@ public abstract class FormDialog extends JDialog
 	private void submitAndDispose()
 	{
 		Iterator<JTextField> textFieldIterator = textFields.iterator();
-		Iterator<Parameter> formFieldIterator = form.getFields().iterator();
+		Iterator<Field<?>> formFieldIterator = form.getFields().iterator();
 
 		while (textFieldIterator.hasNext() && formFieldIterator.hasNext())
 		{
-			Parameter formField = formFieldIterator.next();
+			Field<?> formField = formFieldIterator.next();
 			JTextField textField = textFieldIterator.next();
 
-			switch (formField.getType())
+			if (formField instanceof StringField)
 			{
-				case STRING:
-				{
-					formField.setString(textField.getText());
-					break;
-				}
-				case INT:
-				{
-					formField.setInt(Integer.valueOf(textField.getText()));
-					break;
-				}
-				default:
-				{
-					throw new RuntimeException("Unknown field type [" + formField.getType() + "]");
-				}
+				((StringField) formField).setValue(textField.getText());
+				break;
+			}
+			else if (formField instanceof IntField)
+			{
+				((IntField) formField).setValue(Integer.valueOf(textField.getText()));
+				break;
+			}
+			else
+			{
+				throw new RuntimeException("Unknown field class [" + formField.getClass() + "]");
 			}
 		}
 

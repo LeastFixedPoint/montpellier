@@ -1,14 +1,14 @@
 package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.client.ILocalClient;
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.client.IClient;
+import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.util.Util;
 
 import javax.swing.JList;
 
-public class PlayerList extends JList implements ILocalClient.IListener
+public class PlayerList extends JList implements IClient.IListener
 {
 	private final JoinGameFrame joinGameFrame;
 	
@@ -30,20 +30,20 @@ public class PlayerList extends JList implements ILocalClient.IListener
 	}
 	
 	@Override
-	public void onClientConnected(Client client)
+	public void onClientConnected(Participant client)
 	{
 		updateList();
 	}
 	
 	@Override
-	public void onClientDisconnected(Client client)
+	public void onClientDisconnected(Participant client)
 	{
 		updateList();
 	}
 	
 	private void updateList()
 	{
-		setListData(Util.mapGetName(this.joinGameFrame.getClient().getClients()).toArray());
+		setListData(Util.mapGetName(this.joinGameFrame.getClient().getParticipants()).toArray());
 	}
 	
 	// ============================================================================================
@@ -51,7 +51,7 @@ public class PlayerList extends JList implements ILocalClient.IListener
 	// ============================================================================================
 
 	@Override
-	public void onChatMessage(Client sender, String message)
+	public void onChatMessage(Participant sender, String message)
 	{
 	}
 	

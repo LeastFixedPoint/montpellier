@@ -1,8 +1,8 @@
 package info.reflectionsofmind.connexion.server;
 
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.transport.IClientNode;
 
 public interface IRemoteClient
@@ -26,6 +26,6 @@ public interface IRemoteClient
 	// === GETTERS
 	// ====================================================================================================
 
-	Client getClient();
+	Participant getClient();
 	IClientNode getNode();
 }

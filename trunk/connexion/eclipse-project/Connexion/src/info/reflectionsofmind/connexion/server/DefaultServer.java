@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.server;
 
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.common.Settings;
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Participant;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServerEventDecoder;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ChatMessageEvent;
 import info.reflectionsofmind.connexion.common.event.cts.ClientToServer_ClientConnectionRequestEvent;
@@ -32,18 +32,18 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultLocalServer implements IServer, IServerTransport.IListener, IClientToServerEventListener, Client.IStateListener
+public class DefaultServer implements IServer, IServerTransport.IListener, IClientToServerEventListener, Participant.IStateListener
 {
 	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();
-	private final Settings settings;
+	private final IApplication application;
 
 	private Game game;
 	private ITileSource tileSource;
 
-	public DefaultLocalServer(final Settings settings)
+	public DefaultServer(IApplication application)
 	{
-		this.settings = settings;
+		this.application = application;
 	}
 
 	// ====================================================================================================
@@ -64,7 +64,7 @@ public class DefaultLocalServer implements IServer, IServerTransport.IListener, 
 	{
 		ClientToServerEventDecoder.decode(packet.getContents()).dispatch(packet.getFrom(), this);
 	}
-	
+
 	@Override
 	public void onError(TransportException exception)
 	{
@@ -78,7 +78,7 @@ public class DefaultLocalServer implements IServer, IServerTransport.IListener, 
 	@Override
 	public void onClientConnectionRequestEvent(IClientNode from, ClientToServer_ClientConnectionRequestEvent event)
 	{
-		final IRemoteClient newRemoteClient = new RemoteClient(new Client(event.getPlayerName()), from);
+		final IRemoteClient newRemoteClient = new RemoteClient(new Participant(event.getPlayerName()), from);
 
 		newRemoteClient.sendConnectionAccepted(this);
 
@@ -103,7 +103,7 @@ public class DefaultLocalServer implements IServer, IServerTransport.IListener, 
 		final IRemoteClient disconnectedClient = ServerUtil.getClientByNode(this, from);
 		disconnect(disconnectedClient, event.getReason());
 	}
-	
+
 	@Override
 	public void onMessageEvent(IClientNode from, ClientToServer_ChatMessageEvent event)
 	{
@@ -131,8 +131,7 @@ public class DefaultLocalServer implements IServer, IServerTransport.IListener, 
 		try
 		{
 			this.game.doTurn(event.getTurn());
-		}
-		catch (final GameTurnException exception)
+		} catch (final GameTurnException exception)
 		{
 			disconnect(client, DisconnectReason.DESYNCHRONIZATION);
 			return;
@@ -152,7 +151,7 @@ public class DefaultLocalServer implements IServer, IServerTransport.IListener, 
 	// ====================================================================================================
 
 	@Override
-	public void onAfterClientStateChange(Client client, State previousState)
+	public void onAfterClientStateChange(Participant client, State previousState)
 	{
 		for (IRemoteClient remoteClient : getClients())
 		{
@@ -185,12 +184,10 @@ public class DefaultLocalServer implements IServer, IServerTransport.IListener, 
 			}
 
 			this.game = new Game(new RandomTileSequence(tiles), players);
-		}
-		catch (final IOException exception)
+		} catch (final IOException exception)
 		{
 			throw new RuntimeException(exception);
-		}
-		catch (final TileCodeFormatException exception)
+		} catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -237,8 +234,7 @@ public class DefaultLocalServer implements IServer, IServerTransport.IListener, 
 		try
 		{
 			placeInitialTile();
-		}
-		catch (GameTurnException exception)
+		} catch (GameTurnException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -275,9 +271,9 @@ public class DefaultLocalServer implements IServer, IServerTransport.IListener, 
 	}
 
 	@Override
-	public Settings getSettings()
+	public IApplication getApplication()
 	{
-		return this.settings;
+		return this.application;
 	}
 
 	@Override

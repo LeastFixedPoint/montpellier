@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.client;
 
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Turn;
@@ -9,7 +9,7 @@ import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport;
 
 import java.util.List;
 
-public interface ILocalClient
+public interface IClient
 {
 	// ====================================================================================================
 	// === COMMANDS
@@ -36,8 +36,8 @@ public interface ILocalClient
 	// === CONNECTED-STATE GETTERS
 	// ====================================================================================================
 
-	Client getClient();
-	List<Client> getClients();
+	Participant getParticipant();
+	List<Participant> getParticipants();
 
 	// ====================================================================================================
 	// === GAME-STATE GETTERS
@@ -55,9 +55,9 @@ public interface ILocalClient
 	public interface IListener
 	{
 		void onConnectionAccepted();
-		void onClientConnected(Client client);
-		void onClientDisconnected(Client client);
-		void onChatMessage(Client sender, String message);
+		void onClientConnected(Participant client);
+		void onClientDisconnected(Participant client);
+		void onChatMessage(Participant sender, String message);
 		void onConnectionBroken(DisconnectReason reason);
 		
 		void onStart();

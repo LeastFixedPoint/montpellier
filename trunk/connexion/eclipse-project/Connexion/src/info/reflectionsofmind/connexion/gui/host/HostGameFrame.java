@@ -1,10 +1,10 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.common.Client;
-import info.reflectionsofmind.connexion.common.Client.State;
+import info.reflectionsofmind.connexion.common.Participant;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.server.DefaultLocalServer;
+import info.reflectionsofmind.connexion.server.DefaultServer;
 import info.reflectionsofmind.connexion.server.IRemoteClient;
 import info.reflectionsofmind.connexion.server.IServer;
 import info.reflectionsofmind.connexion.server.ServerUtil;
@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener, IServer.IListener, Client.IStateListener
+public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener, IServer.IListener, Participant.IStateListener
 {
 	private static final long serialVersionUID = 1L;
 	private final IServer server;
@@ -36,7 +36,7 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 		setTitle("Connexion :: Host game");
 
 		this.mainWindow = mainWindow;
-		this.server = createChild("server", DefaultLocalServer.class);
+		this.server = createChild("server", DefaultServer.class);
 		this.server.addListener(this);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -85,7 +85,7 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 	}
 
 	@Override
-	public void onAfterClientStateChange(final Client client, final State previousState)
+	public void onAfterClientStateChange(final Participant client, final State previousState)
 	{
 		switch (client.getState())
 		{
@@ -142,7 +142,7 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			if (ServerUtil.getClientsByStates(getServer(), Client.State.ACCEPTED).isEmpty())
+			if (ServerUtil.getClientsByStates(getServer(), Participant.State.ACCEPTED).isEmpty())
 			{
 				JOptionPane.showMessageDialog(HostGameFrame.this, "You must have at least one player!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;

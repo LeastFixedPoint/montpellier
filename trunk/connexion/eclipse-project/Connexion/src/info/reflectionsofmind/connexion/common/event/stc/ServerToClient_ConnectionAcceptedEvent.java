@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.common.event.stc;
 
-import static info.reflectionsofmind.connexion.common.Client.State.ACCEPTED;
-import static info.reflectionsofmind.connexion.common.Client.State.CONNECTED;
-import static info.reflectionsofmind.connexion.common.Client.State.SPECTATOR;
-import info.reflectionsofmind.connexion.common.Client.State;
+import static info.reflectionsofmind.connexion.common.Participant.State.ACCEPTED;
+import static info.reflectionsofmind.connexion.common.Participant.State.CONNECTED;
+import static info.reflectionsofmind.connexion.common.Participant.State.SPECTATOR;
+import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.server.IServer;
 import info.reflectionsofmind.connexion.server.ServerUtil;
 import info.reflectionsofmind.connexion.util.Util;

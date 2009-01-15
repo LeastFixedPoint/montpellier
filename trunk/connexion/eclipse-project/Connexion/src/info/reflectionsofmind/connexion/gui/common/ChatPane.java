@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.gui.common;
 
-import info.reflectionsofmind.connexion.common.Client;
+import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.transport.INode;
 import info.reflectionsofmind.connexion.transport.ITransport;
 
@@ -85,7 +85,7 @@ public class ChatPane extends JPanel
 		});
 	}
 
-	public void writeMessage(final Client sender, final String message)
+	public void writeMessage(final Participant sender, final String message)
 	{
 		writeRaw(format(sender) + ": " + message + "<br>");
 	}
@@ -120,7 +120,7 @@ public class ChatPane extends JPanel
 		}
 	}
 
-	public static String format(Client client)
+	public static String format(Participant client)
 	{
 		return "[<font color=red>" + (client == null ? "Server" : client.getName()) + "</font>]";
 	}

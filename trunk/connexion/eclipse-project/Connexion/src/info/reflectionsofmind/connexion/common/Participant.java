@@ -8,7 +8,7 @@ import java.util.List;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-public class Client implements INamed
+public class Participant implements INamed
 {
 	public enum State
 	{
@@ -32,12 +32,12 @@ public class Client implements INamed
 	private final String name;
 	private State state;
 
-	public Client(String name)
+	public Participant(String name)
 	{
 		this(name, State.CONNECTED);
 	}
 
-	public Client(String name, State state)
+	public Participant(String name, State state)
 	{
 		this.name = name;
 		this.state = state;
@@ -138,6 +138,6 @@ public class Client implements INamed
 	public static interface IStateListener
 	{
 		/** This is called when client state changes. */
-		void onAfterClientStateChange(Client client, State previousState);
+		void onAfterClientStateChange(Participant client, State previousState);
 	}
 }
