@@ -8,5 +8,5 @@ public interface IClientTransportFactory extends INamed
 {
 	IClientTransport createTransport(Form form) throws TransportException;
 	IApplication getApplication();
-	Form getConfigurationForm();
+	Form newConfigurationForm();
 }

@@ -22,7 +22,6 @@ public final class FormUtil
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static String getStringById(Form form, String id)
 	{
 		for (Form.Field<?> field : form.getFields())
@@ -33,7 +32,6 @@ public final class FormUtil
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Integer getIntegerById(Form form, String id)
 	{
 		for (Form.Field<?> field : form.getFields())
@@ -42,41 +40,5 @@ public final class FormUtil
 		}
 
 		return null;
-	}
-
-	public static ConfigurationBuilder newBuilder()
-	{
-		return new ConfigurationBuilder(new Form());
-	}
-
-	public static final class ConfigurationBuilder
-	{
-		private final Form configuration;
-
-		private ConfigurationBuilder(Form configuration)
-		{
-			this.configuration = configuration;
-		}
-
-		public ConfigurationBuilder addString(String id, String label)
-		{
-			this.configuration.addField(new Form.Parameter( //
-					id, info.reflectionsofmind.connexion.util.form.STRING, label, null));
-
-			return this;
-		}
-
-		public ConfigurationBuilder addInteger(String id, String label)
-		{
-			this.configuration.addField(new Form.Parameter( //
-					id, info.reflectionsofmind.connexion.util.form.INT, label, null));
-
-			return this;
-		}
-
-		public Form build()
-		{
-			return this.configuration;
-		}
 	}
 }

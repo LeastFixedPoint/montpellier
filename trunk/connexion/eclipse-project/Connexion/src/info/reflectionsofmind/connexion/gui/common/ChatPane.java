@@ -1,8 +1,7 @@
 package info.reflectionsofmind.connexion.gui.common;
 
 import info.reflectionsofmind.connexion.common.Participant;
-import info.reflectionsofmind.connexion.transport.INode;
-import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.util.INamed;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -125,13 +124,8 @@ public class ChatPane extends JPanel
 		return "[<font color=red>" + (client == null ? "Server" : client.getName()) + "</font>]";
 	}
 
-	public static String format(ITransport transport)
+	public static String format(INamed named)
 	{
-		return "[<font color=blue>" + transport.getName() + "</font>]";
-	}
-
-	public static String format(INode node)
-	{
-		return "[<font color=blue>" + node.getId() + "</font>]";
+		return "[<font color=blue>" + named.getName() + "</font>]";
 	}
 }

@@ -3,9 +3,7 @@ package info.reflectionsofmind.connexion.gui.host;
 import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.gui.JConnexionFrame;
-import info.reflectionsofmind.connexion.gui.MainFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.server.DefaultServer;
 import info.reflectionsofmind.connexion.server.IRemoteClient;
 import info.reflectionsofmind.connexion.server.IServer;
 import info.reflectionsofmind.connexion.server.ServerUtil;
@@ -14,7 +12,6 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
@@ -24,20 +21,20 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 	private static final long serialVersionUID = 1L;
 	private final IServer server;
 
-	private final MainFrame mainWindow;
 	private final JButton startButton;
 	private final ConfigPanel configPanel;
 	private final ClientsPanel clientsPanel;
 	private final TransportsPanel transportsPanel;
 	private final ChatPane chatPane;
 
-	public HostGameFrame(final MainFrame mainWindow)
+	public HostGameFrame(IServer server)
 	{
-		setTitle("Connexion :: Host game");
+		super(server.getApplication());
 
-		this.mainWindow = mainWindow;
-		this.server = createChild("server", DefaultServer.class);
-		this.server.addListener(this);
+		this.server = server;
+
+		setTitle("Connexion :: Host game");
+		getServer().addListener(this);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(true);
@@ -114,11 +111,6 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 	public IServer getServer()
 	{
 		return this.server;
-	}
-
-	public MainFrame getMainWindow()
-	{
-		return this.mainWindow;
 	}
 
 	public ChatPane getChatPane()

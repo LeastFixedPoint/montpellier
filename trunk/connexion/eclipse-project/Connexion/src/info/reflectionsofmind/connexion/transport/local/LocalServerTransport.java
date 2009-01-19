@@ -5,11 +5,11 @@ import info.reflectionsofmind.connexion.transport.AbstractServerTransport;
 import info.reflectionsofmind.connexion.transport.DefaultClientPacket;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
-public class ServerLocalTransport extends AbstractServerTransport
+public class LocalServerTransport extends AbstractServerTransport
 {
 	private final IApplication application;
 
-	public ServerLocalTransport(final IApplication application, final int numberOfPlayers)
+	public LocalServerTransport(final IApplication application, final int numberOfPlayers)
 	{
 		this.application = application;
 	}
@@ -22,7 +22,7 @@ public class ServerLocalTransport extends AbstractServerTransport
 	@Override
 	public void start() throws TransportException
 	{
-		new ClientLocalTransport(this, 0).start();
+		new LocalClientTransport(this, 0).start();
 	}
 
 	@Override

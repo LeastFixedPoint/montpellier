@@ -26,13 +26,13 @@ public class LocalServerTransportFactory implements IServerTransportFactory
 	@Override
 	public IServerTransport createTransport(Form form) throws TransportException
 	{
-		return new ServerLocalTransport(getApplication(), FormUtil.getIntegerById(form, FIELD_NUMBER_OF_PLAYERS));
+		return new LocalServerTransport(getApplication(), FormUtil.getIntegerById(form, FIELD_NUMBER_OF_PLAYERS));
 	}
 
 	@Override
 	public String getName()
 	{
-		return "Jabber";
+		return "Local";
 	}
 
 	@Override

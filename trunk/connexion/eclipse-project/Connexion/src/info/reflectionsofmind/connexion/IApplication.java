@@ -10,8 +10,10 @@ import java.util.List;
 public interface IApplication
 {
 	IServer newServer();
+
 	IClient newClient();
 
 	List<IServerTransportFactory> getServerTransportFactories();
+
 	List<IClientTransportFactory> getClientTransportFactories();
 }

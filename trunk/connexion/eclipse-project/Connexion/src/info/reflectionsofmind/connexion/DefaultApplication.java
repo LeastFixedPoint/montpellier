@@ -24,7 +24,6 @@ public final class DefaultApplication implements IApplication
 	{
 		this.serverTransportFactories.add(new LocalServerTransportFactory(this));
 		this.serverTransportFactories.add(new JabberServerTransportFactory(this));
-
 		this.clientTransportFactories.add(new JabberClientTransportFactory(this));
 	}
 

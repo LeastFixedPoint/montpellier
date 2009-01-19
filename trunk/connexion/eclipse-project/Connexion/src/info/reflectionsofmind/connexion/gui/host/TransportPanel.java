@@ -1,7 +1,6 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.gui.common.TransportName;
-import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.IServerTransportFactory;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.util.form.Form;
 import info.reflectionsofmind.connexion.util.form.FormDialog;
@@ -19,35 +18,35 @@ public class TransportPanel extends JPanel
 {
 	private final JButton openCloseButton;
 	private final TransportsPanel transportsPanel;
-	private final ITransport transport;
+	private final IServerTransportFactory transportFactory;
 
-	public TransportPanel(final TransportsPanel transportsPanel, final ITransport transport)
+	public TransportPanel(final TransportsPanel transportsPanel, final IServerTransportFactory transportFactory)
 	{
 		this.transportsPanel = transportsPanel;
-		this.transport = transport;
+		this.transportFactory = transportFactory;
 
 		setLayout(new MigLayout("ins 0", "[]6[90]", "[]"));
 
 		this.openCloseButton = new JButton(new OpenAction());
 		add(this.openCloseButton, "grow");
-		add(new JLabel(transport.getName()), "grow");
+		add(new JLabel(transportFactory.getName()), "grow");
 	}
 
 	private void open()
 	{
-		final Form form = this.transport.getForm();
+		final Form form = this.transportFactory.newConfigurationForm();
 
 		new FormDialog(this.transportsPanel.getHostGameFrame(), form, "Enable player type", "Enable")
 		{
 			@Override
 			protected void onSubmit()
 			{
-				doOpen();
+				doOpen(form);
 			}
 		}.setVisible(true);
 	}
 
-	private void doOpen()
+	private void doOpen(final Form form)
 	{
 		TransportPanel.this.openCloseButton.setAction(new CloseAction());
 
@@ -58,9 +57,9 @@ public class TransportPanel extends JPanel
 			{
 				try
 				{
-					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Starting [" + TransportName.getName(TransportPanel.this.transport) + "] transport...");
-					TransportPanel.this.transport.start();
-					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Transport started. Now accepting [" + TransportName.getName(TransportPanel.this.transport) + "] connections.");
+					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Starting [" + transportFactory.getName() + "] transport...");
+					TransportPanel.this.transportFactory.createTransport(form);
+					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Transport started. Now accepting [" + transportFactory.getName() + "] connections.");
 				}
 				catch (final TransportException exception)
 				{
