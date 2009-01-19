@@ -28,7 +28,6 @@ import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.transport.IClientTransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
-import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	// Connected-state fields
 
 	private final List<Participant> participants = new ArrayList<Participant>();
-	private ClientLocalTransport transport;
+	private IClientTransport transport;
 	private Participant participant;
 
 	// Game-state fields
@@ -62,10 +61,12 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		try
 		{
 			this.tileSource = new DefaultTileSource(getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/tilelist/DefaultTileList.properties"));
-		} catch (final IOException exception)
+		}
+		catch (final IOException exception)
 		{
 			throw new RuntimeException(exception);
-		} catch (final TileCodeFormatException exception)
+		}
+		catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -80,13 +81,14 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		try
 		{
 			getTransport().send(event.encode());
-		} catch (final TransportException exception)
+		}
+		catch (final TransportException exception)
 		{
 			throw new RuntimeException(exception);
 		}
 	}
 
-	public void connect(final ClientLocalTransport transport)
+	public void connect(final IClientTransport transport)
 	{
 		this.transport = transport;
 		getTransport().addListener(this);
@@ -94,7 +96,8 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		try
 		{
 			getTransport().start();
-		} catch (TransportException exception)
+		}
+		catch (TransportException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -221,7 +224,8 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		try
 		{
 			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
-		} catch (final TileCodeFormatException exception)
+		}
+		catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -247,7 +251,8 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 			try
 			{
 				getGame().doTurn(event.getTurn());
-			} catch (final GameTurnException exception)
+			}
+			catch (final GameTurnException exception)
 			{
 				throw new RuntimeException(exception);
 			}
@@ -256,7 +261,8 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		try
 		{
 			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
-		} catch (final TileCodeFormatException exception)
+		}
+		catch (final TileCodeFormatException exception)
 		{
 			throw new RuntimeException(exception);
 		}
@@ -290,7 +296,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		return this.tileSource;
 	}
 
-	public ClientLocalTransport getTransport()
+	public IClientTransport getTransport()
 	{
 		return this.transport;
 	}

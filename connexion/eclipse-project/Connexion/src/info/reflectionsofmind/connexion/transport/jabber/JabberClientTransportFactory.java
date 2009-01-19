@@ -40,7 +40,7 @@ public class JabberClientTransportFactory implements IClientTransportFactory
 	}
 
 	@Override
-	public Form getConfigurationForm()
+	public Form newConfigurationForm()
 	{
 		final Form form = new Form();
 		form.addField(form.new StringField(FIELD_LOGIN_SETTINGS, "Login settings", "node:password@host.domain:port/resource"));

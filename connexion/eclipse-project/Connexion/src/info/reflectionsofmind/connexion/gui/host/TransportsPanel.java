@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.IServerTransportFactory;
 
 import java.awt.HeadlessException;
 
@@ -16,13 +16,13 @@ public class TransportsPanel extends JPanel
 	public TransportsPanel(HostGameFrame hostGameFrame) throws HeadlessException
 	{
 		this.hostGameFrame = hostGameFrame;
-		
+
 		setLayout(new MigLayout("ins 0 6 6 6", "[]", ""));
 		setBorder(BorderFactory.createTitledBorder("Transports"));
-		
-		for (ITransport transport : getHostGameFrame().getServer().getTransports())
+
+		for (IServerTransportFactory transportFactory : getHostGameFrame().getApplication().getServerTransportFactories())
 		{
-			add(new TransportPanel(this, transport), "grow, span");
+			add(new TransportPanel(this, transportFactory), "grow, span");
 		}
 	}
 

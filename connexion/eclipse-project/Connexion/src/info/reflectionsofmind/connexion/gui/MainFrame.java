@@ -1,17 +1,23 @@
 package info.reflectionsofmind.connexion.gui;
 
+import info.reflectionsofmind.connexion.DefaultApplication;
 import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.gui.host.HostGameFrame;
 import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
-import info.reflectionsofmind.connexion.gui.settings.SettingsDialog;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import net.miginfocom.swing.MigLayout;
+
+import org.jvnet.substance.skin.SubstanceBusinessLookAndFeel;
 
 public class MainFrame extends JConnexionFrame
 {
@@ -21,18 +27,39 @@ public class MainFrame extends JConnexionFrame
 		setTitle("Connexion");
 
 		setLocationRelativeTo(null);
-		setLayout(new MigLayout("", "[240, center]", "[24]6[24]6[24]6[24]6[24]6[24]24[24]"));
+		setLayout(new MigLayout("", "[240, center]", "[24]6[24]6[24]6[24]6[24]24[24]"));
 
 		add(new JLabel("Connexion"), "span");
 		add(new JButton(new HostGameAction("Host game")), "span, grow");
 		add(new JButton(new JoinGameAction("Join game")), "span, grow");
 		add(new JButton("Play online"), "span, grow");
 		add(new JButton("Create hub"), "span, grow");
-		add(new JButton(new SettingsAction("Settings")), "span, grow");
 		add(new JButton(new ExitAction("Exit")), "span");
 
 		pack();
 		setVisible(true);
+	}
+
+	public static void main(String[] args) throws Exception
+	{
+		try
+		{
+			JFrame.setDefaultLookAndFeelDecorated(true);
+			UIManager.setLookAndFeel(new SubstanceBusinessLookAndFeel());
+
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					new MainFrame(new DefaultApplication()).setVisible(true);
+				}
+			});
+		}
+		catch (final Exception exception)
+		{
+			JOptionPane.showMessageDialog(null, "Internal error", "Connexion", JOptionPane.ERROR_MESSAGE);
+			exception.printStackTrace();
+		}
 	}
 
 	private final class ExitAction extends AbstractAction
@@ -59,7 +86,7 @@ public class MainFrame extends JConnexionFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			new JoinGameFrame(getApplication()).setVisible(true);
+			new JoinGameFrame(getApplication().newClient()).setVisible(true);
 		}
 	}
 
@@ -73,21 +100,7 @@ public class MainFrame extends JConnexionFrame
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			new HostGameFrame(getApplication()).setVisible(true);
-		}
-	}
-
-	private final class SettingsAction extends AbstractAction
-	{
-		private SettingsAction(final String name)
-		{
-			super(name);
-		}
-
-		@Override
-		public void actionPerformed(final ActionEvent e)
-		{
-			new SettingsDialog(MainFrame.this).setVisible(true);
+			new HostGameFrame(getApplication().newServer()).setVisible(true);
 		}
 	}
 }

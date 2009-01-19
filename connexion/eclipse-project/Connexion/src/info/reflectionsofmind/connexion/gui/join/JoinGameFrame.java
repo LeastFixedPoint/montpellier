@@ -1,26 +1,24 @@
 package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.IApplication;
-import info.reflectionsofmind.connexion.client.DefaultClient;
 import info.reflectionsofmind.connexion.client.IClient;
-import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.common.Settings;
+import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.gui.JConnexionFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.transport.INode;
-import info.reflectionsofmind.connexion.transport.ITransport;
+import info.reflectionsofmind.connexion.transport.IClientTransport;
+import info.reflectionsofmind.connexion.transport.IClientTransportFactory;
 import info.reflectionsofmind.connexion.transport.TransportException;
-import info.reflectionsofmind.connexion.transport.local.ClientLocalTransport.ClientToServerNode;
+import info.reflectionsofmind.connexion.transport.local.LocalClientTransport;
 import info.reflectionsofmind.connexion.util.Util;
+import info.reflectionsofmind.connexion.util.form.Form;
+import info.reflectionsofmind.connexion.util.form.FormDialog;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
@@ -39,11 +37,13 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	private final ChatPane chatPane;
 	private final PlayerList playerList;
 
-	public JoinGameFrame(final IApplication application)
+	public JoinGameFrame(final IClient client)
 	{
+		super(client.getApplication());
+
 		setTitle("Connexion :: Join game");
 
-		this.client = createChild("client", DefaultClient.class);
+		this.client = client;
 
 		setResizable(false);
 		setLayout(new MigLayout("", "[120]6[120]6[120]6[120]", "[]6[360]"));
@@ -72,7 +72,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 		this.client.addListener(this.playerList);
 	}
 
-	public void connect(final INode serverNode)
+	public void connect(final IClientTransport transport)
 	{
 		transportCombo.setEnabled(false);
 		connectButton.setAction(new DisconnectAction());
@@ -83,42 +83,37 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 			@Override
 			public void run()
 			{
-				try
+				if (transport instanceof LocalClientTransport)
 				{
-					JoinGameFrame.this.chatPane.writeSystem("Starting " + ChatPane.format(serverNode.getTransport()) + " transport...");
-					serverNode.getTransport().start();
-					JoinGameFrame.this.chatPane.writeSystem("Transport started.");
-				}
-				catch (final TransportException exception)
-				{
-					exception.printStackTrace();
-					JoinGameFrame.this.chatPane.writeSystem("Cannot start transport.");
-					return;
+					getClient().setName(((LocalClientTransport) transport).getClientName());
 				}
 
-				if (serverNode instanceof ClientToServerNode)
-				{
-					final int i = ((ClientToServerNode) serverNode).getIndex();
-					getClient().setName(getClient().getName() + "." + i);
-				}
+				JoinGameFrame.this.chatPane.writeSystem("Connecting...");
 
-				JoinGameFrame.this.chatPane.writeSystem("Sending connection request to " + ChatPane.format(serverNode) + "...");
-				getClient().connect(serverNode);
+				getClient().connect(transport);
 			}
 		}.start();
 	}
 
 	public void connect()
 	{
-		final ITransport transport = this.transportCombo.getSelectedTransport();
-
-		final ChooseServerDialog dialog = new ChooseServerDialog(this, transport);
-		dialog.setVisible(true);
-
-		if (dialog.getServerNode() != null)
+		final IClientTransportFactory transportFactory = this.transportCombo.getSelectedTransportFactory();
+		final Form form = transportFactory.newConfigurationForm();
+		new FormDialog(this, form, "Server configuration", "Connect")
 		{
-			connect(dialog.getServerNode());
-		}
+			@Override
+			protected void onSubmit()
+			{
+				try
+				{
+					connect(transportFactory.createTransport(form));
+				}
+				catch (TransportException exception)
+				{
+					throw new RuntimeException(exception);
+				}
+			}
+		}.setVisible(true);
 	}
 
 	public void disconnect()
@@ -134,7 +129,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	@Override
 	public void onConnectionAccepted()
 	{
-		this.chatPane.writeSystem("Connected to " + ChatPane.format(getClient().getServerNode()) + ".");
+		this.chatPane.writeSystem("Connected.");
 
 		if (!getClient().getParticipants().isEmpty())
 		{

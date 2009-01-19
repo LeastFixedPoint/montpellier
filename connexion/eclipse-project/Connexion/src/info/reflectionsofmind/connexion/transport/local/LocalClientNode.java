@@ -5,17 +5,17 @@ import info.reflectionsofmind.connexion.transport.TransportException;
 
 public class LocalClientNode implements IClientNode
 {
-	private final ClientLocalTransport clientTransport;
-	private final ServerLocalTransport serverTransport;
+	private final LocalClientTransport clientTransport;
+	private final LocalServerTransport serverTransport;
 
-	public LocalClientNode(ServerLocalTransport serverTransport, ClientLocalTransport clientTransport)
+	public LocalClientNode(LocalServerTransport serverTransport, LocalClientTransport clientTransport)
 	{
 		this.serverTransport = serverTransport;
 		this.clientTransport = clientTransport;
 	}
 
 	@Override
-	public ServerLocalTransport getTransport()
+	public LocalServerTransport getTransport()
 	{
 		return this.serverTransport;
 	}
