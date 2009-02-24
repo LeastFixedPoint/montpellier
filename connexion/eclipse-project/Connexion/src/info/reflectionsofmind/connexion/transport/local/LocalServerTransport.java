@@ -8,10 +8,12 @@ import info.reflectionsofmind.connexion.transport.TransportException;
 public class LocalServerTransport extends AbstractServerTransport
 {
 	private final IApplication application;
+	private final int numberOfPlayers;
 
 	public LocalServerTransport(final IApplication application, final int numberOfPlayers)
 	{
 		this.application = application;
+		this.numberOfPlayers = numberOfPlayers;
 	}
 
 	public void receive(LocalClientNode node, String contents)
@@ -22,7 +24,10 @@ public class LocalServerTransport extends AbstractServerTransport
 	@Override
 	public void start() throws TransportException
 	{
-		new LocalClientTransport(this, 0).start();
+		for (int i = 0; i < numberOfPlayers; i++)
+		{
+			new LocalClientTransport(this, i).start();
+		}
 	}
 
 	@Override

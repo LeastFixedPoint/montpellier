@@ -25,7 +25,7 @@ public class LocalClientTransport extends AbstractClientTransport
 
 	public void receive(String contents)
 	{
-
+		firePacket(contents);
 	}
 
 	@Override
@@ -56,5 +56,11 @@ public class LocalClientTransport extends AbstractClientTransport
 	public String getClientName()
 	{
 		return "Local Player #" + this.index;
+	}
+	
+	@Override
+	public String getName()
+	{
+		return "Local #" + this.index;
 	}
 }

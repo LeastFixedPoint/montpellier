@@ -1,7 +1,9 @@
 package info.reflectionsofmind.connexion.transport;
 
+import info.reflectionsofmind.connexion.util.INamed;
 
-public interface IClientTransport
+
+public interface IClientTransport extends INamed
 {
 	void start() throws TransportException;
 	void stop();
