@@ -10,7 +10,7 @@ public class JabberClientTransport extends AbstractClientTransport implements Ja
 	private final JabberCore core;
 	private final String serverAddress;
 
-	public JabberClientTransport(String initString, String serverAddress) throws TransportException
+	public JabberClientTransport(final String initString, final String serverAddress) throws TransportException
 	{
 		this.serverAddress = serverAddress;
 		this.core = new JabberCore(new JabberConnectionInfo(initString));
@@ -18,18 +18,18 @@ public class JabberClientTransport extends AbstractClientTransport implements Ja
 	}
 
 	@Override
-	public void onPacket(String from, String content)
+	public void onPacket(final String from, final String content)
 	{
 		if (from.equals(this.serverAddress))
 		{
-			for (IListener listener : getListeners())
+			for (final IListener listener : getListeners())
 			{
 				listener.onPacket(content);
 			}
 		}
 	}
 
-	public void send(String contents) throws TransportException
+	public void send(final String contents) throws TransportException
 	{
 		this.core.send(this.serverAddress, contents);
 	}
@@ -41,7 +41,7 @@ public class JabberClientTransport extends AbstractClientTransport implements Ja
 		{
 			this.core.start();
 		}
-		catch (XMPPException exception)
+		catch (final XMPPException exception)
 		{
 			throw new TransportException(exception);
 		}
@@ -51,5 +51,11 @@ public class JabberClientTransport extends AbstractClientTransport implements Ja
 	public void stop()
 	{
 		this.core.stop();
+	}
+	
+	@Override
+	public String getName()
+	{
+		return "Jabber";
 	}
 }

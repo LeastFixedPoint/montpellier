@@ -92,23 +92,12 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	{
 		this.transport = transport;
 		getTransport().addListener(this);
-
-		try
-		{
-			getTransport().start();
-		}
-		catch (TransportException exception)
-		{
-			throw new RuntimeException(exception);
-		}
-
 		send(new ClientToServer_ClientConnectionRequestEvent(getName()));
 	}
 
 	public void disconnect(final DisconnectReason reason)
 	{
 		send(new ClientToServer_DisconnectNoticeEvent(reason));
-		getTransport().stop();
 
 		this.transport = null;
 		this.participant = null;

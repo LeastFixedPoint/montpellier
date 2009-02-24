@@ -23,7 +23,6 @@ import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.transport.IClientNode;
 import info.reflectionsofmind.connexion.transport.IClientPacket;
-import info.reflectionsofmind.connexion.transport.IServerTransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultServer implements IServer, IServerTransport.IListener, IClientToServerEventListener, Participant.IStateListener
+public class DefaultServer implements IServer, IClientToServerEventListener, Participant.IStateListener
 {
 	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();

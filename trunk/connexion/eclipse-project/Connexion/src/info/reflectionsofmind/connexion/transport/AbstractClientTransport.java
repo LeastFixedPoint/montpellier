@@ -7,6 +7,8 @@ public abstract class AbstractClientTransport extends AbstractListener<IClientTr
 	protected void firePacket(final String contents)
 	{
 		for (final IListener listener : getListeners())
+		{
 			listener.onPacket(contents);
+		}
 	}
 }

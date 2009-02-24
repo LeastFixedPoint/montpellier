@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.gui.host;
 
+import info.reflectionsofmind.connexion.transport.IServerTransport;
 import info.reflectionsofmind.connexion.transport.IServerTransportFactory;
 import info.reflectionsofmind.connexion.transport.TransportException;
 import info.reflectionsofmind.connexion.util.form.Form;
@@ -19,6 +20,7 @@ public class TransportPanel extends JPanel
 	private final JButton openCloseButton;
 	private final TransportsPanel transportsPanel;
 	private final IServerTransportFactory transportFactory;
+	private IServerTransport transport;
 
 	public TransportPanel(final TransportsPanel transportsPanel, final IServerTransportFactory transportFactory)
 	{
@@ -57,9 +59,11 @@ public class TransportPanel extends JPanel
 			{
 				try
 				{
-					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Starting [" + transportFactory.getName() + "] transport...");
-					TransportPanel.this.transportFactory.createTransport(form);
-					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Transport started. Now accepting [" + transportFactory.getName() + "] connections.");
+					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Starting [" + TransportPanel.this.transportFactory.getName() + "] transport...");
+					TransportPanel.this.transport = TransportPanel.this.transportFactory.createTransport(form);
+					TransportPanel.this.transport.addListener(TransportPanel.this.transportsPanel.getHostGameFrame().getServer());
+					TransportPanel.this.transport.start();
+					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Transport started. Now accepting [" + TransportPanel.this.transportFactory.getName() + "] connections.");
 				}
 				catch (final TransportException exception)
 				{
@@ -72,6 +76,7 @@ public class TransportPanel extends JPanel
 
 	private void close()
 	{
+		this.transport = null;
 		this.openCloseButton.setAction(new OpenAction());
 	}
 

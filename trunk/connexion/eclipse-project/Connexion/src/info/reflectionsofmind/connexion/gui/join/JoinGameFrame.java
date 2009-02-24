@@ -88,6 +88,17 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 					getClient().setName(((LocalClientTransport) transport).getClientName());
 				}
 
+				JoinGameFrame.this.chatPane.writeSystem("Starting [" + ChatPane.format(transport) + "] transport...");
+
+				try
+				{
+					transport.start();
+				}
+				catch (TransportException exception)
+				{
+					throw new RuntimeException(exception);
+				}
+
 				JoinGameFrame.this.chatPane.writeSystem("Connecting...");
 
 				getClient().connect(transport);

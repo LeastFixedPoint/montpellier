@@ -17,10 +17,10 @@ public interface IClient
 	// === COMMANDS
 	// ====================================================================================================
 
-	/** Will {@link IClientTransport#start()} the transport. */
+	/** Will not {@link IClientTransport#start()} the transport. */
 	void connect(IClientTransport transport);
 
-	/** Will {@link LocalClientTransport#stop()} the transport. */
+	/** Will not {@link LocalClientTransport#stop()} the transport. */
 	void disconnect(DisconnectReason reason);
 
 	void sendChatMessage(String message);
