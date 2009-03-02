@@ -12,6 +12,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -34,7 +35,7 @@ public class TransportPanel extends JPanel
 		add(new JLabel(transportFactory.getName()), "grow");
 	}
 
-	private void open()
+	private void enableTransport()
 	{
 		final Form form = this.transportFactory.newConfigurationForm();
 
@@ -43,16 +44,16 @@ public class TransportPanel extends JPanel
 			@Override
 			protected void onSubmit()
 			{
-				doOpen(form);
+				doEnableTransport(form);
 			}
 		}.setVisible(true);
 	}
 
-	private void doOpen(final Form form)
+	private void doEnableTransport(final Form form)
 	{
-		TransportPanel.this.openCloseButton.setAction(new CloseAction());
+		TransportPanel.this.openCloseButton.getAction().setEnabled(true);
 
-		new Thread()
+		SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override
 			public void run()
@@ -61,21 +62,24 @@ public class TransportPanel extends JPanel
 				{
 					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Starting [" + TransportPanel.this.transportFactory.getName() + "] transport...");
 					TransportPanel.this.transport = TransportPanel.this.transportFactory.createTransport(form);
-					TransportPanel.this.transport.addListener(TransportPanel.this.transportsPanel.getHostGameFrame().getServer());
 					TransportPanel.this.transport.start();
 					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Transport started. Now accepting [" + TransportPanel.this.transportFactory.getName() + "] connections.");
+					TransportPanel.this.openCloseButton.setAction(new CloseAction());
 				}
 				catch (final TransportException exception)
 				{
+					TransportPanel.this.transport = null;
 					TransportPanel.this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Cannot start transport.");
 					exception.printStackTrace();
+					TransportPanel.this.openCloseButton.setAction(new OpenAction());
 				}
 			}
-		}.start();
+		});
 	}
 
 	private void close()
 	{
+		this.transport.stop();
 		this.transport = null;
 		this.openCloseButton.setAction(new OpenAction());
 	}
@@ -90,7 +94,7 @@ public class TransportPanel extends JPanel
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			open();
+			enableTransport();
 		}
 	}
 
