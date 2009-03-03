@@ -23,6 +23,7 @@ import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
 import info.reflectionsofmind.connexion.transport.IClientNode;
 import info.reflectionsofmind.connexion.transport.IClientPacket;
+import info.reflectionsofmind.connexion.transport.IServerTransport;
 import info.reflectionsofmind.connexion.transport.TransportException;
 
 import java.io.IOException;
@@ -68,6 +69,18 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	public void onError(TransportException exception)
 	{
 		exception.printStackTrace();
+	}
+	
+	@Override
+	public void onBeforeStopped(IServerTransport transport)
+	{
+		for (IRemoteClient client : getClients())
+		{
+			if (client.getNode().getTransport() == transport)
+			{
+				disconnect(client, DisconnectReason.CONNECTION_FAILURE);
+			}
+		}
 	}
 
 	// ============================================================================================
@@ -207,8 +220,6 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	@Override
 	public void disconnect(IRemoteClient disconnectedClient, DisconnectReason reason)
 	{
-		this.clients.remove(disconnectedClient);
-
 		for (IRemoteClient client : getClients())
 		{
 			client.sendDisconnected(this, disconnectedClient, reason);
@@ -218,6 +229,8 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 		{
 			listener.onClientDisconnected(disconnectedClient);
 		}
+
+		this.clients.remove(disconnectedClient);
 	}
 
 	@Override

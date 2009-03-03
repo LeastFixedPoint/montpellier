@@ -168,6 +168,11 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	{
 		final Participant newClient = new Participant(event.getClientName());
 		this.participants.add(newClient);
+		
+		if (this.participant == null)
+		{
+			this.participant = newClient;
+		}
 
 		for (final IListener listener : this.listeners)
 		{
@@ -186,11 +191,27 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	public void onClientDisconnected(final ServerToClient_ClientDisconnectedEvent event)
 	{
 		final Participant client = this.participants.get(event.getClientIndex());
-		this.participants.remove(client);
-
-		for (final IListener listener : this.listeners)
+		
+		if (client == getParticipant())
 		{
-			listener.onClientDisconnected(client);
+			this.transport = null;
+			this.participant = null;
+			this.participants.clear();
+			this.game = null;
+
+			for (final IListener listener : this.listeners)
+			{
+				listener.onConnectionBroken(event.getReason());
+			}
+		}
+		else
+		{
+			this.participants.remove(client);
+
+			for (final IListener listener : this.listeners)
+			{
+				listener.onClientDisconnected(client);
+			}
 		}
 	}
 

@@ -26,13 +26,8 @@ public class LocalServerTransport extends AbstractServerTransport
 	{
 		for (int i = 0; i < numberOfPlayers; i++)
 		{
-			new LocalClientTransport(this, i).start();
+			new LocalClientTransport(this, i).display();
 		}
-	}
-
-	@Override
-	public void stop()
-	{
 	}
 
 	public IApplication getApplication()
