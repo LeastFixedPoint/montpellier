@@ -24,9 +24,6 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
 public class JoinGameFrame extends JConnexionFrame implements IClient.IListener, Participant.IStateListener, ChatPane.IListener
 {
 	private final IClient client;
@@ -88,7 +85,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 					getClient().setName(((LocalClientTransport) transport).getClientName());
 				}
 
-				JoinGameFrame.this.chatPane.writeSystem("Starting [" + ChatPane.format(transport) + "] transport...");
+				JoinGameFrame.this.chatPane.writeSystem("Starting " + ChatPane.format(transport) + " transport...");
 
 				try
 				{
@@ -144,16 +141,12 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 
 		if (!getClient().getParticipants().isEmpty())
 		{
-			final String alreadyPresent = Util.join(Lists.transform(getClient().getParticipants(), new Function<Participant, String>()
-			{
-				@Override
-				public String apply(final Participant client)
-				{
-					return ChatPane.format(client);
-				}
-			}), ", ");
-
+			final String alreadyPresent = Util.join(ChatPane.format(getClient().getParticipants()), ", ");
 			this.chatPane.writeSystem("Already present: " + alreadyPresent + ".");
+		}
+		else
+		{
+			this.chatPane.writeSystem("Already present: no one.");
 		}
 
 		this.chatPane.setEnabled(true);
@@ -163,7 +156,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	@Override
 	public void onConnectionBroken(final DisconnectReason reason)
 	{
-		this.chatPane.writeSystem("Disconnected. Reason: " + reason + ".");
+		this.chatPane.writeSystem("Disconnected. Reason: " + ChatPane.format(reason) + ".");
 
 		this.chatPane.setEnabled(false);
 		this.transportCombo.setEnabled(true);
@@ -174,14 +167,22 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	@Override
 	public void onClientConnected(final Participant client)
 	{
-		this.chatPane.writeSystem(ChatPane.format(client) + " connected.");
+		if (client == getClient().getParticipant())
+		{
+			this.chatPane.writeSystem("You have connected as " + ChatPane.format(client) + ".");
+		}
+		else
+		{
+			this.chatPane.writeSystem(ChatPane.format(client) + " connected.");
+		}
+		
 		client.addStateListener(this);
 	}
 
 	@Override
 	public void onClientDisconnected(final Participant client)
 	{
-		this.chatPane.writeSystem(ChatPane.format(client) + " sdisconnected.");
+		this.chatPane.writeSystem(ChatPane.format(client) + " disconnected.");
 	}
 
 	@Override

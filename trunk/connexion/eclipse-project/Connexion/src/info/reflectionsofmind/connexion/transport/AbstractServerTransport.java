@@ -6,6 +6,12 @@ public abstract class AbstractServerTransport //
 		extends AbstractListener<IServerTransport.IListener> // 
 		implements IServerTransport
 {
+	@Override
+	public void stop()
+	{
+		fireBeforeStopped(this);
+	}
+
 	protected final void fireMessage(final IClientPacket packet)
 	{
 		for (final IListener listener : getListeners())
@@ -16,5 +22,11 @@ public abstract class AbstractServerTransport //
 	{
 		for (final IListener listener : getListeners())
 			listener.onError(exception);
+	}
+
+	protected final void fireBeforeStopped(IServerTransport transport)
+	{
+		for (final IListener listener : getListeners())
+			listener.onBeforeStopped(transport);
 	}
 }

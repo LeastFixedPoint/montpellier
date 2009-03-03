@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.gui.common;
 
+import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.common.Participant;
 import info.reflectionsofmind.connexion.util.INamed;
 
@@ -17,6 +18,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.AbstractDocument.AbstractElement;
 import javax.swing.text.html.HTMLDocument;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -124,8 +128,25 @@ public class ChatPane extends JPanel
 		return "[<font color=red>" + (client == null ? "Server" : client.getName()) + "</font>]";
 	}
 
+	public static List<String> format(List<Participant> participants)
+	{
+		return Lists.transform(participants, new Function<Participant, String>()
+		{
+			@Override
+			public String apply(final Participant client)
+			{
+				return ChatPane.format(client);
+			}
+		});
+	}
+
 	public static String format(INamed named)
 	{
 		return "[<font color=blue>" + named.getName() + "</font>]";
+	}
+
+	public static String format(DisconnectReason reason)
+	{
+		return "[<font color=red>" + reason + "</font>]";
 	}
 }

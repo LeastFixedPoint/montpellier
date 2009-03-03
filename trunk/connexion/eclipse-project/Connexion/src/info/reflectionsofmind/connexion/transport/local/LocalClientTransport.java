@@ -27,9 +27,8 @@ public class LocalClientTransport extends AbstractClientTransport
 	{
 		firePacket(contents);
 	}
-
-	@Override
-	public void start() throws TransportException
+	
+	public void display()
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -38,9 +37,14 @@ public class LocalClientTransport extends AbstractClientTransport
 			{
 				final JoinGameFrame joinGameFrame = new JoinGameFrame(getNode().getTransport().getApplication().newClient());
 				joinGameFrame.setVisible(true);
-				joinGameFrame.getClient().connect(LocalClientTransport.this);
+				joinGameFrame.connect(LocalClientTransport.this);
 			}
 		});
+	}
+
+	@Override
+	public void start() throws TransportException
+	{
 	}
 
 	@Override

@@ -12,5 +12,6 @@ public interface IServerTransport
 	{
 		void onPacket(IClientPacket packet);
 		void onError(TransportException exception);
+		void onBeforeStopped(IServerTransport transport);
 	}
 }
