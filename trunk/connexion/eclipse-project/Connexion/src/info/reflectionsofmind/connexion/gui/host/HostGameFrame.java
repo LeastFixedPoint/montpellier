@@ -1,12 +1,12 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.common.Participant;
-import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.gui.JConnexionFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.server.IRemoteClient;
-import info.reflectionsofmind.connexion.server.IServer;
-import info.reflectionsofmind.connexion.server.ServerUtil;
+import info.reflectionsofmind.connexion.platform.common.Participant;
+import info.reflectionsofmind.connexion.platform.common.Participant.State;
+import info.reflectionsofmind.connexion.platform.server.IRemoteClient;
+import info.reflectionsofmind.connexion.platform.server.IServer;
+import info.reflectionsofmind.connexion.platform.server.ServerUtil;
 
 import java.awt.event.ActionEvent;
 
@@ -99,7 +99,7 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 	}
 
 	@Override
-	public void onClientDisconnected(final IRemoteClient client)
+	public void onAfterClientDisconnected(final IRemoteClient client)
 	{
 		this.chatPane.writeSystem("[<red>" + client.getClient().getName() + "</red>] disconnected.");
 	}

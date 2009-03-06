@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.server.IRemoteClient;
-import info.reflectionsofmind.connexion.server.IServer;
+import info.reflectionsofmind.connexion.platform.server.IRemoteClient;
+import info.reflectionsofmind.connexion.platform.server.IServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public class ClientsPanel extends JPanel implements IServer.IListener
 	}
 
 	@Override
-	public void onClientDisconnected(final IRemoteClient client)
+	public void onAfterClientDisconnected(final IRemoteClient client)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{

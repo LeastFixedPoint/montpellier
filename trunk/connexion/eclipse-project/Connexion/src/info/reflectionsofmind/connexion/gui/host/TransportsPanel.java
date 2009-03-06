@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.transport.IServerTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.IServerTransportFactory;
 
 import java.awt.HeadlessException;
 

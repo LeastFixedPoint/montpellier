@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion;
 
-import info.reflectionsofmind.connexion.client.IClient;
-import info.reflectionsofmind.connexion.server.IServer;
-import info.reflectionsofmind.connexion.transport.IClientTransportFactory;
-import info.reflectionsofmind.connexion.transport.IServerTransportFactory;
+import info.reflectionsofmind.connexion.platform.client.IClient;
+import info.reflectionsofmind.connexion.platform.server.IServer;
+import info.reflectionsofmind.connexion.platform.transport.IClientTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.IServerTransportFactory;
 
 import java.util.List;
 
