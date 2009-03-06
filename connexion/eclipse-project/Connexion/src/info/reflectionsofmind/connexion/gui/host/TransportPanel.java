@@ -1,8 +1,8 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.transport.IServerTransport;
-import info.reflectionsofmind.connexion.transport.IServerTransportFactory;
-import info.reflectionsofmind.connexion.transport.TransportException;
+import info.reflectionsofmind.connexion.platform.transport.IServerTransport;
+import info.reflectionsofmind.connexion.platform.transport.IServerTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.TransportException;
 import info.reflectionsofmind.connexion.util.form.Form;
 import info.reflectionsofmind.connexion.util.form.FormDialog;
 

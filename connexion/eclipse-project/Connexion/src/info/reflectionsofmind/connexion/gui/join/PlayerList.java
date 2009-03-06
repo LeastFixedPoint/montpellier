@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.client.IClient;
-import info.reflectionsofmind.connexion.common.Participant;
-import info.reflectionsofmind.connexion.common.DisconnectReason;
 import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.platform.client.IClient;
+import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.common.Participant;
 import info.reflectionsofmind.connexion.util.Util;
 
 import javax.swing.JList;
@@ -24,7 +24,7 @@ public class PlayerList extends JList implements IClient.IListener
 	}
 	
 	@Override
-	public void onConnectionBroken(DisconnectReason reason)
+	public void onAfterConnectionBroken(DisconnectReason reason)
 	{
 		updateList();
 	}

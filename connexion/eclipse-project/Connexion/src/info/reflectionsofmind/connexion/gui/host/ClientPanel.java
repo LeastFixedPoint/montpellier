@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.gui.host;
 
-import info.reflectionsofmind.connexion.common.Participant.State;
-import info.reflectionsofmind.connexion.common.Participant;
-import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.server.IRemoteClient;
+import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.common.Participant;
+import info.reflectionsofmind.connexion.platform.common.Participant.State;
+import info.reflectionsofmind.connexion.platform.server.IRemoteClient;
 
 import java.awt.event.ActionEvent;
 import java.util.Map;

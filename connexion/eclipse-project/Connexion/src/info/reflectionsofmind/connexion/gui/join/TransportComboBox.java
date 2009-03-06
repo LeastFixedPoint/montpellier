@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.transport.IClientTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.IClientTransportFactory;
 
 import java.util.List;
 

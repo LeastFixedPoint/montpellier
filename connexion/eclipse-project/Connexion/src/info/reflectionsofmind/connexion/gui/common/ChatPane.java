@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.gui.common;
 
-import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.common.Participant;
+import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.common.Participant;
 import info.reflectionsofmind.connexion.util.INamed;
 
 import java.awt.event.ActionEvent;

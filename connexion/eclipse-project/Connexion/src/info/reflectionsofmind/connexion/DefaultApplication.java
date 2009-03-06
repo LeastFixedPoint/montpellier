@@ -1,14 +1,14 @@
 package info.reflectionsofmind.connexion;
 
-import info.reflectionsofmind.connexion.client.DefaultClient;
-import info.reflectionsofmind.connexion.client.IClient;
-import info.reflectionsofmind.connexion.server.DefaultServer;
-import info.reflectionsofmind.connexion.server.IServer;
-import info.reflectionsofmind.connexion.transport.IClientTransportFactory;
-import info.reflectionsofmind.connexion.transport.IServerTransportFactory;
-import info.reflectionsofmind.connexion.transport.jabber.JabberClientTransportFactory;
-import info.reflectionsofmind.connexion.transport.jabber.JabberServerTransportFactory;
-import info.reflectionsofmind.connexion.transport.local.LocalServerTransportFactory;
+import info.reflectionsofmind.connexion.platform.client.DefaultClient;
+import info.reflectionsofmind.connexion.platform.client.IClient;
+import info.reflectionsofmind.connexion.platform.server.DefaultServer;
+import info.reflectionsofmind.connexion.platform.server.IServer;
+import info.reflectionsofmind.connexion.platform.transport.IClientTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.IServerTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.jabber.JabberClientTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.jabber.JabberServerTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.local.LocalServerTransportFactory;
 
 import java.util.ArrayList;
 import java.util.List;

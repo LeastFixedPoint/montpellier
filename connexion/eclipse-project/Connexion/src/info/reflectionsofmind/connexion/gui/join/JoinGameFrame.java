@@ -1,16 +1,16 @@
 package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.client.IClient;
-import info.reflectionsofmind.connexion.common.DisconnectReason;
-import info.reflectionsofmind.connexion.common.Participant;
-import info.reflectionsofmind.connexion.common.Participant.State;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.gui.JConnexionFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
-import info.reflectionsofmind.connexion.transport.IClientTransport;
-import info.reflectionsofmind.connexion.transport.IClientTransportFactory;
-import info.reflectionsofmind.connexion.transport.TransportException;
-import info.reflectionsofmind.connexion.transport.local.LocalClientTransport;
+import info.reflectionsofmind.connexion.platform.client.IClient;
+import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.common.Participant;
+import info.reflectionsofmind.connexion.platform.common.Participant.State;
+import info.reflectionsofmind.connexion.platform.transport.IClientTransport;
+import info.reflectionsofmind.connexion.platform.transport.IClientTransportFactory;
+import info.reflectionsofmind.connexion.platform.transport.TransportException;
+import info.reflectionsofmind.connexion.platform.transport.local.LocalClientTransport;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.form.Form;
 import info.reflectionsofmind.connexion.util.form.FormDialog;
@@ -33,6 +33,8 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	private final JButton connectButton;
 	private final ChatPane chatPane;
 	private final PlayerList playerList;
+	
+	private IClientTransport transport;
 
 	public JoinGameFrame(final IClient client)
 	{
@@ -98,6 +100,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 
 				JoinGameFrame.this.chatPane.writeSystem("Connecting...");
 
+				JoinGameFrame.this.transport = transport;
 				getClient().connect(transport);
 			}
 		}.start();
@@ -127,7 +130,8 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	public void disconnect()
 	{
 		getClient().disconnect(DisconnectReason.CLIENT_REQUEST);
-		onConnectionBroken(DisconnectReason.CLIENT_REQUEST);
+		this.transport.stop();
+		this.transport = null;
 	}
 
 	// ============================================================================================
@@ -137,16 +141,14 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	@Override
 	public void onConnectionAccepted()
 	{
-		this.chatPane.writeSystem("Connected.");
-
 		if (!getClient().getParticipants().isEmpty())
 		{
 			final String alreadyPresent = Util.join(ChatPane.format(getClient().getParticipants()), ", ");
-			this.chatPane.writeSystem("Already present: " + alreadyPresent + ".");
+			this.chatPane.writeSystem("Connected. Already present: " + alreadyPresent + ".");
 		}
 		else
 		{
-			this.chatPane.writeSystem("Already present: no one.");
+			this.chatPane.writeSystem("Connected. Already present: no one.");
 		}
 
 		this.chatPane.setEnabled(true);
@@ -154,7 +156,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	}
 
 	@Override
-	public void onConnectionBroken(final DisconnectReason reason)
+	public void onAfterConnectionBroken(final DisconnectReason reason)
 	{
 		this.chatPane.writeSystem("Disconnected. Reason: " + ChatPane.format(reason) + ".");
 
