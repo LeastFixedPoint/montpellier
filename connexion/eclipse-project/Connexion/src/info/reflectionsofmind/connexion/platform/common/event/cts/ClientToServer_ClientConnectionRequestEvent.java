@@ -19,7 +19,7 @@ public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerE
 	@Override
 	public void dispatch(IClientNode from, IClientToServerEventListener target)
 	{
-		target.onClientConnectionRequestEvent(from, this);
+		target.onConnectionRequest(from, this);
 	}
 
 	public String getPlayerName()

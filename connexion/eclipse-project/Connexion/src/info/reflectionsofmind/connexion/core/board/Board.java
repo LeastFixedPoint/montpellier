@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.core.board;
 
+import info.reflectionsofmind.connexion.core.board.BoardUtil.PlacementAnalysis;
 import info.reflectionsofmind.connexion.core.board.exception.FeatureTakenException;
 import info.reflectionsofmind.connexion.core.board.exception.InvalidTileLocationException;
 import info.reflectionsofmind.connexion.core.board.exception.MeeplePlacementException;
@@ -44,7 +45,12 @@ public class Board
 
 		if (!getPlacements().isEmpty())
 		{
-			if (!BoardUtil.isValidLocation(this, tile, direction, location)) throw new InvalidTileLocationException(placement);
+			final PlacementAnalysis analysis = BoardUtil.getPlacementAnalysis(placement);
+			
+			if (analysis != PlacementAnalysis.CORRECT_PLACEMENT)
+			{
+				throw new InvalidTileLocationException(placement, analysis);
+			}
 		}
 
 		this.placements.add(placement);

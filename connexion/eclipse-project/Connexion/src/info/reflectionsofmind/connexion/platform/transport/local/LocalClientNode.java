@@ -20,6 +20,11 @@ public class LocalClientNode implements IClientNode
 		return this.serverTransport;
 	}
 	
+	public LocalClientTransport getClientTransport()
+	{
+		return this.clientTransport;
+	}
+	
 	@Override
 	public void send(String contents) throws TransportException
 	{

@@ -14,6 +14,11 @@ import java.util.ListIterator;
 
 public class BoardUtil
 {
+	public enum PlacementAnalysis
+	{
+		PLACEMENT_OCCUPIED, EMPTY_NEIGHBOURHOOD, INCOMPARTIBLE_SIDES, CORRECT_PLACEMENT
+	}
+
 	private BoardUtil()
 	{
 		throw new UnsupportedOperationException();
@@ -138,11 +143,11 @@ public class BoardUtil
 
 		return sections;
 	}
-	
+
 	public static List<Meeple> getMeeplesOnFeature(final Board board, Feature feature)
 	{
 		final List<Meeple> meeples = new ArrayList<Meeple>();
-		
+
 		for (Meeple meeple : board.getMeeples())
 		{
 			if (feature.getSections().contains(board.getMeepleSection(meeple)))
@@ -150,17 +155,34 @@ public class BoardUtil
 				meeples.add(meeple);
 			}
 		}
-		
+
 		return meeples;
 	}
 
 	public static boolean isValidLocation(final Board board, final Tile tile, final IDirection direction, final ILocation location)
 	{
-		if (BoardUtil.getPlacementAt(board, location) != null) return false;
-		if (!BoardUtil.hasNeighbouringTiles(board, location)) return false;
-		if (!BoardUtil.compartibleSides(board, tile, direction, location)) return false;
+		return getPlacementAnalysis(new TilePlacement(board, tile, direction, location)) == PlacementAnalysis.CORRECT_PLACEMENT;
 
-		return true;
+	}
+
+	public static PlacementAnalysis getPlacementAnalysis(final TilePlacement placement)
+	{
+		if (BoardUtil.getPlacementAt(placement.getBoard(), placement.getLocation()) != null)
+		{
+			return PlacementAnalysis.PLACEMENT_OCCUPIED;
+		}
+		else if (!BoardUtil.hasNeighbouringTiles(placement.getBoard(), placement.getLocation()))
+		{
+			return PlacementAnalysis.EMPTY_NEIGHBOURHOOD;
+		}
+		else if (!BoardUtil.compartibleSides(placement))
+		{
+			return PlacementAnalysis.INCOMPARTIBLE_SIDES;
+		}
+		else
+		{
+			return PlacementAnalysis.CORRECT_PLACEMENT;
+		}
 	}
 
 	private static boolean hasNeighbouringTiles(final Board board, final ILocation location)
@@ -174,13 +196,11 @@ public class BoardUtil
 		return false;
 	}
 
-	private static boolean compartibleSides(final Board board, final Tile tile, final IDirection direction, final ILocation location)
+	private static boolean compartibleSides(final TilePlacement placement)
 	{
-		final TilePlacement placement = new TilePlacement(board, tile, direction, location);
-
 		for (final Side currentSide : placement.getSides())
 		{
-			final Side adjacentSide = BoardUtil.getOpposingSide(board, placement, currentSide);
+			final Side adjacentSide = BoardUtil.getOpposingSide(placement.getBoard(), placement, currentSide);
 
 			if (adjacentSide != null)
 			{

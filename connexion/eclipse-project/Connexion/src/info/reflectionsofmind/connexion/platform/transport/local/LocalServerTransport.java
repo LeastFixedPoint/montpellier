@@ -24,7 +24,7 @@ public class LocalServerTransport extends AbstractServerTransport
 
 	public void receive(LocalClientNode node, String contents)
 	{
-		System.out.format("[%s] => [%s]: %s\n", node.getTransport().getName(), getName(), contents);
+		System.out.format("[%s] => [%s]: %s\n", node.getClientTransport().getName(), "Server", contents);
 		fireMessage(new DefaultClientPacket(node, contents));
 	}
 

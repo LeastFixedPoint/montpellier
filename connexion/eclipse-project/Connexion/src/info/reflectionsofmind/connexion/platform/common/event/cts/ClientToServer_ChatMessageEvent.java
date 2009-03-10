@@ -19,7 +19,7 @@ public class ClientToServer_ChatMessageEvent extends ClientToServerEvent
 	@Override
 	public void dispatch(IClientNode from, IClientToServerEventListener target)
 	{
-		target.onMessageEvent(from, this);
+		target.onChatMessage(from, this);
 	}
 
 	public String getMessage()
