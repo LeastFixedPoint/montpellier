@@ -20,7 +20,7 @@ public class ClientToServer_DisconnectNoticeEvent extends ClientToServerEvent
 	@Override
 	public void dispatch(IClientNode from, IClientToServerEventListener target)
 	{
-		target.onDisconnectNoticeEvent(from, this);
+		target.onDisconnectNotice(from, this);
 	}
 
 	public DisconnectReason getReason()

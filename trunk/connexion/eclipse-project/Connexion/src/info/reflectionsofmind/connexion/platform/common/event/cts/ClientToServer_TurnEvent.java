@@ -20,7 +20,7 @@ public class ClientToServer_TurnEvent extends ClientToServerEvent
 	@Override
 	public void dispatch(IClientNode from, IClientToServerEventListener target)
 	{
-		target.onTurnEvent(from, this);
+		target.onClientTurn(from, this);
 	}
 
 	public Turn getTurn()

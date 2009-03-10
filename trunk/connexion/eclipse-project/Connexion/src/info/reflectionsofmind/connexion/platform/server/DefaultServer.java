@@ -60,19 +60,19 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	// ============================================================================================
 
 	@Override
-	public void onPacket(IClientPacket packet)
+	public synchronized void onPacket(IClientPacket packet)
 	{
 		ClientToServerEventDecoder.decode(packet.getContents()).dispatch(packet.getFrom(), this);
 	}
 
 	@Override
-	public void onError(TransportException exception)
+	public synchronized void onError(TransportException exception)
 	{
 		exception.printStackTrace();
 	}
 
 	@Override
-	public void onBeforeStopped(IServerTransport transport)
+	public synchronized void onBeforeStopped(IServerTransport transport)
 	{
 		for (IRemoteClient client : getClients())
 		{
@@ -88,7 +88,7 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	// ============================================================================================
 
 	@Override
-	public void onClientConnectionRequestEvent(IClientNode from, ClientToServer_ClientConnectionRequestEvent event)
+	public synchronized void onConnectionRequest(IClientNode from, ClientToServer_ClientConnectionRequestEvent event)
 	{
 		final IRemoteClient newRemoteClient = new RemoteClient(new Participant(event.getPlayerName()), from);
 
@@ -113,14 +113,14 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	}
 
 	@Override
-	public void onDisconnectNoticeEvent(IClientNode from, ClientToServer_DisconnectNoticeEvent event)
+	public synchronized void onDisconnectNotice(IClientNode from, ClientToServer_DisconnectNoticeEvent event)
 	{
 		final IRemoteClient disconnectedClient = ServerUtil.getClientByNode(this, from);
 		disconnect(disconnectedClient, event.getReason());
 	}
 
 	@Override
-	public void onMessageEvent(IClientNode from, ClientToServer_ChatMessageEvent event)
+	public synchronized void onChatMessage(IClientNode from, ClientToServer_ChatMessageEvent event)
 	{
 		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
 
@@ -139,7 +139,7 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	}
 
 	@Override
-	public void onTurnEvent(IClientNode from, ClientToServer_TurnEvent event)
+	public synchronized void onClientTurn(IClientNode from, ClientToServer_TurnEvent event)
 	{
 		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
 
@@ -149,6 +149,7 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 		}
 		catch (final GameTurnException exception)
 		{
+			exception.printStackTrace();
 			disconnect(client, DisconnectReason.DESYNCHRONIZATION);
 			return;
 		}
