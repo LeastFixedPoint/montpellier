@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.gui.host;
 
+import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.platform.transport.IServerTransport;
 import info.reflectionsofmind.connexion.platform.transport.IServerTransportFactory;
 import info.reflectionsofmind.connexion.platform.transport.TransportException;
@@ -52,7 +53,7 @@ public class TransportPanel extends JPanel
 	private void doEnableTransport(final Form form)
 	{
 		this.openCloseButton.getAction().setEnabled(false);
-		this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Starting [" + this.transportFactory.getName() + "] transport...");
+		this.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Starting " + ChatPane.format(this.transportFactory) + " transport...");
 
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -66,7 +67,7 @@ public class TransportPanel extends JPanel
 					panel.transport = panel.transportFactory.createTransport(form);
 					panel.transport.addListener(panel.transportsPanel.getHostGameFrame().getServer());
 					panel.transport.start();
-					panel.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Transport [" + panel.transportFactory.getName() + "] started. Now accepting [" + panel.transportFactory.getName() + "] connections.");
+					panel.transportsPanel.getHostGameFrame().getChatPane().writeSystem("Transport " + ChatPane.format(panel.transport) + " started.");
 					panel.openCloseButton.setAction(new CloseAction());
 				}
 				catch (final TransportException exception)

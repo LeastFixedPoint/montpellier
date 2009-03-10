@@ -71,29 +71,29 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 	@Override
 	public void onClientConnected(final IRemoteClient client)
 	{
-		client.getClient().addStateListener(this);
-		this.chatPane.writeSystem("[<red>" + client.getClient().getName() + "</red>] connected.");
+		client.getParticipant().addStateListener(this);
+		this.chatPane.writeSystem(ChatPane.format(client.getParticipant()) + " connected.");
 	}
 
 	@Override
 	public void onClientMessage(final IRemoteClient client, final String message)
 	{
-		this.chatPane.writeMessage(client.getClient(), message);
+		this.chatPane.writeMessage(client.getParticipant(), message);
 	}
 
 	@Override
-	public void onAfterClientStateChange(final Participant client, final State previousState)
+	public void onAfterClientStateChange(final Participant participant, final State previousState)
 	{
-		switch (client.getState())
+		switch (participant.getState())
 		{
 			case ACCEPTED:
-				this.chatPane.writeSystem("[<red>" + client.getName() + "</red>] was accepted into the game as player.");
+				this.chatPane.writeSystem(ChatPane.format(participant) + " was accepted into the game as player.");
 				break;
 			case SPECTATOR:
-				this.chatPane.writeSystem("[<red>" + client.getName() + "</red>] was accepted into the game as spectator.");
+				this.chatPane.writeSystem(ChatPane.format(participant) + " was accepted into the game as spectator.");
 				break;
 			case CONNECTED:
-				this.chatPane.writeSystem("[<red>" + client.getName() + "</red>] was rejected from game (will not participate).");
+				this.chatPane.writeSystem(ChatPane.format(participant) + " was rejected from game (will not participate).");
 				break;
 		}
 	}
@@ -101,7 +101,7 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 	@Override
 	public void onAfterClientDisconnected(final IRemoteClient client)
 	{
-		this.chatPane.writeSystem("[<red>" + client.getClient().getName() + "</red>] disconnected.");
+		this.chatPane.writeSystem(ChatPane.format(client.getParticipant()) + " disconnected.");
 	}
 
 	// ====================================================================================================

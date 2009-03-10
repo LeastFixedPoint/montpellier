@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 public class DefaultClient implements IClient, IClientTransport.IListener, IServerToClientEventListener
 {
 	// Basic fields
@@ -147,37 +149,11 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	// ============================================================================================
 
 	@Override
-	public void onConnectionAccepted(final ServerToClient_ConnectionAcceptedEvent event)
-	{
-		final Iterator<String> names = event.getExistingPlayers().iterator();
-		final Iterator<State> states = event.getStates().iterator();
-
-		while (names.hasNext() && states.hasNext())
-		{
-			this.participants.add(new Participant(names.next(), states.next()));
-		}
-
-		for (final IListener listener : this.listeners)
-		{
-			listener.onConnectionAccepted();
-		}
-	}
-
-	@Override
 	public void onClientConnected(final ServerToClient_ClientConnectedEvent event)
 	{
 		final Participant newClient = new Participant(event.getClientName());
 		this.participants.add(newClient);
-		
-		if (this.participant == null)
-		{
-			this.participant = newClient;
-		}
-
-		for (final IListener listener : this.listeners)
-		{
-			listener.onClientConnected(newClient);
-		}
+		fireParticipantConnected(newClient);
 	}
 
 	@Override
@@ -199,19 +175,13 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 			this.participants.clear();
 			this.game = null;
 
-			for (final IListener listener : this.listeners)
-			{
-				listener.onAfterConnectionBroken(event.getReason());
-			}
+			fireConnectionBroken(event);
 		}
 		else
 		{
 			this.participants.remove(client);
 
-			for (final IListener listener : this.listeners)
-			{
-				listener.onClientDisconnected(client);
-			}
+			fireParticipantDisconnected(client);
 		}
 	}
 
@@ -220,10 +190,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	{
 		final Participant client = event.getClientIndex() == null ? null : this.participants.get(event.getClientIndex());
 
-		for (final IListener listener : this.listeners)
-		{
-			listener.onChatMessage(client, event.getMessage());
-		}
+		fireChatMessage(event, client);
 	}
 
 	@Override
@@ -251,6 +218,8 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		}
 
 		this.game = new Game(this.sequence, players);
+
+		fireGameStarted();
 	}
 
 	@Override
@@ -267,7 +236,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 				throw new RuntimeException(exception);
 			}
 		}
-
+	
 		try
 		{
 			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
@@ -276,11 +245,93 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		{
 			throw new RuntimeException(exception);
 		}
+	
+		for (final IListener listener : this.listeners)
+		{
+			listener.onTurn(event.getTurn(), event.getCurrentTileCode());
+		}
+	}
+
+	@Override
+	public void onConnectionAccepted(final ServerToClient_ConnectionAcceptedEvent event)
+	{
+		final Iterator<String> names = event.getExistingPlayers().iterator();
+		final Iterator<State> states = event.getStates().iterator();
+	
+		while (names.hasNext() && states.hasNext())
+		{
+			this.participants.add(new Participant(names.next(), states.next()));
+		}
+		
+		this.participant = this.participants.get(this.participants.size() - 1);
+		
+		fireConnectionAccepted();
+	}
+	
+	// ============================================================================================
+	// === EVENT FIRING
+	// ============================================================================================
+
+	private void fireParticipantConnected(final Participant newClient)
+	{
+		for (final IListener listener : getListeners())
+		{
+			listener.onClientConnected(newClient);
+		}
+	}
+
+	private void fireConnectionBroken(final ServerToClient_ClientDisconnectedEvent event)
+	{
+		for (final IListener listener : getListeners())
+		{
+			listener.onAfterConnectionBroken(event.getReason());
+		}
+	}
+
+	private void fireParticipantDisconnected(final Participant client)
+	{
+		for (final IListener listener : getListeners())
+		{
+			listener.onClientDisconnected(client);
+		}
+	}
+
+	private void fireChatMessage(final ServerToClient_ChatMessageEvent event, final Participant client)
+	{
+		for (final IListener listener : getListeners())
+		{
+			listener.onChatMessage(client, event.getMessage());
+		}
+	}
+
+	private void fireGameStarted()
+	{
+		for (final IListener listener : getListeners())
+		{
+			listener.onStart();
+		}
+	}
+
+	private List<IListener> getListeners()
+	{
+		return ImmutableList.copyOf(this.listeners);
 	}
 
 	// ============================================================================================
-	// === GETTERS
+	// === EVENT HANDLERS
 	// ============================================================================================
+	
+	// ============================================================================================
+	// === EVENT HANDLERS
+	// ============================================================================================
+	
+	private void fireConnectionAccepted()
+	{
+		for (final IListener listener : this.listeners)
+		{
+			listener.onConnectionAccepted();
+		}
+	}
 
 	@Override
 	public String getName()

@@ -53,14 +53,14 @@ public final class RemoteClient implements IRemoteClient
 	@Override
 	public void sendConnected(IServer server, IRemoteClient client)
 	{
-		sendEvent(new ServerToClient_ClientConnectedEvent(client.getClient().getName()));
+		sendEvent(new ServerToClient_ClientConnectedEvent(client.getParticipant().getName()));
 	}
 	
 	@Override
 	public void sendStateChanged(IServer server, IRemoteClient client, State previousState)
 	{
 		final int clientIndex = server.getClients().indexOf(client);
-		sendEvent(new ServerToClient_ClientStateChangedEvent(clientIndex, client.getClient().getState()));
+		sendEvent(new ServerToClient_ClientStateChangedEvent(clientIndex, client.getParticipant().getState()));
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public final class RemoteClient implements IRemoteClient
 	// ====================================================================================================
 
 	@Override
-	public Participant getClient()
+	public Participant getParticipant()
 	{
 		return this.client;
 	}

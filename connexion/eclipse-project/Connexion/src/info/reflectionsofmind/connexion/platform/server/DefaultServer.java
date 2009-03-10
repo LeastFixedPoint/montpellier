@@ -92,13 +92,16 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	{
 		final IRemoteClient newRemoteClient = new RemoteClient(new Participant(event.getPlayerName()), from);
 
-		newRemoteClient.sendConnectionAccepted(this);
-
 		this.clients.add(newRemoteClient);
+
+		newRemoteClient.sendConnectionAccepted(this);
 
 		for (IRemoteClient client : getClients())
 		{
-			client.sendConnected(this, newRemoteClient);
+			if (client != newRemoteClient)
+			{
+				client.sendConnected(this, newRemoteClient);
+			}
 		}
 
 		for (IServer.IListener listener : this.listeners)
@@ -106,7 +109,7 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 			listener.onClientConnected(newRemoteClient);
 		}
 
-		newRemoteClient.getClient().addStateListener(this);
+		newRemoteClient.getParticipant().addStateListener(this);
 	}
 
 	@Override
@@ -193,7 +196,7 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 
 			for (IRemoteClient client : getClients())
 			{
-				players.add(new Player(client.getClient().getName()));
+				players.add(new Player(client.getParticipant().getName()));
 			}
 
 			this.game = new Game(new RandomTileSequence(tiles), players);

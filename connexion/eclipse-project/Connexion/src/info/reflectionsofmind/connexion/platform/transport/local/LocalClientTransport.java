@@ -26,6 +26,7 @@ public class LocalClientTransport extends AbstractClientTransport
 
 	public void receive(String contents)
 	{
+		System.out.format("[%s] => [%s]: %s\n", "Server", getName(), contents);
 		if (this.running) firePacket(contents);
 	}
 

@@ -5,6 +5,8 @@ public interface IServerTransport
 	void start() throws TransportException;
 	void stop();
 
+	String getName();
+
 	void addListener(IListener listener);
 	void removeListener(IListener listener);
 

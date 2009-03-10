@@ -15,7 +15,7 @@ public class ServerToClient_ClientStateChangedEvent extends ServerToClientEvent
 
 	public ServerToClient_ClientStateChangedEvent(IServer server, IRemoteClient client)
 	{
-		this(server.getClients().indexOf(client), client.getClient().getState());
+		this(server.getClients().indexOf(client), client.getParticipant().getState());
 	}
 
 	public ServerToClient_ClientStateChangedEvent(int clientIndex, State newState)

@@ -15,9 +15,16 @@ public class LocalServerTransport extends AbstractServerTransport
 		this.application = application;
 		this.numberOfPlayers = numberOfPlayers;
 	}
+	
+	@Override
+	public String getName()
+	{
+		return "Local";
+	}
 
 	public void receive(LocalClientNode node, String contents)
 	{
+		System.out.format("[%s] => [%s]: %s\n", node.getTransport().getName(), getName(), contents);
 		fireMessage(new DefaultClientPacket(node, contents));
 	}
 

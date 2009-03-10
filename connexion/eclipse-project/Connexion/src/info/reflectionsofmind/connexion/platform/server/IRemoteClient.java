@@ -26,6 +26,6 @@ public interface IRemoteClient
 	// === GETTERS
 	// ====================================================================================================
 
-	Participant getClient();
+	Participant getParticipant();
 	IClientNode getNode();
 }
