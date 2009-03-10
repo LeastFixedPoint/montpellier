@@ -11,6 +11,8 @@ import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.tile.Section;
 import info.reflectionsofmind.connexion.platform.client.IClient;
 import info.reflectionsofmind.connexion.platform.client.exception.DesynchronizationException;
+import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.common.Participant;
 
 import java.awt.Dimension;
 
@@ -20,7 +22,7 @@ import javax.swing.JOptionPane;
 import net.miginfocom.swing.MigLayout;
 
 /** GUI. Create only when the game has started on server. */
-public class GameWindow extends JFrame
+public class GameWindow extends JFrame implements IClient.IListener
 {
 	public enum State
 	{
@@ -45,6 +47,7 @@ public class GameWindow extends JFrame
 		super("Connexion :: Playing game :: " + client.getName());
 
 		this.client = client;
+		this.client.addListener(this);
 
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -78,6 +81,61 @@ public class GameWindow extends JFrame
 
 		updateInterface();
 	}
+
+	// ============================================================================================
+	// === CLIENT LISTENER
+	// ============================================================================================
+
+	@Override
+	public void onTurn(Turn turn, String nextTileCode)
+	{
+		if (getClient().getGame().isFinished())
+		{
+			this.turnMode = State.FINISHED;
+		}
+		else if (isMyTurn())
+		{
+			this.turnMode = State.PLACE_TILE;
+			this.turn = new Turn();
+		}
+
+		this.currentTilePanel.reset();
+		updateInterface();
+	}
+
+	@Override
+	public void onConnectionAccepted()
+	{
+	}
+
+	@Override
+	public void onAfterConnectionBroken(DisconnectReason reason)
+	{
+	}
+
+	@Override
+	public void onChatMessage(Participant sender, String message)
+	{
+	}
+
+	@Override
+	public void onClientConnected(Participant client)
+	{
+	}
+
+	@Override
+	public void onClientDisconnected(Participant client)
+	{
+	}
+
+	@Override
+	public void onStart()
+	{
+	}
+
+	// ============================================================================================
+	// === STUFF
+	// ============================================================================================
 
 	private boolean isMyTurn()
 	{
@@ -137,22 +195,6 @@ public class GameWindow extends JFrame
 	public State getTurnMode()
 	{
 		return this.turnMode;
-	}
-
-	public void onTurn()
-	{
-		if (getClient().getGame().isFinished())
-		{
-			this.turnMode = State.FINISHED;
-		}
-		else if (isMyTurn())
-		{
-			this.turnMode = State.PLACE_TILE;
-			this.turn = new Turn();
-		}
-
-		this.currentTilePanel.reset();
-		updateInterface();
 	}
 
 	public void updateInterface()

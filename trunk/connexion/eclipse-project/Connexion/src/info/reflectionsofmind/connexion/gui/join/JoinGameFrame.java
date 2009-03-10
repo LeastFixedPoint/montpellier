@@ -3,6 +3,7 @@ package info.reflectionsofmind.connexion.gui.join;
 import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.gui.JConnexionFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
+import info.reflectionsofmind.connexion.gui.play.GameWindow;
 import info.reflectionsofmind.connexion.platform.client.IClient;
 import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.common.Participant;
@@ -11,7 +12,6 @@ import info.reflectionsofmind.connexion.platform.transport.IClientTransport;
 import info.reflectionsofmind.connexion.platform.transport.IClientTransportFactory;
 import info.reflectionsofmind.connexion.platform.transport.TransportException;
 import info.reflectionsofmind.connexion.platform.transport.local.LocalClientTransport;
-import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.form.Form;
 import info.reflectionsofmind.connexion.util.form.FormDialog;
 
@@ -21,6 +21,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -33,7 +34,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	private final JButton connectButton;
 	private final ChatPane chatPane;
 	private final PlayerList playerList;
-	
+
 	private IClientTransport transport;
 
 	public JoinGameFrame(final IClient client)
@@ -73,9 +74,9 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 
 	public void connect(final IClientTransport transport)
 	{
-		transportCombo.setEnabled(false);
-		connectButton.setAction(new DisconnectAction());
-		statusLabel.setText("Connecting...");
+		this.transportCombo.setEnabled(false);
+		this.connectButton.setAction(new DisconnectAction());
+		this.statusLabel.setText("Connecting...");
 
 		new Thread()
 		{
@@ -93,12 +94,12 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 				{
 					transport.start();
 				}
-				catch (TransportException exception)
+				catch (final TransportException exception)
 				{
 					throw new RuntimeException(exception);
 				}
 
-				JoinGameFrame.this.chatPane.writeSystem("Connecting...");
+				JoinGameFrame.this.chatPane.writeSystem("Connecting to server...");
 
 				JoinGameFrame.this.transport = transport;
 				getClient().connect(transport);
@@ -119,7 +120,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 				{
 					connect(transportFactory.createTransport(form));
 				}
-				catch (TransportException exception)
+				catch (final TransportException exception)
 				{
 					throw new RuntimeException(exception);
 				}
@@ -141,18 +142,16 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	@Override
 	public void onConnectionAccepted()
 	{
-		if (!getClient().getParticipants().isEmpty())
+		SwingUtilities.invokeLater(new Runnable()
 		{
-			final String alreadyPresent = Util.join(ChatPane.format(getClient().getParticipants()), ", ");
-			this.chatPane.writeSystem("Connected. Already present: " + alreadyPresent + ".");
-		}
-		else
-		{
-			this.chatPane.writeSystem("Connected. Already present: no one.");
-		}
-
-		this.chatPane.setEnabled(true);
-		this.statusLabel.setText("Connected");
+			@Override
+			public void run()
+			{
+				JoinGameFrame.this.chatPane.setEnabled(true);
+				JoinGameFrame.this.statusLabel.setText("Connected");
+				JoinGameFrame.this.chatPane.writeSystem("Connected as " + ChatPane.format(JoinGameFrame.this.client.getParticipant()) + ".");
+			}
+		});
 	}
 
 	@Override
@@ -169,15 +168,15 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	@Override
 	public void onClientConnected(final Participant client)
 	{
-		if (client == getClient().getParticipant())
+		SwingUtilities.invokeLater(new Runnable()
 		{
-			this.chatPane.writeSystem("You have connected as " + ChatPane.format(client) + ".");
-		}
-		else
-		{
-			this.chatPane.writeSystem(ChatPane.format(client) + " connected.");
-		}
-		
+			@Override
+			public void run()
+			{
+				JoinGameFrame.this.chatPane.writeSystem(ChatPane.format(client) + " connected.");
+			}
+		});
+
 		client.addStateListener(this);
 	}
 
@@ -196,13 +195,13 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	@Override
 	public void onStart()
 	{
-
+		new GameWindow(this.client).setVisible(true);
 	}
 
 	@Override
 	public void onTurn(final Turn turn, final String nextTileCode)
 	{
-
+		
 	}
 
 	// ====================================================================================================

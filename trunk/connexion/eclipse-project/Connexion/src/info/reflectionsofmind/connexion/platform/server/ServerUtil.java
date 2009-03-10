@@ -18,7 +18,7 @@ public class ServerUtil
 	{
 		for (IRemoteClient remoteClient : server.getClients())
 		{
-			if (remoteClient.getClient() == client) return remoteClient;
+			if (remoteClient.getParticipant() == client) return remoteClient;
 		}
 		
 		return null;
@@ -41,7 +41,7 @@ public class ServerUtil
 			@Override
 			public boolean apply(IRemoteClient client)
 			{
-				return Arrays.binarySearch(states, client.getClient().getState()) >= 0;
+				return Arrays.binarySearch(states, client.getParticipant().getState()) >= 0;
 			}
 		}).toArray(new IRemoteClient[] {}));
 	}
@@ -53,7 +53,7 @@ public class ServerUtil
 			@Override
 			public String apply(IRemoteClient client)
 			{
-				return client.getClient().getName();
+				return client.getParticipant().getName();
 			}
 		});
 	}
@@ -65,7 +65,7 @@ public class ServerUtil
 			@Override
 			public State apply(IRemoteClient client)
 			{
-				return client.getClient().getState();
+				return client.getParticipant().getState();
 			}
 		});
 	}

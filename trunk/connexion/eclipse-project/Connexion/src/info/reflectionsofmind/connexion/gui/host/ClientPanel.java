@@ -6,6 +6,8 @@ import info.reflectionsofmind.connexion.platform.common.Participant.State;
 import info.reflectionsofmind.connexion.platform.server.IRemoteClient;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -44,17 +46,17 @@ class ClientPanel extends JPanel implements Participant.IStateListener
 	{
 		this.client = client;
 		this.panel = panel;
-		
+
 		setLayout(new MigLayout("ins 0 6 6 6", "[60][120]", "[]"));
 
-		this.nameLabel = new JLabel(client.getClient().getName());
-		
+		this.nameLabel = new JLabel(client.getParticipant().getName());
+
 		add(this.nameLabel, "grow, wrap");
 		add(this.currentButtonPanel, "grow, span");
-		
-		this.client.getClient().addStateListener(this);
+
+		this.client.getParticipant().addStateListener(this);
 	}
-	
+
 	@Override
 	public void onAfterClientStateChange(Participant client, State previousState)
 	{
@@ -62,7 +64,12 @@ class ClientPanel extends JPanel implements Participant.IStateListener
 		this.currentButtonPanel = this.buttonPanels.get(client.getState());
 		this.add(this.currentButtonPanel, "grow, span");
 		getLayout().layoutContainer(this);
+	}
 
+	@Override
+	public void setEnabled(boolean enabled)
+	{
+		this.currentButtonPanel.setEnabled(false);
 	}
 
 	// ============================================================================================
@@ -93,7 +100,7 @@ class ClientPanel extends JPanel implements Participant.IStateListener
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			getClient().getClient().setAccepted();
+			getClient().getParticipant().setAccepted();
 		}
 	}
 
@@ -107,7 +114,7 @@ class ClientPanel extends JPanel implements Participant.IStateListener
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			getClient().getClient().setSpectator();
+			getClient().getParticipant().setSpectator();
 		}
 	}
 
@@ -121,7 +128,7 @@ class ClientPanel extends JPanel implements Participant.IStateListener
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			getClient().getClient().setRejected();
+			getClient().getParticipant().setRejected();
 		}
 	}
 
@@ -141,14 +148,25 @@ class ClientPanel extends JPanel implements Participant.IStateListener
 
 	private class ButtonPanel extends JPanel
 	{
+		private final List<JButton> buttons = new ArrayList<JButton>();
+
 		public ButtonPanel(final String rowLayout, final Action... actions)
 		{
 			setLayout(new MigLayout("ins 0", rowLayout, "[]"));
 
 			for (final Action action : actions)
 			{
-				add(new JButton(action), "grow");
+				final JButton button = new JButton(action);
+				add(button, "grow");
+				this.buttons.add(button);
 			}
+		}
+
+		@Override
+		public void setEnabled(boolean enabled)
+		{
+			for (JButton button : this.buttons)
+				button.setEnabled(enabled);
 		}
 	}
 }

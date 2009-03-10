@@ -2,11 +2,15 @@ package info.reflectionsofmind.connexion.gui.common;
 
 import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.common.Participant;
-import info.reflectionsofmind.connexion.util.INamed;
+import info.reflectionsofmind.connexion.platform.transport.IClientTransport;
+import info.reflectionsofmind.connexion.platform.transport.IServerTransport;
+import info.reflectionsofmind.connexion.platform.transport.IServerTransportFactory;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -19,10 +23,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.AbstractDocument.AbstractElement;
 import javax.swing.text.html.HTMLDocument;
 
+import net.miginfocom.swing.MigLayout;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
-import net.miginfocom.swing.MigLayout;
 
 public class ChatPane extends JPanel
 {
@@ -74,7 +78,8 @@ public class ChatPane extends JPanel
 				{
 					final HTMLDocument document = (HTMLDocument) ChatPane.this.chatPane.getDocument();
 					final AbstractElement element = (AbstractElement) document.getRootElements()[0].getElement(0).getElement(0);
-					document.insertBeforeEnd(element, text);
+					final String timestampedText = new SimpleDateFormat("[HH:mm:ss] ").format(new Date()) + text;
+					document.insertBeforeEnd(element, timestampedText);
 				}
 				catch (final IOException exception)
 				{
@@ -128,6 +133,21 @@ public class ChatPane extends JPanel
 		return "[<font color=red>" + (client == null ? "Server" : client.getName()) + "</font>]";
 	}
 
+	public static String format(IClientTransport transport)
+	{
+		return "[<font color=blue>" + transport.getName() + "</font>]";
+	}
+
+	public static String format(IServerTransport transport)
+	{
+		return "[<font color=blue>" + transport.getName() + "</font>]";
+	}
+
+	public static String format(IServerTransportFactory transportFactory)
+	{
+		return "[<font color=blue>" + transportFactory.getName() + "</font>]";
+	}
+
 	public static List<String> format(List<Participant> participants)
 	{
 		return Lists.transform(participants, new Function<Participant, String>()
@@ -138,11 +158,6 @@ public class ChatPane extends JPanel
 				return ChatPane.format(client);
 			}
 		});
-	}
-
-	public static String format(INamed named)
-	{
-		return "[<font color=blue>" + named.getName() + "</font>]";
 	}
 
 	public static String format(DisconnectReason reason)

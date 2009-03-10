@@ -17,6 +17,12 @@ public class JabberServerTransport extends AbstractServerTransport implements Ja
 		this.core = new JabberCore(new JabberConnectionInfo(initString));
 		this.core.addListener(this);
 	}
+	
+	@Override
+	public String getName()
+	{
+		return "Jabber";
+	}
 
 	@Override
 	public void onPacket(String from, String content)
