@@ -188,7 +188,7 @@ public class GameWindow extends JFrame implements IClient.IListener
 	public void endTurn()
 	{
 		this.turnMode = State.WAITING;
-		getClient().sendLastTurn();
+		getClient().sendLastTurn(this.turn);
 		updateInterface();
 	}
 

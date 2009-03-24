@@ -143,9 +143,14 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	{
 		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
 
+		final Turn turn = new Turn();
+		turn.addTilePlacement(event.getLocation(), event.getDirection());
+
+		if (event.getMeepleType() != null) turn.addMeeplePlacement(event.getMeepleType(), event.getSectionIndex());
+
 		try
 		{
-			this.game.doTurn(event.getTurn());
+			this.game.doTurn(turn);
 		}
 		catch (final GameTurnException exception)
 		{
