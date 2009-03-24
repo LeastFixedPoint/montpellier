@@ -86,7 +86,7 @@ public class MainFrame extends JConnexionFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			new JoinGameFrame(getApplication().newClient()).setVisible(true);
+			new JoinGameFrame(getApplication().newClient()).setVisible(true); 
 		}
 	}
 

@@ -3,6 +3,7 @@ package info.reflectionsofmind.connexion.platform.client;
 import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.core.game.Game;
 import info.reflectionsofmind.connexion.core.game.Player;
+import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.core.game.sequence.ITileSequence;
 import info.reflectionsofmind.connexion.core.tile.Tile;
@@ -124,9 +125,9 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	}
 
 	@Override
-	public void sendLastTurn()
+	public void sendLastTurn(Turn turn)
 	{
-		send(new ClientToServer_TurnEvent(getGame().getTurns().get(getGame().getTurns().size() - 1)));
+		send(new ClientToServer_TurnEvent(turn.getDirection(), turn.getLocation(), turn.getMeepleType(), turn.getSectionIndex()));
 	}
 
 	// ============================================================================================
@@ -167,7 +168,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	public void onClientDisconnected(final ServerToClient_ClientDisconnectedEvent event)
 	{
 		final Participant client = this.participants.get(event.getClientIndex());
-		
+
 		if (client == getParticipant())
 		{
 			this.transport = null;
@@ -236,7 +237,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 				throw new RuntimeException(exception);
 			}
 		}
-	
+
 		try
 		{
 			this.sequence.setCurrentTile(new Tile(event.getCurrentTileCode()));
@@ -245,7 +246,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 		{
 			throw new RuntimeException(exception);
 		}
-	
+
 		for (final IListener listener : this.listeners)
 		{
 			listener.onTurn(event.getTurn(), event.getCurrentTileCode());
@@ -257,17 +258,17 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	{
 		final Iterator<String> names = event.getExistingPlayers().iterator();
 		final Iterator<State> states = event.getStates().iterator();
-	
+
 		while (names.hasNext() && states.hasNext())
 		{
 			this.participants.add(new Participant(names.next(), states.next()));
 		}
-		
+
 		this.participant = this.participants.get(this.participants.size() - 1);
-		
+
 		fireConnectionAccepted();
 	}
-	
+
 	// ============================================================================================
 	// === EVENT FIRING
 	// ============================================================================================
@@ -320,11 +321,11 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	// ============================================================================================
 	// === EVENT HANDLERS
 	// ============================================================================================
-	
+
 	// ============================================================================================
 	// === EVENT HANDLERS
 	// ============================================================================================
-	
+
 	private void fireConnectionAccepted()
 	{
 		for (final IListener listener : this.listeners)
