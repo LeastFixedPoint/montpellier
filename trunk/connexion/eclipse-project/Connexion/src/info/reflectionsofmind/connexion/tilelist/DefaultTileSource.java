@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.tilelist;
 
-import info.reflectionsofmind.connexion.core.tile.parser.TileCodeFormatException;
+import info.reflectionsofmind.connexion.fortress.core.tile.parser.TileCodeFormatException;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;

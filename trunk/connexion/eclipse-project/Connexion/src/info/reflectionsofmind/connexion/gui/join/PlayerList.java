@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.core.game.Turn;
-import info.reflectionsofmind.connexion.platform.client.IClient;
-import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
-import info.reflectionsofmind.connexion.platform.common.Participant;
+import info.reflectionsofmind.connexion.fortress.core.game.Turn;
+import info.reflectionsofmind.connexion.platform.core.client.IClient;
+import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.util.Util;
 
 import javax.swing.JList;

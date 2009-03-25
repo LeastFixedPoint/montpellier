@@ -1,8 +1,8 @@
 package info.reflectionsofmind.connexion.gui.play;
 
-import info.reflectionsofmind.connexion.core.board.Meeple;
-import info.reflectionsofmind.connexion.core.game.Game;
-import info.reflectionsofmind.connexion.core.game.Player;
+import info.reflectionsofmind.connexion.fortress.core.board.Meeple;
+import info.reflectionsofmind.connexion.fortress.core.game.Game;
+import info.reflectionsofmind.connexion.fortress.core.game.Player;
 import info.reflectionsofmind.connexion.util.Colors;
 
 import java.awt.Color;
