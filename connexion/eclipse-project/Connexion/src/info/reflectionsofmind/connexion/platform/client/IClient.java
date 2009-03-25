@@ -25,7 +25,7 @@ public interface IClient
 
 	void sendChatMessage(String message);
 
-	void sendLastTurn(Turn turn);
+	void sendTurn(Turn turn);
 
 	// ====================================================================================================
 	// === CLIENT GETTERS

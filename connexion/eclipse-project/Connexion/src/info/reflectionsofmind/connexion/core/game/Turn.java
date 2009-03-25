@@ -67,6 +67,18 @@ public class Turn
 		return this.advancePlayer;
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj == null || !(obj instanceof Turn)) return false;
+		Turn turn = (Turn) obj;
+		return turn.direction.equals(this.direction) //
+				&& turn.location.equals(this.location) //
+				&& turn.meepleType == this.meepleType //
+				&& turn.sectionIndex == this.sectionIndex //
+				&& turn.advancePlayer == this.advancePlayer;
+	}
+
 	public static final ICoder<Turn> CODER = new AbstractCoder<Turn>()
 	{
 		public boolean accepts(String string)
