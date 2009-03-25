@@ -46,11 +46,8 @@ public class Board
 		if (!getPlacements().isEmpty())
 		{
 			final PlacementAnalysis analysis = BoardUtil.getPlacementAnalysis(placement);
-			
-			if (analysis != PlacementAnalysis.CORRECT_PLACEMENT)
-			{
-				throw new InvalidTileLocationException(placement, analysis);
-			}
+
+			if (analysis != PlacementAnalysis.CORRECT_PLACEMENT) { throw new InvalidTileLocationException(placement, analysis); }
 		}
 
 		this.placements.add(placement);
@@ -69,17 +66,11 @@ public class Board
 
 	public void placeMeeple(final Meeple meeple, final Section section) throws MeeplePlacementException
 	{
-		if (!getPlacements().get(getPlacements().size() - 1).getTile().getSections().contains(section))
-		{
-			throw new NotLastTileMeepleException();
-		}
+		if (!getPlacements().get(getPlacements().size() - 1).getTile().getSections().contains(section)) { throw new NotLastTileMeepleException(); }
 
 		for (Section featureSection : BoardUtil.getFeatureOf(this, section).getSections())
 		{
-			if (this.meeples.inverse().containsKey(featureSection))
-			{
-				throw new FeatureTakenException();
-			}
+			if (this.meeples.inverse().containsKey(featureSection)) { throw new FeatureTakenException(); }
 		}
 
 		this.meeples.put(meeple, section);
@@ -117,10 +108,7 @@ public class Board
 			mergeFeatures(currentFeature, adjacentFeature);
 		}
 
-		if (currentSectionIterator.hasNext() || adjacentSectionIterator.hasPrevious())
-		{
-			throw new RuntimeException("Sides [" + currentSide + "] and [" + adjacentSide + "] have different number of sections!");
-		}
+		if (currentSectionIterator.hasNext() || adjacentSectionIterator.hasPrevious()) { throw new RuntimeException("Sides [" + currentSide + "] and [" + adjacentSide + "] have different number of sections!"); }
 
 		checkForCompletedFeatures();
 	}

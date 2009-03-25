@@ -54,6 +54,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 
 	// Game-state fields
 
+	private Turn unconfirmedTurn;
 	private RemoteTileSequence sequence;
 	private Game game;
 
@@ -125,8 +126,9 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	}
 
 	@Override
-	public void sendLastTurn(Turn turn)
+	public void sendTurn(Turn turn)
 	{
+		this.unconfirmedTurn = turn;
 		send(new ClientToServer_TurnEvent(turn.getDirection(), turn.getLocation(), turn.getMeepleType(), turn.getSectionIndex()));
 	}
 
@@ -226,16 +228,19 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 	@Override
 	public void onTurn(final ServerToClient_TurnEvent event)
 	{
-		if (event.getTurn() != null)
+		final Turn turn = new Turn();
+		turn.addTilePlacement(event.getLocation(), event.getDirection());
+		if (event.getMeepleType() != null) turn.addMeeplePlacement(event.getMeepleType(), event.getSectionIndex());
+
+		if (turn.equals(this.unconfirmedTurn)) return;
+
+		try
 		{
-			try
-			{
-				getGame().doTurn(event.getTurn());
-			}
-			catch (final GameTurnException exception)
-			{
-				throw new RuntimeException(exception);
-			}
+			getGame().doTurn(turn);
+		}
+		catch (final GameTurnException exception)
+		{
+			throw new RuntimeException(exception);
 		}
 
 		try
@@ -249,7 +254,7 @@ public class DefaultClient implements IClient, IClientTransport.IListener, IServ
 
 		for (final IListener listener : this.listeners)
 		{
-			listener.onTurn(event.getTurn(), event.getCurrentTileCode());
+			listener.onTurn(turn, event.getCurrentTileCode());
 		}
 	}
 

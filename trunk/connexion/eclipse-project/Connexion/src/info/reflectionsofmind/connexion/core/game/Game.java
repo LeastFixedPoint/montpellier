@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableList;
 public class Game
 {
 	public final int MEEPLE_COUNT = 6;
-	
+
 	private final ITileSequence sequence;
 	private final List<Player> players = new ArrayList<Player>();
 	private int currentPlayerIndex = 0;
@@ -62,12 +62,9 @@ public class Game
 		if (turn.getMeepleType() != null)
 		{
 			final Meeple freeMeeple = GameUtil.getFreeMeepleOfType(getBoard(), getCurrentPlayer(), turn.getMeepleType());
-			
-			if (freeMeeple == null)
-			{
-				throw new NoFreeMeeplesException();
-			}
-			
+
+			if (freeMeeple == null) { throw new NoFreeMeeplesException(); }
+
 			try
 			{
 				getBoard().placeMeeple(freeMeeple, getCurrentTile().getSections().get(turn.getSectionIndex()));
@@ -183,7 +180,7 @@ public class Game
 	{
 		return this.finished;
 	}
-	
+
 	public List<Turn> getTurns()
 	{
 		return ImmutableList.copyOf(this.turns);

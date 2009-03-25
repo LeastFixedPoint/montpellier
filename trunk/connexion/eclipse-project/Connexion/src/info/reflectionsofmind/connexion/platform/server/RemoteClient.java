@@ -1,5 +1,6 @@
 package info.reflectionsofmind.connexion.platform.server;
 
+import info.reflectionsofmind.connexion.core.game.Turn;
 import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.common.Participant;
 import info.reflectionsofmind.connexion.platform.common.Participant.State;
@@ -36,7 +37,7 @@ public final class RemoteClient implements IRemoteClient
 			exception.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void sendConnectionAccepted(IServer server)
 	{
@@ -55,7 +56,7 @@ public final class RemoteClient implements IRemoteClient
 	{
 		sendEvent(new ServerToClient_ClientConnectedEvent(client.getParticipant().getName()));
 	}
-	
+
 	@Override
 	public void sendStateChanged(IServer server, IRemoteClient client, State previousState)
 	{
@@ -77,12 +78,14 @@ public final class RemoteClient implements IRemoteClient
 				server.getGame().getCurrentTile().getCode(), //
 				server.getGame().getSequence().getTotalNumberOfTiles()));
 	}
-	
+
 	@Override
 	public void sendLastTurn(IServer server)
 	{
+		final Turn turn = server.getGame().getTurns().get(server.getGame().getTurns().size() - 1);
+
 		sendEvent(new ServerToClient_TurnEvent( //
-				server.getGame().getTurns().get(server.getGame().getTurns().size() - 1), //
+				turn.getLocation(), turn.getDirection(), turn.getMeepleType(), turn.getSectionIndex(), //
 				server.getGame().getCurrentTile().getCode()));
 	}
 
