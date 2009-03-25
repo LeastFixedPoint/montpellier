@@ -65,7 +65,7 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 	public void onChatPaneMessageSent(final String message)
 	{
 		this.chatPane.writeMessage(null, message);
-		this.server.sendMessage(message);
+		this.server.sendChat(message);
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class HostGameFrame extends JConnexionFrame implements ChatPane.IListener
 	}
 
 	@Override
-	public void onAfterClientDisconnected(final IRemoteClient client)
+	public void onClientDisconnected(final IRemoteClient client)
 	{
 		this.chatPane.writeSystem(ChatPane.format(client.getParticipant()) + " disconnected.");
 	}

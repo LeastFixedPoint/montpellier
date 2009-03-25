@@ -1,19 +1,16 @@
 package info.reflectionsofmind.connexion.fortress.core.common;
 
-import info.reflectionsofmind.connexion.fortress.core.common.IAbstractGame;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Board;
 import info.reflectionsofmind.connexion.fortress.core.common.board.BoardUtil;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Feature;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
-import info.reflectionsofmind.connexion.fortress.core.server.ServerGame;
 import info.reflectionsofmind.connexion.util.Util;
 
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 public class GameUtil
 {
@@ -44,21 +41,8 @@ public class GameUtil
 		return null;
 	}
 
-	public static Tile getInitialTile(final Game game)
+	public static Tile getInitialTile(final AbstractGame<?> game)
 	{
 		return game.getBoard().getPlacements().get(0).getTile();
-	}
-
-	public static List<String> getNames(final List<Player> players)
-	{
-		return Lists.transform(players, // 
-				new Function<Player, String>()
-				{
-					@Override
-					public String apply(final Player player)
-					{
-						return player.getName();
-					}
-				});
 	}
 }

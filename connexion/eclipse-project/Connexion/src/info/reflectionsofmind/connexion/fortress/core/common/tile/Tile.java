@@ -2,8 +2,8 @@ package info.reflectionsofmind.connexion.fortress.core.common.tile;
 
 import info.reflectionsofmind.connexion.fortress.core.common.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.parser.TileCodeParser;
-import info.reflectionsofmind.connexion.fortress.core.util.Loop;
-import info.reflectionsofmind.connexion.fortress.core.util.Multi;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Loop;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Multi;
 
 import java.util.List;
 import java.util.Map;

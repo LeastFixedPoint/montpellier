@@ -1,23 +1,23 @@
-package info.reflectionsofmind.connexion.platform.core.common.event.cts;
+package info.reflectionsofmind.connexion.platform.core.common.message.cts;
 
 import info.reflectionsofmind.connexion.platform.core.transport.IClientNode;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
-public class ClientToServer_ChatMessageEvent extends ClientToServerEvent
+public class CTSMessage_Chat extends AbstractCTSMessage
 {
-	public final static String PREFIX = ClientToServerEvent.EVENT_PREFIX + ":message";
+	public final static String PREFIX = AbstractCTSMessage.EVENT_PREFIX + ":message";
 
 	private final String message;
 
-	public ClientToServer_ChatMessageEvent(final String message)
+	public CTSMessage_Chat(final String message)
 	{
 		this.message = message;
 	}
 	
 	@Override
-	public void dispatch(IClientNode from, IClientToServerEventListener target)
+	public void dispatch(IClientNode from, ICTSMessageTarget target)
 	{
 		target.onChatMessage(from, this);
 	}
@@ -33,7 +33,7 @@ public class ClientToServer_ChatMessageEvent extends ClientToServerEvent
 		return CODER.encode(this);
 	}
 
-	public final static ICoder<ClientToServer_ChatMessageEvent> CODER = new AbstractCoder<ClientToServer_ChatMessageEvent>()
+	public final static ICoder<CTSMessage_Chat> CODER = new AbstractCoder<CTSMessage_Chat>()
 	{
 		@Override
 		public boolean accepts(String string)
@@ -42,15 +42,15 @@ public class ClientToServer_ChatMessageEvent extends ClientToServerEvent
 		}
 
 		@Override
-		public ClientToServer_ChatMessageEvent decode(String string)
+		public CTSMessage_Chat decode(String string)
 		{
 			final String[] tokens = split(PREFIX, string);
 			final String message = Util.decode(tokens[0]);
-			return new ClientToServer_ChatMessageEvent(message);
+			return new CTSMessage_Chat(message);
 		}
 
 		@Override
-		public String encode(ClientToServer_ChatMessageEvent event)
+		public String encode(CTSMessage_Chat event)
 		{
 			return join(PREFIX, Util.encode(event.getMessage()));
 		}

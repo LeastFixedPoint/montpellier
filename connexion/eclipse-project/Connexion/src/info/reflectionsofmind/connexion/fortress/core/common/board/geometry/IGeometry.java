@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.fortress.core.common.board.geometry;
 
-import info.reflectionsofmind.connexion.fortress.core.util.Loop;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Loop;
 
 public interface IGeometry
 {

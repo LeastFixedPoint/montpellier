@@ -129,7 +129,7 @@ public class GameWindow extends JFrame implements IClient.IListener
 	}
 
 	@Override
-	public void onStart()
+	public void onGameStarting()
 	{
 	}
 

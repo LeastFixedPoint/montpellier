@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.fortress.core.common.tile;
 
-import info.reflectionsofmind.connexion.fortress.core.util.Link;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Link;
 
 import java.util.Collections;
 import java.util.List;

@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.fortress.core.common.tile;
 
-import info.reflectionsofmind.connexion.fortress.core.util.Link;
-import info.reflectionsofmind.connexion.fortress.core.util.Multi;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Link;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Multi;
 
 public class Section
 {

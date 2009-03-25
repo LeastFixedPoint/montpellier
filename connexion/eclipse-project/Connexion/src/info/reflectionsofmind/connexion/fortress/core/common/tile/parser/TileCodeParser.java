@@ -3,7 +3,7 @@ package info.reflectionsofmind.connexion.fortress.core.common.tile.parser;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Section;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Type;
-import info.reflectionsofmind.connexion.fortress.core.util.Multi;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Multi;
 
 import java.util.ArrayList;
 import java.util.Arrays;

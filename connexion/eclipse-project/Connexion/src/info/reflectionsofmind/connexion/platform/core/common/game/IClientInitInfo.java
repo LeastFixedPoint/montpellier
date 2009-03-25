@@ -1,7 +1,6 @@
 package info.reflectionsofmind.connexion.platform.core.common.game;
 
-public interface IAction
+public interface IClientInitInfo
 {
-	IPlayer getPlayer();
 	String encode();
 }

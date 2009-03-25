@@ -1,23 +1,23 @@
-package info.reflectionsofmind.connexion.platform.core.common.event.cts;
+package info.reflectionsofmind.connexion.platform.core.common.message.cts;
 
 import info.reflectionsofmind.connexion.platform.core.transport.IClientNode;
 import info.reflectionsofmind.connexion.util.Util;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
-public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerEvent
+public class CTSMessage_ConnectionRequest extends AbstractCTSMessage
 {
-	private final static String PREFIX = ClientToServerEvent.EVENT_PREFIX + ":connection-request";
+	private final static String PREFIX = AbstractCTSMessage.EVENT_PREFIX + ":connection-request";
 
 	private final String playerName;
 
-	public ClientToServer_ClientConnectionRequestEvent(final String playerName)
+	public CTSMessage_ConnectionRequest(final String playerName)
 	{
 		this.playerName = playerName;
 	}
 	
 	@Override
-	public void dispatch(IClientNode from, IClientToServerEventListener target)
+	public void dispatch(IClientNode from, ICTSMessageTarget target)
 	{
 		target.onConnectionRequest(from, this);
 	}
@@ -33,8 +33,8 @@ public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerE
 		return CODER.encode(this);
 	}
 
-	public final static ICoder<ClientToServer_ClientConnectionRequestEvent> CODER = // 
-	new AbstractCoder<ClientToServer_ClientConnectionRequestEvent>()
+	public final static ICoder<CTSMessage_ConnectionRequest> CODER = // 
+	new AbstractCoder<CTSMessage_ConnectionRequest>()
 	{
 		@Override
 		public boolean accepts(final String string)
@@ -43,15 +43,15 @@ public class ClientToServer_ClientConnectionRequestEvent extends ClientToServerE
 		}
 
 		@Override
-		public ClientToServer_ClientConnectionRequestEvent decode(final String string)
+		public CTSMessage_ConnectionRequest decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
 			final String playerName = Util.decode(tokens[0]);
-			return new ClientToServer_ClientConnectionRequestEvent(playerName);
+			return new CTSMessage_ConnectionRequest(playerName);
 		}
 
 		@Override
-		public String encode(final ClientToServer_ClientConnectionRequestEvent event)
+		public String encode(final CTSMessage_ConnectionRequest event)
 		{
 			return join(PREFIX, Util.encode(event.getPlayerName()));
 		}

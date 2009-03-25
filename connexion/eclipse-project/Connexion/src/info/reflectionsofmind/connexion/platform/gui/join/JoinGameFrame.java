@@ -193,7 +193,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	}
 
 	@Override
-	public void onStart()
+	public void onGameStarting()
 	{
 		new GameWindow(this.client).setVisible(true);
 	}

@@ -1,10 +1,14 @@
-package info.reflectionsofmind.connexion.platform.core.client.game;
+package info.reflectionsofmind.connexion.platform.core.client;
 
 import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
 import info.reflectionsofmind.connexion.platform.core.common.game.IChange;
 import info.reflectionsofmind.connexion.platform.core.common.game.IClientInitInfo;
 
-public interface IClientGameFactory<TClientGame extends IClientGame<IClientInitInfo, IAction, IChange, IClientGame.IListener>>
+public interface IClientCoder
 {
-	TClientGame createClientGame();
+	String encodeAction(IAction action);
+
+	IChange decodeChange(String string);
+
+	IClientInitInfo decodeInitInfo(String string);
 }

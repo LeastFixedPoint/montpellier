@@ -53,7 +53,7 @@ public class ClientsPanel extends JPanel implements IServer.IListener
 	}
 
 	@Override
-	public void onAfterClientDisconnected(final IRemoteClient client)
+	public void onClientDisconnected(final IRemoteClient client)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{

@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.platform.core.common.event.stc;
+package info.reflectionsofmind.connexion.platform.core.common.message.stc;
 
 import static info.reflectionsofmind.connexion.platform.core.common.Participant.State.ACCEPTED;
 import static info.reflectionsofmind.connexion.platform.core.common.Participant.State.CONNECTED;
@@ -14,30 +14,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ServerToClient_ConnectionAcceptedEvent extends ServerToClientEvent
+public class STCMessage_ConnectionAccepted extends AbstractSTCMessage
 {
-	public final static String PREFIX = ServerToClientEvent.EVENT_PREFIX + ":connection-accepted";
+	public final static String PREFIX = AbstractSTCMessage.EVENT_PREFIX + ":connection-accepted";
 
 	private final List<String> names;
 	private final List<State> states;
 
-	public ServerToClient_ConnectionAcceptedEvent(IServer server)
+	public STCMessage_ConnectionAccepted(IServer server)
 	{
 		this( //
 				ServerUtil.mapGetName(ServerUtil.getClientsByStates(server, CONNECTED, ACCEPTED, SPECTATOR)), //
 				ServerUtil.mapGetState(ServerUtil.getClientsByStates(server, CONNECTED, ACCEPTED, SPECTATOR)));
 	}
 
-	private ServerToClient_ConnectionAcceptedEvent(final List<String> names, final List<State> states)
+	private STCMessage_ConnectionAccepted(final List<String> names, final List<State> states)
 	{
 		this.names = names;
 		this.states = states;
 	}
 
 	@Override
-	public void dispatch(IServerToClientEventListener listener)
+	public void dispatch(ISTCMessageTarget listener)
 	{
-		listener.onConnectionAccepted(this);
+		listener.onConnectionAcceptedMessage(this);
 	}
 
 	public List<String> getExistingPlayers()
@@ -56,7 +56,7 @@ public class ServerToClient_ConnectionAcceptedEvent extends ServerToClientEvent
 		return CODER.encode(this);
 	}
 
-	public final static ICoder<ServerToClient_ConnectionAcceptedEvent> CODER = new AbstractCoder<ServerToClient_ConnectionAcceptedEvent>()
+	public final static ICoder<STCMessage_ConnectionAccepted> CODER = new AbstractCoder<STCMessage_ConnectionAccepted>()
 	{
 		@Override
 		public boolean accepts(String string)
@@ -65,16 +65,16 @@ public class ServerToClient_ConnectionAcceptedEvent extends ServerToClientEvent
 		}
 
 		@Override
-		public ServerToClient_ConnectionAcceptedEvent decode(String string)
+		public STCMessage_ConnectionAccepted decode(String string)
 		{
 			final String[] tokens = split(PREFIX, string);
 			final List<String> names = tokens[0].isEmpty() ? new ArrayList<String>() : Util.mapDecode(Arrays.asList(tokens[0].split(",")));
 			final List<State> states = tokens[1].isEmpty() ? new ArrayList<State>() : State.mapValueOf(Arrays.asList(tokens[1].split(",")));
-			return new ServerToClient_ConnectionAcceptedEvent(names, states);
+			return new STCMessage_ConnectionAccepted(names, states);
 		}
 
 		@Override
-		public String encode(ServerToClient_ConnectionAcceptedEvent event)
+		public String encode(STCMessage_ConnectionAccepted event)
 		{
 			return join(PREFIX, Util.join(Util.mapEncode(event.getExistingPlayers()), ","), Util.join(event.getStates(), ","));
 		}

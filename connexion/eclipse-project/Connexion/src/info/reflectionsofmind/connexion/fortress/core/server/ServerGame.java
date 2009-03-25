@@ -18,7 +18,7 @@ import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDir
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.fortress.core.common.change.AbstractChange;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
-import info.reflectionsofmind.connexion.fortress.core.util.Looper;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Looper;
 import info.reflectionsofmind.connexion.platform.core.server.game.IServerGame;
 
 import java.util.HashSet;
