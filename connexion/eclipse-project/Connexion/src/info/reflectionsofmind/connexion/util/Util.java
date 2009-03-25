@@ -109,4 +109,16 @@ public class Util
 			}
 		});
 	}
+
+	public static Integer strToInt(String string)
+	{
+		try
+		{
+			return Integer.valueOf(string);
+		}
+		catch (NumberFormatException exception)
+		{
+			return null;
+		}
+	}
 }
