@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.gui;
+package info.reflectionsofmind.connexion.platform.gui;
 
 import info.reflectionsofmind.connexion.IApplication;
 

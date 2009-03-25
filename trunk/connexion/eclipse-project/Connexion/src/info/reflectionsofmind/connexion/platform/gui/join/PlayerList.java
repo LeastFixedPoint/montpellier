@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.gui.join;
+package info.reflectionsofmind.connexion.platform.gui.join;
 
 import info.reflectionsofmind.connexion.fortress.core.game.Turn;
 import info.reflectionsofmind.connexion.platform.core.client.IClient;

@@ -1,8 +1,8 @@
 package info.reflectionsofmind.connexion.platform.core.transport.local;
 
-import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
 import info.reflectionsofmind.connexion.platform.core.transport.AbstractClientTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
+import info.reflectionsofmind.connexion.platform.gui.join.JoinGameFrame;
 
 import javax.swing.SwingUtilities;
 

@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.gui.host;
+package info.reflectionsofmind.connexion.platform.gui.host;
 
 import info.reflectionsofmind.connexion.platform.core.server.IRemoteClient;
 import info.reflectionsofmind.connexion.platform.core.server.IServer;

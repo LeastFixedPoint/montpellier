@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.gui.play;
+package info.reflectionsofmind.connexion.platform.gui.play;
 
 import info.reflectionsofmind.connexion.fortress.core.board.Board;
 import info.reflectionsofmind.connexion.fortress.core.board.BoardUtil;

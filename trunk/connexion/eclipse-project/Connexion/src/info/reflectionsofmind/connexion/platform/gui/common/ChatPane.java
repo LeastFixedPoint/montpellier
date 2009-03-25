@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.gui.common;
+package info.reflectionsofmind.connexion.platform.gui.common;
 
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;

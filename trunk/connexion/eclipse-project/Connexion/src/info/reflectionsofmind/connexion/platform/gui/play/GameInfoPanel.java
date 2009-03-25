@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.gui.play;
+package info.reflectionsofmind.connexion.platform.gui.play;
 
 import java.awt.Color;
 import java.awt.Font;
