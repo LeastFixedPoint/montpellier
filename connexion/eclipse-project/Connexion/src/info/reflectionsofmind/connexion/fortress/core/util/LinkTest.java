@@ -1,5 +1,5 @@
 package info.reflectionsofmind.connexion.fortress.core.util;
-import info.reflectionsofmind.connexion.fortress.core.tile.parser.TileCodeFormatException;
+import info.reflectionsofmind.connexion.fortress.core.common.tile.parser.TileCodeFormatException;
 
 import java.util.Arrays;
 

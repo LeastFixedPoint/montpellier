@@ -1,12 +1,12 @@
 package info.reflectionsofmind.connexion.platform.core.common.event.stc;
 
-import info.reflectionsofmind.connexion.fortress.core.board.Meeple;
-import info.reflectionsofmind.connexion.fortress.core.board.Meeple.Type;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.IDirection;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.ILocation;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.rectangular.Direction;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.rectangular.Geometry;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.rectangular.Location;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple.Type;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDirection;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.ILocation;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.Direction;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.Location;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.RectangularGeometry;
 import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
@@ -80,7 +80,7 @@ public class ServerToClient_TurnEvent extends ServerToClientEvent
 		public ServerToClient_TurnEvent decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
-			final Geometry geometry = new Geometry();
+			final RectangularGeometry geometry = new RectangularGeometry();
 
 			final ILocation location = new Location(geometry, Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
 			final IDirection direction = new Direction(geometry, Integer.parseInt(tokens[2]));

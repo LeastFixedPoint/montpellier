@@ -3,8 +3,8 @@ package info.reflectionsofmind.connexion.platform.gui.play;
 import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.IDirection;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.rectangular.Geometry;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDirection;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.RectangularGeometry;
 import info.reflectionsofmind.connexion.fortress.core.game.Game;
 import info.reflectionsofmind.connexion.platform.gui.play.GameWindow.State;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
@@ -36,7 +36,7 @@ class CurrentTilePanel extends JPanel
 	private BufferedImage meepleImage;
 
 	private final GameWindow clientUI;
-	private IDirection rotation = new Geometry().getDirections().get(0);
+	private IDirection rotation = new RectangularGeometry().getDirections().get(0);
 
 	private final StretchingImage tileImage;
 	private final JButton rotateRightButton;
@@ -148,7 +148,7 @@ class CurrentTilePanel extends JPanel
 
 	public void reset()
 	{
-		this.rotation = new Geometry().getInitialDirection();
+		this.rotation = new RectangularGeometry().getInitialDirection();
 	}
 	
 	public GameWindow getClientUI()

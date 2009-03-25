@@ -3,17 +3,17 @@ package info.reflectionsofmind.connexion.platform.gui.play;
 import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
-import info.reflectionsofmind.connexion.fortress.core.board.Board;
-import info.reflectionsofmind.connexion.fortress.core.board.BoardUtil;
-import info.reflectionsofmind.connexion.fortress.core.board.Feature;
-import info.reflectionsofmind.connexion.fortress.core.board.Meeple;
-import info.reflectionsofmind.connexion.fortress.core.board.TilePlacement;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.IDirection;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.rectangular.Geometry;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.rectangular.Location;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Board;
+import info.reflectionsofmind.connexion.fortress.core.common.board.BoardUtil;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Feature;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
+import info.reflectionsofmind.connexion.fortress.core.common.board.TilePlacement;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDirection;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.Location;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.RectangularGeometry;
+import info.reflectionsofmind.connexion.fortress.core.common.tile.Section;
 import info.reflectionsofmind.connexion.fortress.core.game.Game;
 import info.reflectionsofmind.connexion.fortress.core.game.Player;
-import info.reflectionsofmind.connexion.fortress.core.tile.Section;
 import info.reflectionsofmind.connexion.platform.gui.play.GameWindow.State;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
@@ -341,7 +341,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 		final int ls = getLocationSide();
 		final Point cp = getCenter();
 
-		final Geometry geometry = (Geometry) getClientUI().getClient().getGame().getBoard().getGeometry();
+		final RectangularGeometry geometry = (RectangularGeometry) getClientUI().getClient().getGame().getBoard().getGeometry();
 
 		return new Location(geometry,// 
 				(int) Math.floor((0.0 + point.x - cp.x) / ls),// 

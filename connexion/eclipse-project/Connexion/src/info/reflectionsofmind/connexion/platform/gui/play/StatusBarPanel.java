@@ -1,14 +1,14 @@
 package info.reflectionsofmind.connexion.platform.gui.play;
 
-import info.reflectionsofmind.connexion.fortress.core.board.Board;
-import info.reflectionsofmind.connexion.fortress.core.board.BoardUtil;
-import info.reflectionsofmind.connexion.fortress.core.board.Feature;
-import info.reflectionsofmind.connexion.fortress.core.board.Meeple;
+import info.reflectionsofmind.connexion.fortress.core.common.GameUtil;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Board;
+import info.reflectionsofmind.connexion.fortress.core.common.board.BoardUtil;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Feature;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
+import info.reflectionsofmind.connexion.fortress.core.common.tile.Section;
+import info.reflectionsofmind.connexion.fortress.core.common.tile.Type;
 import info.reflectionsofmind.connexion.fortress.core.game.Game;
-import info.reflectionsofmind.connexion.fortress.core.game.GameUtil;
 import info.reflectionsofmind.connexion.fortress.core.game.Player;
-import info.reflectionsofmind.connexion.fortress.core.tile.Section;
-import info.reflectionsofmind.connexion.fortress.core.tile.Type;
 
 import java.awt.Color;
 import java.util.List;
