@@ -1,9 +1,9 @@
-package info.reflectionsofmind.connexion.gui;
+package info.reflectionsofmind.connexion.platform.gui;
 
 import info.reflectionsofmind.connexion.DefaultApplication;
 import info.reflectionsofmind.connexion.IApplication;
-import info.reflectionsofmind.connexion.gui.host.HostGameFrame;
-import info.reflectionsofmind.connexion.gui.join.JoinGameFrame;
+import info.reflectionsofmind.connexion.platform.gui.host.HostGameFrame;
+import info.reflectionsofmind.connexion.platform.gui.join.JoinGameFrame;
 
 import java.awt.event.ActionEvent;
 

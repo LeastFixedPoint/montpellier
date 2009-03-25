@@ -1,9 +1,9 @@
-package info.reflectionsofmind.connexion.gui.host;
+package info.reflectionsofmind.connexion.platform.gui.host;
 
-import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.IServerTransportFactory;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
+import info.reflectionsofmind.connexion.platform.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.util.form.Form;
 import info.reflectionsofmind.connexion.util.form.FormDialog;
 
