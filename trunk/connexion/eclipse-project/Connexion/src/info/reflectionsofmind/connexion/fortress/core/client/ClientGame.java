@@ -4,6 +4,9 @@ import info.reflectionsofmind.connexion.fortress.core.common.AbstractGame;
 import info.reflectionsofmind.connexion.fortress.core.common.GameUtil;
 import info.reflectionsofmind.connexion.fortress.core.common.Player;
 import info.reflectionsofmind.connexion.fortress.core.common.action.AbstractAction;
+import info.reflectionsofmind.connexion.fortress.core.common.action.EndTurnAction;
+import info.reflectionsofmind.connexion.fortress.core.common.action.MeeplePlacementAction;
+import info.reflectionsofmind.connexion.fortress.core.common.action.TilePlacementAction;
 import info.reflectionsofmind.connexion.fortress.core.common.board.BoardUtil;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Feature;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
@@ -20,8 +23,14 @@ import info.reflectionsofmind.connexion.fortress.core.common.change.NextTileChan
 import info.reflectionsofmind.connexion.fortress.core.common.change.TilePlacementChange;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
 import info.reflectionsofmind.connexion.fortress.core.common.util.Looper;
+import info.reflectionsofmind.connexion.platform.core.client.IClientCoder;
 import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
+import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
+import info.reflectionsofmind.connexion.platform.core.common.game.IChange;
+import info.reflectionsofmind.connexion.platform.core.common.game.IClientInitInfo;
+import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +40,9 @@ public class ClientGame extends AbstractGame<ClientGame.IListener> implements IC
 {
 	public final int MEEPLE_COUNT = 6;
 
-	private Tile currentTile;
-
 	private final Looper<Player> playerLoop = new Looper<Player>(getPlayers());
 	private Player currentPlayer;
+	private Tile currentTile;
 
 	@Override
 	public void start(final ClientInitInfo initInfo)
@@ -59,8 +67,7 @@ public class ClientGame extends AbstractGame<ClientGame.IListener> implements IC
 	{
 		final TilePlacement placement = new TilePlacement(getBoard(), change.getTile(), change.getLocation(), change.getDirection());
 		final PlacementAnalysis analysis = BoardUtil.getPlacementAnalysis(placement);
-		if (analysis != PlacementAnalysis.CORRECT_PLACEMENT)
-			throw new RuntimeException("Invalid tile placement (" + analysis + ") from change " + change);
+		if (analysis != PlacementAnalysis.CORRECT_PLACEMENT) throw new RuntimeException("Invalid tile placement (" + analysis + ") from change " + change);
 
 		try
 		{
@@ -160,12 +167,12 @@ public class ClientGame extends AbstractGame<ClientGame.IListener> implements IC
 	{
 		return this.currentTile;
 	}
-	
+
 	public Player getCurrentPlayer()
 	{
 		return this.currentPlayer;
 	}
-	
+
 	public interface IListener extends IClientGame.IListener
 	{
 		void onNextTileChanged(Tile newNextTile);
@@ -177,5 +184,32 @@ public class ClientGame extends AbstractGame<ClientGame.IListener> implements IC
 		void onMeeplePlaced(Player player, Meeple meeple);
 
 		void onTurnEnded();
+	}
+
+	public final class Coder implements IClientCoder
+	{
+		@SuppressWarnings("unchecked")
+		private final List<AbstractCoder<? extends AbstractAction>> actionCoders = Arrays.asList( //
+				new EndTurnAction.Coder(ClientGame.this), //
+				new TilePlacementAction.Coder(ClientGame.this), //
+				new MeeplePlacementAction.Coder(ClientGame.this));
+
+		@Override
+		public IChange decodeChange(String string)
+		{
+			return null;
+		}
+
+		@Override
+		public IClientInitInfo decodeInitInfo(String string)
+		{
+			return null;
+		}
+
+		@Override
+		public String encodeAction(IAction action)
+		{
+			return null;
+		}
 	}
 }
