@@ -1,14 +1,14 @@
 package info.reflectionsofmind.connexion.platform.gui.play;
 
-import info.reflectionsofmind.connexion.fortress.core.board.Meeple;
-import info.reflectionsofmind.connexion.fortress.core.board.exception.MeeplePlacementException;
-import info.reflectionsofmind.connexion.fortress.core.board.exception.TilePlacementException;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.IDirection;
-import info.reflectionsofmind.connexion.fortress.core.board.geometry.ILocation;
+import info.reflectionsofmind.connexion.fortress.core.common.GameUtil;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
+import info.reflectionsofmind.connexion.fortress.core.common.board.exception.MeeplePlacementException;
+import info.reflectionsofmind.connexion.fortress.core.common.board.exception.TilePlacementException;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDirection;
+import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.ILocation;
+import info.reflectionsofmind.connexion.fortress.core.common.tile.Section;
 import info.reflectionsofmind.connexion.fortress.core.game.Game;
-import info.reflectionsofmind.connexion.fortress.core.game.GameUtil;
 import info.reflectionsofmind.connexion.fortress.core.game.Turn;
-import info.reflectionsofmind.connexion.fortress.core.tile.Section;
 import info.reflectionsofmind.connexion.platform.core.client.IClient;
 import info.reflectionsofmind.connexion.platform.core.client.exception.DesynchronizationException;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;

@@ -1,13 +1,13 @@
 package info.reflectionsofmind.connexion.platform.core.client;
 
 import info.reflectionsofmind.connexion.IApplication;
+import info.reflectionsofmind.connexion.fortress.core.common.exception.GameTurnException;
+import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
+import info.reflectionsofmind.connexion.fortress.core.common.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.fortress.core.game.Game;
 import info.reflectionsofmind.connexion.fortress.core.game.Player;
 import info.reflectionsofmind.connexion.fortress.core.game.Turn;
-import info.reflectionsofmind.connexion.fortress.core.game.exception.GameTurnException;
 import info.reflectionsofmind.connexion.fortress.core.game.sequence.ITileSequence;
-import info.reflectionsofmind.connexion.fortress.core.tile.Tile;
-import info.reflectionsofmind.connexion.fortress.core.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.platform.core.common.Participant.State;

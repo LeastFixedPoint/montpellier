@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.platform.gui.play;
 
-import info.reflectionsofmind.connexion.fortress.core.board.Meeple;
+import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
 import info.reflectionsofmind.connexion.fortress.core.game.Game;
 import info.reflectionsofmind.connexion.fortress.core.game.Player;
 import info.reflectionsofmind.connexion.util.Colors;
