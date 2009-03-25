@@ -1,10 +1,10 @@
 package info.reflectionsofmind.connexion.gui.common;
 
-import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
-import info.reflectionsofmind.connexion.platform.common.Participant;
-import info.reflectionsofmind.connexion.platform.transport.IClientTransport;
-import info.reflectionsofmind.connexion.platform.transport.IServerTransport;
-import info.reflectionsofmind.connexion.platform.transport.IServerTransportFactory;
+import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.core.common.Participant;
+import info.reflectionsofmind.connexion.platform.core.transport.IClientTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IServerTransportFactory;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;

@@ -1,17 +1,17 @@
 package info.reflectionsofmind.connexion.gui.join;
 
-import info.reflectionsofmind.connexion.core.game.Turn;
+import info.reflectionsofmind.connexion.fortress.core.game.Turn;
 import info.reflectionsofmind.connexion.gui.JConnexionFrame;
 import info.reflectionsofmind.connexion.gui.common.ChatPane;
 import info.reflectionsofmind.connexion.gui.play.GameWindow;
-import info.reflectionsofmind.connexion.platform.client.IClient;
-import info.reflectionsofmind.connexion.platform.common.DisconnectReason;
-import info.reflectionsofmind.connexion.platform.common.Participant;
-import info.reflectionsofmind.connexion.platform.common.Participant.State;
-import info.reflectionsofmind.connexion.platform.transport.IClientTransport;
-import info.reflectionsofmind.connexion.platform.transport.IClientTransportFactory;
-import info.reflectionsofmind.connexion.platform.transport.TransportException;
-import info.reflectionsofmind.connexion.platform.transport.local.LocalClientTransport;
+import info.reflectionsofmind.connexion.platform.core.client.IClient;
+import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.core.common.Participant;
+import info.reflectionsofmind.connexion.platform.core.common.Participant.State;
+import info.reflectionsofmind.connexion.platform.core.transport.IClientTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IClientTransportFactory;
+import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
+import info.reflectionsofmind.connexion.platform.core.transport.local.LocalClientTransport;
 import info.reflectionsofmind.connexion.util.form.Form;
 import info.reflectionsofmind.connexion.util.form.FormDialog;
 
