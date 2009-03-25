@@ -1,13 +1,12 @@
 package info.reflectionsofmind.connexion.platform.core.client;
 
 import info.reflectionsofmind.connexion.IApplication;
-import info.reflectionsofmind.connexion.fortress.core.game.Game;
-import info.reflectionsofmind.connexion.fortress.core.game.Turn;
+import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
+import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.local.LocalClientTransport;
-import info.reflectionsofmind.connexion.tilelist.ITileSource;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ public interface IClient
 
 	void sendChatMessage(String message);
 
-	void sendTurn(Turn turn);
+	void sendAction(IAction action);
 
 	// ====================================================================================================
 	// === CLIENT GETTERS
@@ -34,8 +33,6 @@ public interface IClient
 	void setName(String name);
 
 	String getName();
-
-	ITileSource getTileSource();
 
 	IApplication getApplication();
 
@@ -51,7 +48,7 @@ public interface IClient
 	// === GAME-STATE GETTERS
 	// ====================================================================================================
 
-	Game getGame();
+	IClientGame<?, ?, ?, ?> getGame();
 
 	// ============================================================================================
 	// === LISTENERS
@@ -73,8 +70,6 @@ public interface IClient
 
 		void onAfterConnectionBroken(DisconnectReason reason);
 
-		void onStart();
-
-		void onTurn(Turn turn, String nextTileCode);
+		void onGameStarting();
 	}
 }

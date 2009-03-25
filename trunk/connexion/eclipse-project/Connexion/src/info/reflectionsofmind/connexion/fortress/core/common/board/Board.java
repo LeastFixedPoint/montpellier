@@ -41,7 +41,7 @@ public class Board
 
 	public void placeTile(final Tile tile, final ILocation location, final IDirection direction) throws TilePlacementException
 	{
-		final TilePlacement placement = new TilePlacement(this, tile, direction, location);
+		final TilePlacement placement = new TilePlacement(this, tile, location, direction);
 
 		if (!getPlacements().isEmpty())
 		{

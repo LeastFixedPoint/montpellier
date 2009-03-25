@@ -19,7 +19,7 @@ import info.reflectionsofmind.connexion.fortress.core.common.change.MeeplePlacem
 import info.reflectionsofmind.connexion.fortress.core.common.change.NextTileChange;
 import info.reflectionsofmind.connexion.fortress.core.common.change.TilePlacementChange;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
-import info.reflectionsofmind.connexion.fortress.core.util.Looper;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Looper;
 import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
 
 import java.util.HashSet;

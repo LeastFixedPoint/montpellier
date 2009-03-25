@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.platform.core.server.game;
 
-public interface IServerGameFactory
+public interface IServerGameFactory<TServerGame extends IServerGame<?,?,?,?>>
 {
-	IServerGame<?, ?, ?, ?> createClientGame();
+	TServerGame createServerGame();
 }

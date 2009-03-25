@@ -56,7 +56,7 @@ public class PlayerList extends JList implements IClient.IListener
 	}
 	
 	@Override
-	public void onStart()
+	public void onGameStarting()
 	{
 	}
 	

@@ -4,7 +4,7 @@ import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDir
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Side;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
-import info.reflectionsofmind.connexion.fortress.core.util.Loop;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Loop;
 
 public class TilePlacement
 {

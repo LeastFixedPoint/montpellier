@@ -1,23 +1,25 @@
 package info.reflectionsofmind.connexion.platform.core.server;
 
 import info.reflectionsofmind.connexion.IApplication;
+import info.reflectionsofmind.connexion.fortress.core.common.Player;
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.fortress.core.common.exception.GameTurnException;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.parser.TileCodeFormatException;
-import info.reflectionsofmind.connexion.fortress.core.game.Game;
-import info.reflectionsofmind.connexion.fortress.core.game.Player;
-import info.reflectionsofmind.connexion.fortress.core.game.Turn;
-import info.reflectionsofmind.connexion.fortress.core.game.sequence.RandomTileSequence;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.platform.core.common.Participant.State;
-import info.reflectionsofmind.connexion.platform.core.common.event.cts.ClientToServerEventDecoder;
-import info.reflectionsofmind.connexion.platform.core.common.event.cts.ClientToServer_ChatMessageEvent;
-import info.reflectionsofmind.connexion.platform.core.common.event.cts.ClientToServer_ClientConnectionRequestEvent;
-import info.reflectionsofmind.connexion.platform.core.common.event.cts.ClientToServer_DisconnectNoticeEvent;
-import info.reflectionsofmind.connexion.platform.core.common.event.cts.ClientToServer_TurnEvent;
-import info.reflectionsofmind.connexion.platform.core.common.event.cts.IClientToServerEventListener;
+import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
+import info.reflectionsofmind.connexion.platform.core.common.game.IChange;
+import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessageDecoder;
+import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_Action;
+import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_Chat;
+import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_ConnectionRequest;
+import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_DisconnectNotice;
+import info.reflectionsofmind.connexion.platform.core.common.message.cts.ICTSMessageTarget;
+import info.reflectionsofmind.connexion.platform.core.server.game.IServerGame;
+import info.reflectionsofmind.connexion.platform.core.server.game.IServerGameFactory;
+import info.reflectionsofmind.connexion.platform.core.server.game.IServerInitInfo;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientNode;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientPacket;
 import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
@@ -32,14 +34,14 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultServer implements IServer, IClientToServerEventListener, Participant.IStateListener
+public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IStateListener
 {
 	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();
 	private final IApplication application;
 
-	private Game game;
-	private ITileSource tileSource;
+	private IServerGameFactory<?> gameFactory;
+	private IServerGame<IServerInitInfo, IChange, IAction, IServerGame.IListener> game;
 
 	public DefaultServer(IApplication application)
 	{
@@ -62,7 +64,7 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	@Override
 	public synchronized void onPacket(IClientPacket packet)
 	{
-		ClientToServerEventDecoder.decode(packet.getContents()).dispatch(packet.getFrom(), this);
+		CTSMessageDecoder.decode(packet.getContents()).dispatch(packet.getFrom(), this);
 	}
 
 	@Override
@@ -84,11 +86,11 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	}
 
 	// ============================================================================================
-	// === STC EVENT DISPATCH HANDLERS
+	// === STC MESSAGE DISPATCH HANDLERS
 	// ============================================================================================
 
 	@Override
-	public synchronized void onConnectionRequest(IClientNode from, ClientToServer_ClientConnectionRequestEvent event)
+	public synchronized void onConnectionRequest(IClientNode from, CTSMessage_ConnectionRequest event)
 	{
 		final IRemoteClient newRemoteClient = new RemoteClient(new Participant(event.getPlayerName()), from);
 
@@ -113,14 +115,14 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	}
 
 	@Override
-	public synchronized void onDisconnectNotice(IClientNode from, ClientToServer_DisconnectNoticeEvent event)
+	public synchronized void onDisconnectNotice(IClientNode from, CTSMessage_DisconnectNotice event)
 	{
 		final IRemoteClient disconnectedClient = ServerUtil.getClientByNode(this, from);
 		disconnect(disconnectedClient, event.getReason());
 	}
 
 	@Override
-	public synchronized void onChatMessage(IClientNode from, ClientToServer_ChatMessageEvent event)
+	public synchronized void onChatMessage(IClientNode from, CTSMessage_Chat event)
 	{
 		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
 
@@ -139,33 +141,9 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	}
 
 	@Override
-	public synchronized void onClientTurn(IClientNode from, ClientToServer_TurnEvent event)
+	public void onAction(IClientNode from, CTSMessage_Action event)
 	{
-		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
-
-		final Turn turn = new Turn();
-		turn.addTilePlacement(event.getLocation(), event.getDirection());
-
-		if (event.getMeepleType() != null) turn.addMeeplePlacement(event.getMeepleType(), event.getSectionIndex());
-
-		try
-		{
-			this.game.doTurn(turn);
-		}
-		catch (final GameTurnException exception)
-		{
-			exception.printStackTrace();
-			disconnect(client, DisconnectReason.DESYNCHRONIZATION);
-			return;
-		}
-
-		for (IRemoteClient otherClient : getClients())
-		{
-			if (otherClient != client)
-			{
-				client.sendLastTurn(this);
-			}
-		}
+		this.game.onAction(this.game.getCoder().decodeAction(event.getEncodedAction()));
 	}
 
 	// ====================================================================================================
@@ -234,14 +212,15 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	{
 		for (IRemoteClient client : getClients())
 		{
-			if (client != disconnectedClient) client.sendDisconnected(this, disconnectedClient, reason);
+			if (client != disconnectedClient)
+				client.sendDisconnected(this, disconnectedClient, reason);
 		}
 
 		this.clients.remove(disconnectedClient);
 
 		for (IServer.IListener listener : this.listeners)
 		{
-			listener.onAfterClientDisconnected(disconnectedClient);
+			listener.onClientDisconnected(disconnectedClient);
 		}
 	}
 
@@ -271,7 +250,7 @@ public class DefaultServer implements IServer, IClientToServerEventListener, Par
 	}
 
 	@Override
-	public void sendMessage(String message)
+	public void sendChat(String message)
 	{
 		for (IRemoteClient client : getClients())
 		{

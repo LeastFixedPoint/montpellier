@@ -1,21 +1,21 @@
 package info.reflectionsofmind.connexion.platform.core.server;
 
 import info.reflectionsofmind.connexion.IApplication;
-import info.reflectionsofmind.connexion.fortress.core.game.Game;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
+import info.reflectionsofmind.connexion.platform.core.server.game.IServerGame;
+import info.reflectionsofmind.connexion.platform.core.server.game.IServerGameFactory;
 import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
-import info.reflectionsofmind.connexion.tilelist.ITileSource;
 
 import java.util.List;
 
 public interface IServer extends IServerTransport.IListener
 {
-	void disconnect(IRemoteClient client, DisconnectReason server_request);
+	void disconnect(IRemoteClient client, DisconnectReason reason);
 	void startGame();
-	void sendMessage(String message);
-	Game getGame();
+	void sendChat(String message);
+	IServerGame<?, ?, ?, ?> getGame();
+	void setGameFactory(IServerGameFactory<?> gameFactory);
 
-	ITileSource getTileSource();
 	List<IRemoteClient> getClients();
 	IApplication getApplication();
 
@@ -25,7 +25,7 @@ public interface IServer extends IServerTransport.IListener
 	{
 		void onClientConnected(IRemoteClient client);
 
-		void onAfterClientDisconnected(IRemoteClient client);
+		void onClientDisconnected(IRemoteClient client);
 
 		void onClientMessage(IRemoteClient client, String message);
 	}

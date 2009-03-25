@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.fortress.core.common.board;
 
-import info.reflectionsofmind.connexion.fortress.core.game.Player;
+import info.reflectionsofmind.connexion.fortress.core.common.Player;
 
 public class Meeple
 {

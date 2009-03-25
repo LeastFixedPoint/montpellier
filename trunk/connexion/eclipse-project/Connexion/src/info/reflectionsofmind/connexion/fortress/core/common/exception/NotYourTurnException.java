@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.fortress.core.common.exception;
 
-import info.reflectionsofmind.connexion.fortress.core.game.Player;
+import info.reflectionsofmind.connexion.fortress.core.common.Player;
 
 public class NotYourTurnException extends GameTurnException
 {

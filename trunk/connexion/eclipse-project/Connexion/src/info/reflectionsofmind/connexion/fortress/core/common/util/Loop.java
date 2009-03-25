@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.fortress.core.util;
+package info.reflectionsofmind.connexion.fortress.core.common.util;
 
 import java.util.AbstractList;
 import java.util.List;

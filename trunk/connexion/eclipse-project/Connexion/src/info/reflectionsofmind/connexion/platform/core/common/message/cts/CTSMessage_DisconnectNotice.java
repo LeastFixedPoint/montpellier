@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.platform.core.common.event.cts;
+package info.reflectionsofmind.connexion.platform.core.common.message.cts;
 
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientNode;
@@ -6,19 +6,19 @@ import info.reflectionsofmind.connexion.util.convert.AbstractCoder;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 /** Event: client has disconnected by its own initiative. */
-public class ClientToServer_DisconnectNoticeEvent extends ClientToServerEvent
+public class CTSMessage_DisconnectNotice extends AbstractCTSMessage
 {
-	private final static String PREFIX = ClientToServerEvent.EVENT_PREFIX + ":disconnect";
+	private final static String PREFIX = AbstractCTSMessage.EVENT_PREFIX + ":disconnect";
 
 	private final DisconnectReason reason;
 
-	public ClientToServer_DisconnectNoticeEvent(final DisconnectReason reason)
+	public CTSMessage_DisconnectNotice(final DisconnectReason reason)
 	{
 		this.reason = reason;
 	}
 	
 	@Override
-	public void dispatch(IClientNode from, IClientToServerEventListener target)
+	public void dispatch(IClientNode from, ICTSMessageTarget target)
 	{
 		target.onDisconnectNotice(from, this);
 	}
@@ -34,7 +34,7 @@ public class ClientToServer_DisconnectNoticeEvent extends ClientToServerEvent
 		return CODER.encode(this);
 	}
 
-	public final static ICoder<ClientToServer_DisconnectNoticeEvent> CODER = new AbstractCoder<ClientToServer_DisconnectNoticeEvent>()
+	public final static ICoder<CTSMessage_DisconnectNotice> CODER = new AbstractCoder<CTSMessage_DisconnectNotice>()
 	{
 		@Override
 		public boolean accepts(final String string)
@@ -43,15 +43,15 @@ public class ClientToServer_DisconnectNoticeEvent extends ClientToServerEvent
 		}
 
 		@Override
-		public ClientToServer_DisconnectNoticeEvent decode(final String string)
+		public CTSMessage_DisconnectNotice decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
 			final DisconnectReason reason = DisconnectReason.valueOf(tokens[0]);
-			return new ClientToServer_DisconnectNoticeEvent(reason);
+			return new CTSMessage_DisconnectNotice(reason);
 		}
 
 		@Override
-		public String encode(final ClientToServer_DisconnectNoticeEvent event)
+		public String encode(final CTSMessage_DisconnectNotice event)
 		{
 			return join(PREFIX, event.getReason().toString());
 		}

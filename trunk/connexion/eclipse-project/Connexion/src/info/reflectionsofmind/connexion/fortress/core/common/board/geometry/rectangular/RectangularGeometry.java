@@ -4,7 +4,7 @@ import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDir
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IGeometry;
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IncompartibleGeometryException;
-import info.reflectionsofmind.connexion.fortress.core.util.Loop;
+import info.reflectionsofmind.connexion.fortress.core.common.util.Loop;
 
 import java.util.Arrays;
 import java.util.List;

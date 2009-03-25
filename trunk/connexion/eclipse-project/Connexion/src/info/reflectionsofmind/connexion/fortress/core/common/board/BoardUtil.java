@@ -161,8 +161,7 @@ public class BoardUtil
 
 	public static boolean isValidLocation(final Board board, final Tile tile, final IDirection direction, final ILocation location)
 	{
-		return getPlacementAnalysis(new TilePlacement(board, tile, direction, location)) == PlacementAnalysis.CORRECT_PLACEMENT;
-
+		return getPlacementAnalysis(new TilePlacement(board, tile, location, direction)) == PlacementAnalysis.CORRECT_PLACEMENT;
 	}
 
 	public static PlacementAnalysis getPlacementAnalysis(final TilePlacement placement)
