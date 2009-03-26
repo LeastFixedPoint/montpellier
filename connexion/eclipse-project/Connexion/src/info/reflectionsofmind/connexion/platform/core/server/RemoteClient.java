@@ -1,17 +1,16 @@
 package info.reflectionsofmind.connexion.platform.core.server;
 
-import info.reflectionsofmind.connexion.fortress.core.game.Turn;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.platform.core.common.Participant.State;
+import info.reflectionsofmind.connexion.platform.core.common.game.IChange;
+import info.reflectionsofmind.connexion.platform.core.common.message.stc.AbstractSTCMessage;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_Chat;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ConnectionAccepted;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_GameStarted;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantConnected;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantDisconnected;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantStateChanged;
-import info.reflectionsofmind.connexion.platform.core.common.message.stc.AbstractSTCMessage;
-import info.reflectionsofmind.connexion.platform.core.common.message.stc.ServerToClient_TurnEvent;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientNode;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
 
@@ -19,9 +18,11 @@ public final class RemoteClient implements IRemoteClient
 {
 	private final Participant client;
 	private final IClientNode node;
+	private final IServer server;
 
-	public RemoteClient(final Participant client, final IClientNode clientNode)
+	public RemoteClient(final IServer server, final Participant client, final IClientNode clientNode)
 	{
+		this.server = server;
 		this.client = client;
 		this.node = clientNode;
 	}
@@ -39,40 +40,40 @@ public final class RemoteClient implements IRemoteClient
 	}
 
 	@Override
-	public void sendConnectionAccepted(IServer server)
+	public void sendConnectionAccepted()
 	{
 		sendEvent(new STCMessage_ConnectionAccepted(server));
 	}
 
 	@Override
-	public void sendChatMessage(IServer server, IRemoteClient client, String message)
+	public void sendChatMessage(IRemoteClient client, String message)
 	{
 		final Integer index = (client == null) ? null : server.getClients().indexOf(client);
 		sendEvent(new STCMessage_Chat(index, message));
 	}
 
 	@Override
-	public void sendConnected(IServer server, IRemoteClient client)
+	public void sendConnected(IRemoteClient client)
 	{
 		sendEvent(new STCMessage_ParticipantConnected(client.getParticipant().getName()));
 	}
 
 	@Override
-	public void sendStateChanged(IServer server, IRemoteClient client, State previousState)
+	public void sendStateChanged(IRemoteClient client, State previousState)
 	{
 		final int clientIndex = server.getClients().indexOf(client);
 		sendEvent(new STCMessage_ParticipantStateChanged(clientIndex, client.getParticipant().getState()));
 	}
 
 	@Override
-	public void sendDisconnected(IServer server, IRemoteClient client, DisconnectReason reason)
+	public void sendDisconnected(IRemoteClient client, DisconnectReason reason)
 	{
 		final int index = server.getClients().indexOf(client);
 		sendEvent(new STCMessage_ParticipantDisconnected(index, reason));
 	}
 
 	@Override
-	public void sendGameStarted(IServer server)
+	public void sendGameStarted()
 	{
 		sendEvent(new STCMessage_GameStarted( //
 				server.getGame().getCurrentTile().getCode(), //
@@ -80,7 +81,7 @@ public final class RemoteClient implements IRemoteClient
 	}
 
 	@Override
-	public void sendLastTurn(IServer server)
+	public void sendChange(IChange change)
 	{
 		final Turn turn = server.getGame().getTurns().get(server.getGame().getTurns().size() - 1);
 

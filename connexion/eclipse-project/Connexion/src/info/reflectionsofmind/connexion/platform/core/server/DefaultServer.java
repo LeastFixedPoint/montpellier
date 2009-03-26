@@ -1,11 +1,6 @@
 package info.reflectionsofmind.connexion.platform.core.server;
 
 import info.reflectionsofmind.connexion.IApplication;
-import info.reflectionsofmind.connexion.fortress.core.common.Player;
-import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IGeometry;
-import info.reflectionsofmind.connexion.fortress.core.common.exception.GameTurnException;
-import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
-import info.reflectionsofmind.connexion.fortress.core.common.tile.parser.TileCodeFormatException;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.platform.core.common.Participant.State;
@@ -19,42 +14,29 @@ import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMess
 import info.reflectionsofmind.connexion.platform.core.common.message.cts.ICTSMessageTarget;
 import info.reflectionsofmind.connexion.platform.core.server.game.IServerGame;
 import info.reflectionsofmind.connexion.platform.core.server.game.IServerGameFactory;
-import info.reflectionsofmind.connexion.platform.core.server.game.IServerInitInfo;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientNode;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientPacket;
 import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
-import info.reflectionsofmind.connexion.tilelist.DefaultTileSource;
-import info.reflectionsofmind.connexion.tilelist.ITileSource;
-import info.reflectionsofmind.connexion.tilelist.TileData;
+import info.reflectionsofmind.connexion.util.AbstractListener;
+import info.reflectionsofmind.connexion.util.form.Form;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IStateListener
+public class DefaultServer extends AbstractListener<IServer.IListener> implements IServer, ICTSMessageTarget, Participant.IStateListener
 {
-	private final List<IListener> listeners = new ArrayList<IListener>();
 	private final List<IRemoteClient> clients = new ArrayList<IRemoteClient>();
 	private final IApplication application;
 
-	private IServerGameFactory<?> gameFactory;
-	private IServerGame<IServerInitInfo, IChange, IAction, IServerGame.IListener> game;
+	private IServerGameFactory gameFactory;
+	private IServerGame<IChange, IAction, IServerGame.IListener> game;
 
 	public DefaultServer(IApplication application)
 	{
 		this.application = application;
-	}
-
-	// ====================================================================================================
-	// === LISTENER
-	// ====================================================================================================
-
-	public void addListener(IListener listener)
-	{
-		this.listeners.add(listener);
 	}
 
 	// ============================================================================================
@@ -106,7 +88,7 @@ public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IS
 			}
 		}
 
-		for (IServer.IListener listener : this.listeners)
+		for (IServer.IListener listener : getListeners())
 		{
 			listener.onClientConnected(newRemoteClient);
 		}
@@ -134,7 +116,7 @@ public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IS
 			}
 		}
 
-		for (IServer.IListener listener : this.listeners)
+		for (IServer.IListener listener : getListeners())
 		{
 			listener.onClientMessage(client, event.getMessage());
 		}
@@ -159,50 +141,6 @@ public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IS
 		}
 	}
 
-	// ====================================================================================================
-	// === IMPLEMENTATION
-	// ====================================================================================================
-
-	private void createGame()
-	{
-		try
-		{
-			this.tileSource = new DefaultTileSource(getClass().getClassLoader().getResource("info/reflectionsofmind/connexion/tilelist/DefaultTileList.properties"));
-
-			final List<Tile> tiles = new ArrayList<Tile>();
-
-			for (final TileData tileData : this.tileSource.getTiles())
-			{
-				tiles.add(new Tile(tileData.getCode()));
-			}
-
-			final List<Player> players = new ArrayList<Player>();
-
-			for (IRemoteClient client : getClients())
-			{
-				players.add(new Player(client.getParticipant().getName()));
-			}
-
-			this.game = new Game(new RandomTileSequence(tiles), players);
-		}
-		catch (final IOException exception)
-		{
-			throw new RuntimeException(exception);
-		}
-		catch (final TileCodeFormatException exception)
-		{
-			throw new RuntimeException(exception);
-		}
-	}
-
-	private void placeInitialTile() throws GameTurnException
-	{
-		final Turn turn = new Turn(false);
-		final IGeometry geometry = getGame().getBoard().getGeometry();
-		turn.addTilePlacement(geometry.getInitialLocation(), geometry.getDirections().get(0));
-		getGame().doTurn(turn);
-	}
-
 	// ============================================================================================
 	// === ACTIONS
 	// ============================================================================================
@@ -218,7 +156,7 @@ public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IS
 
 		this.clients.remove(disconnectedClient);
 
-		for (IServer.IListener listener : this.listeners)
+		for (IServer.IListener listener : getListeners())
 		{
 			listener.onClientDisconnected(disconnectedClient);
 		}
@@ -227,25 +165,23 @@ public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IS
 	@Override
 	public synchronized void startGame()
 	{
-		createGame();
+		final Form form = this.gameFactory.newConfigurationForm();
+
+		if (!this.application.getUI().displayForm(form))
+			return;
+
+		this.game = this.gameFactory.createServerGame(form);
+
+		int numPlayers = 0;
+		for (IRemoteClient client : getClients())
+			if (client.getParticipant().getState() == State.ACCEPTED)
+				numPlayers++;
+
+		this.game.start(numPlayers);
 
 		for (IRemoteClient client : getClients())
 		{
 			client.sendGameStarted(this);
-		}
-
-		try
-		{
-			placeInitialTile();
-		}
-		catch (GameTurnException exception)
-		{
-			throw new RuntimeException(exception);
-		}
-
-		for (IRemoteClient client : getClients())
-		{
-			client.sendLastTurn(this);
 		}
 	}
 
@@ -263,18 +199,6 @@ public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IS
 	// ============================================================================================
 
 	@Override
-	public Game getGame()
-	{
-		return this.game;
-	}
-
-	@Override
-	public ITileSource getTileSource()
-	{
-		return this.tileSource;
-	}
-
-	@Override
 	public IApplication getApplication()
 	{
 		return this.application;
@@ -284,5 +208,17 @@ public class DefaultServer implements IServer, ICTSMessageTarget, Participant.IS
 	public List<IRemoteClient> getClients()
 	{
 		return ImmutableList.copyOf(this.clients);
+	}
+
+	@Override
+	public void setGameFactory(IServerGameFactory gameFactory)
+	{
+		this.gameFactory = gameFactory;
+	}
+
+	@Override
+	public IServerGame<?, ?, ?> getGame()
+	{
+		return null;
 	}
 }

@@ -13,8 +13,8 @@ public interface IServer extends IServerTransport.IListener
 	void disconnect(IRemoteClient client, DisconnectReason reason);
 	void startGame();
 	void sendChat(String message);
-	IServerGame<?, ?, ?, ?> getGame();
-	void setGameFactory(IServerGameFactory<?> gameFactory);
+	IServerGame<?, ?, ?> getGame();
+	void setGameFactory(IServerGameFactory gameFactory);
 
 	List<IRemoteClient> getClients();
 	IApplication getApplication();
