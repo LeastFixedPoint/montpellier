@@ -1,6 +1,12 @@
 package info.reflectionsofmind.connexion.platform.core.server.game;
 
-public interface IServerGameFactory<TServerGame extends IServerGame<?,?,?,?>>
+import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
+import info.reflectionsofmind.connexion.platform.core.common.game.IChange;
+import info.reflectionsofmind.connexion.util.form.Form;
+
+public interface IServerGameFactory
 {
-	TServerGame createServerGame();
+	IServerGame<IChange, IAction, IServerGame.IListener> createServerGame(Form form);
+
+	Form newConfigurationForm();
 }
