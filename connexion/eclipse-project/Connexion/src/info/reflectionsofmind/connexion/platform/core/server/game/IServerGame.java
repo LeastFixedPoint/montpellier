@@ -1,16 +1,19 @@
 package info.reflectionsofmind.connexion.platform.core.server.game;
 
 import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
-import info.reflectionsofmind.connexion.platform.core.common.game.IChange;
+import info.reflectionsofmind.connexion.platform.core.common.game.IPlayer;
+import info.reflectionsofmind.connexion.platform.core.common.game.IStartInfo;
 import info.reflectionsofmind.connexion.platform.core.server.IServerCoder;
 
-public interface IServerGame<TChange extends IChange, TAction extends IAction, TListener extends IServerGame.IListener>
+public interface IServerGame
 {
 	void start(int numPlayers);
 
-	void onAction(TAction action);
+	IStartInfo getClientStartInfo(IPlayer player);
 
-	void addListener(TListener listener);
+	void onAction(IAction action);
+
+	void addListener(IListener listener);
 	
 	IServerCoder getCoder();
 
@@ -20,4 +23,5 @@ public interface IServerGame<TChange extends IChange, TAction extends IAction, T
 
 		void onFinished();
 	}
+
 }
