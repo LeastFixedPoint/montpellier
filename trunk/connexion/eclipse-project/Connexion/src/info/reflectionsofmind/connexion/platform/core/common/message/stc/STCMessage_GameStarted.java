@@ -7,11 +7,11 @@ public class STCMessage_GameStarted extends AbstractSTCMessage
 {
 	public final static String PREFIX = AbstractSTCMessage.EVENT_PREFIX + ":game-started";
 
-	private final String encodedInitInfo;
+	private final String encodedStartInfo;
 
-	public STCMessage_GameStarted(String encodedInitInfo)
+	public STCMessage_GameStarted(String encodedStartInfo)
 	{
-		this.encodedInitInfo = encodedInitInfo;
+		this.encodedStartInfo= encodedStartInfo;
 	}
 
 	@Override
@@ -20,9 +20,9 @@ public class STCMessage_GameStarted extends AbstractSTCMessage
 		listener.onGameStartedMessage(this);
 	}
 
-	public String getEncodedInitInfo()
+	public String getEncodedStartInfo()
 	{
-		return this.encodedInitInfo;
+		return this.encodedStartInfo;
 	}
 
 	@Override
@@ -43,13 +43,13 @@ public class STCMessage_GameStarted extends AbstractSTCMessage
 		public STCMessage_GameStarted decode(final String string)
 		{
 			final String[] tokens = split(PREFIX, string);
-			return new STCMessage_GameStarted(tokens[0]);
+			return new STCMessage_GameStarted(tokens[1]);
 		}
 
 		@Override
-		public String encode(final STCMessage_GameStarted event)
+		public String encode(final STCMessage_GameStarted message)
 		{
-			return PREFIX + ":" + event.getEncodedInitInfo();
+			return PREFIX + ":" + message.getEncodedStartInfo();
 		}
 	};
 }

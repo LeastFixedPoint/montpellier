@@ -4,9 +4,13 @@ import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.platform.core.common.Participant.State;
 import info.reflectionsofmind.connexion.platform.core.common.game.IChange;
+import info.reflectionsofmind.connexion.platform.core.common.game.IPlayer;
+import info.reflectionsofmind.connexion.platform.core.common.game.IStartInfo;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.AbstractSTCMessage;
+import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_Change;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_Chat;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ConnectionAccepted;
+import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_GameChanged;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_GameStarted;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantConnected;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantDisconnected;
@@ -19,6 +23,7 @@ public final class RemoteClient implements IRemoteClient
 	private final Participant client;
 	private final IClientNode node;
 	private final IServer server;
+	private IPlayer player;
 
 	public RemoteClient(final IServer server, final Participant client, final IClientNode clientNode)
 	{
@@ -27,13 +32,13 @@ public final class RemoteClient implements IRemoteClient
 		this.node = clientNode;
 	}
 
-	private void sendEvent(final AbstractSTCMessage event)
+	private void sendMessage(final AbstractSTCMessage event)
 	{
 		try
 		{
 			getNode().send(event.encode());
 		}
-		catch (TransportException exception)
+		catch (final TransportException exception)
 		{
 			exception.printStackTrace();
 		}
@@ -42,52 +47,48 @@ public final class RemoteClient implements IRemoteClient
 	@Override
 	public void sendConnectionAccepted()
 	{
-		sendEvent(new STCMessage_ConnectionAccepted(server));
+		sendMessage(new STCMessage_ConnectionAccepted(this.server));
 	}
 
 	@Override
-	public void sendChatMessage(IRemoteClient client, String message)
+	public void sendChatMessage(final IRemoteClient client, final String message)
 	{
-		final Integer index = (client == null) ? null : server.getClients().indexOf(client);
-		sendEvent(new STCMessage_Chat(index, message));
+		final Integer index = client == null ? null : this.server.getClients().indexOf(client);
+		sendMessage(new STCMessage_Chat(index, message));
 	}
 
 	@Override
-	public void sendConnected(IRemoteClient client)
+	public void sendConnected(final IRemoteClient client)
 	{
-		sendEvent(new STCMessage_ParticipantConnected(client.getParticipant().getName()));
+		sendMessage(new STCMessage_ParticipantConnected(client.getParticipant().getName()));
 	}
 
 	@Override
-	public void sendStateChanged(IRemoteClient client, State previousState)
+	public void sendStateChanged(final IRemoteClient client, final State previousState)
 	{
-		final int clientIndex = server.getClients().indexOf(client);
-		sendEvent(new STCMessage_ParticipantStateChanged(clientIndex, client.getParticipant().getState()));
+		final int clientIndex = this.server.getClients().indexOf(client);
+		sendMessage(new STCMessage_ParticipantStateChanged(clientIndex, client.getParticipant().getState()));
 	}
 
 	@Override
-	public void sendDisconnected(IRemoteClient client, DisconnectReason reason)
+	public void sendDisconnected(final IRemoteClient client, final DisconnectReason reason)
 	{
-		final int index = server.getClients().indexOf(client);
-		sendEvent(new STCMessage_ParticipantDisconnected(index, reason));
+		final int index = this.server.getClients().indexOf(client);
+		sendMessage(new STCMessage_ParticipantDisconnected(index, reason));
 	}
 
 	@Override
 	public void sendGameStarted()
 	{
-		sendEvent(new STCMessage_GameStarted( //
-				server.getGame().getCurrentTile().getCode(), //
-				server.getGame().getSequence().getTotalNumberOfTiles()));
+		final IStartInfo startInfo = this.server.getGame().getClientStartInfo(this.player);
+		final String string = this.server.getGame().getCoder().encodeStartInfo(startInfo);
+		sendMessage(new STCMessage_GameStarted(string));
 	}
 
 	@Override
-	public void sendChange(IChange change)
+	public void sendChange(final IChange change)
 	{
-		final Turn turn = server.getGame().getTurns().get(server.getGame().getTurns().size() - 1);
-
-		sendEvent(new ServerToClient_TurnEvent( //
-				turn.getLocation(), turn.getDirection(), turn.getMeepleType(), turn.getSectionIndex(), //
-				server.getGame().getCurrentTile().getCode()));
+		sendMessage(new STCMessage_Change(this.server.getGame().getCoder().encodeChange(change)));
 	}
 
 	// ====================================================================================================

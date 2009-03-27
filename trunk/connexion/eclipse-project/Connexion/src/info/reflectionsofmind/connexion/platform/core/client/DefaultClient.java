@@ -8,10 +8,9 @@ import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.platform.core.common.Participant.State;
 import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
-import info.reflectionsofmind.connexion.platform.core.common.game.IChange;
-import info.reflectionsofmind.connexion.platform.core.common.game.IClientInitInfo;
-import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_Action;
+import info.reflectionsofmind.connexion.platform.core.common.game.IGameConfig;
 import info.reflectionsofmind.connexion.platform.core.common.message.cts.AbstractCTSMessage;
+import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_Action;
 import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_Chat;
 import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_ConnectionRequest;
 import info.reflectionsofmind.connexion.platform.core.common.message.cts.CTSMessage_DisconnectNotice;
@@ -20,6 +19,7 @@ import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMess
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_Change;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_Chat;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ConnectionAccepted;
+import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_GameChanged;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_GameStarted;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantConnected;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantDisconnected;
@@ -48,10 +48,10 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 
 	// Game-state fields
 
-	private IClientGameFactory<?> gameFactory;
-	private IClientGame<IClientInitInfo, IAction, IChange, IClientGame.IListener> game;
+	private IClientGameFactory gameFactory;
+	private IClientGame game;
 
-	public DefaultClient(IApplication application)
+	public DefaultClient(final IApplication application)
 	{
 		this.application = application;
 
@@ -75,7 +75,7 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 		}
 	}
 
-	public void setGameFactory(IClientGameFactory<?> factory)
+	public void setGameFactory(final IClientGameFactory factory)
 	{
 		this.gameFactory = factory;
 	}
@@ -110,9 +110,9 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 	}
 
 	@Override
-	public void sendAction(IAction action)
+	public void sendAction(final IAction action)
 	{
-		send(new CTSMessage_Action(action.encode()));
+		send(new CTSMessage_Action(getGame().getCoder().encodeAction(action)));
 	}
 
 	// ============================================================================================
@@ -120,13 +120,13 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 	// ============================================================================================
 
 	@Override
-	public void onPacket(String contents)
+	public void onPacket(final String contents)
 	{
 		STCMessageDecoder.decode(contents).dispatch(this);
 	}
 
 	@Override
-	public void onError(TransportException exception)
+	public void onError(final TransportException exception)
 	{
 		throw new RuntimeException(exception);
 	}
@@ -196,6 +196,13 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 	}
 
 	@Override
+	public void onGameChangedMessage(STCMessage_GameChanged message)
+	{
+		final IGameConfig config = this.gameFactory.decodeGameConfig(message.getEncodedGameConfig());
+		this.game = this.gameFactory.createClientGame(config);
+	}
+
+	@Override
 	public void onGameStartedMessage(final STCMessage_GameStarted message)
 	{
 		final List<Player> players = new ArrayList<Player>();
@@ -204,14 +211,13 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 			if (client.getState() == Participant.State.ACCEPTED)
 				players.add(new Player());
 
-		this.game = this.gameFactory.createClientGame();
-
 		fireGameStarting();
 
-		this.game.start(this.game.getCoder().decodeInitInfo(message.getEncodedInitInfo()));
+		final String string = message.getEncodedStartInfo();
+		this.game.start(this.game.getCoder().decodeStartInfo(string));
 	}
 
-	public void onChangeMessage(STCMessage_Change message)
+	public void onChangeMessage(final STCMessage_Change message)
 	{
 		this.game.onChange(this.game.getCoder().decodeChange(message.getEncodedChange()));
 	}
@@ -227,7 +233,7 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 		for (final IListener listener : getListeners())
 			listener.onAfterConnectionBroken(event.getReason());
 	}
-	
+
 	// ============================================================================================
 	// === EVENT FIRING METHODS
 	// ============================================================================================
@@ -249,7 +255,7 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 		for (final IListener listener : getListeners())
 			listener.onGameStarting();
 	}
-	
+
 	private void fireConnectionAccepted()
 	{
 		for (final IListener listener : this.listeners)
@@ -267,13 +273,13 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 	}
 
 	@Override
-	public void setName(String name)
+	public void setName(final String name)
 	{
 		this.name = name;
 	}
 
 	@Override
-	public IClientGame<?, ?, ?, ?> getGame()
+	public IClientGame getGame()
 	{
 		return this.game;
 	}

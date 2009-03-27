@@ -19,6 +19,7 @@ import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.ILoc
 import info.reflectionsofmind.connexion.fortress.core.common.change.AbstractChange;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Tile;
 import info.reflectionsofmind.connexion.fortress.core.common.util.Looper;
+import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
 import info.reflectionsofmind.connexion.platform.core.server.game.IServerGame;
 
 import java.util.HashSet;
@@ -26,21 +27,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ServerGame extends AbstractGame<ServerGame.IListener> implements IServerGame<ServerInitInfo, AbstractChange, AbstractAction, ServerGame.IListener>
+public class ServerGame extends AbstractGame<ServerGame.IListener> implements IServerGame
 {
 	public final int MEEPLE_COUNT = 6;
 
-	private ITileSequence tileSequence;
+	private final ITileSequence tileSequence;
 	private Tile currentTile;
 
 	private final Looper<Player> playerLoop = new Looper<Player>(getPlayers());
 	private Player currentPlayer;
 
-	@Override
-	public void start(final ServerInitInfo initInfo)
+	public ServerGame(final ITileSequence tileSequence)
 	{
-		getPlayers().addAll(initInfo.getPlayers());
-		this.tileSequence = initInfo.getTileSequence();
+		this.tileSequence = tileSequence;
+	}
+
+	@Override
+	public void start(int numPlayers)
+	{
+		for (int i = 0; i < numPlayers; i++)
+			getPlayers().add(new Player());
 
 		try
 		{
@@ -64,11 +70,12 @@ public class ServerGame extends AbstractGame<ServerGame.IListener> implements IS
 	// ============================================================================================
 
 	@Override
-	public void onAction(final AbstractAction action)
+	public void onAction(final IAction action)
 	{
 		if (action.getPlayer() != this.currentPlayer)
 			throw new RuntimeException("Player " + action.getPlayer() + " tried to do " + action + " on turn of " + this.currentPlayer);
-		action.dispatch(this);
+
+		((AbstractAction) action).dispatch(this);
 	}
 
 	public void onTilePlacement(final TilePlacementAction tileAction)
