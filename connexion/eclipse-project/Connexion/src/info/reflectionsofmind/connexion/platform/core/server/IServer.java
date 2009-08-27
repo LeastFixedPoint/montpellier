@@ -4,11 +4,11 @@ import info.reflectionsofmind.connexion.IApplication;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.server.game.IServerGame;
 import info.reflectionsofmind.connexion.platform.core.server.game.IServerGameFactory;
-import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IServerToClientTransport;
 
 import java.util.List;
 
-public interface IServer extends IServerTransport.IListener
+public interface IServer extends IServerToClientTransport.IListener
 {
 	void disconnect(IRemoteClient client, DisconnectReason reason);
 	void startGame();

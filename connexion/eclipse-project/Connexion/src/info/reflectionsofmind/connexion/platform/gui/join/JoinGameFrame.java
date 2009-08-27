@@ -5,7 +5,7 @@ import info.reflectionsofmind.connexion.platform.core.client.IClient;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.platform.core.common.Participant.State;
-import info.reflectionsofmind.connexion.platform.core.transport.IClientTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IClientToServerTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientTransportFactory;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
 import info.reflectionsofmind.connexion.platform.core.transport.local.LocalClientTransport;
@@ -35,7 +35,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 	private final ChatPane chatPane;
 	private final PlayerList playerList;
 
-	private IClientTransport transport;
+	private IClientToServerTransport transport;
 
 	public JoinGameFrame(final IClient client)
 	{
@@ -72,7 +72,7 @@ public class JoinGameFrame extends JConnexionFrame implements IClient.IListener,
 		this.client.addListener(this.playerList);
 	}
 
-	public void connect(final IClientTransport transport)
+	public void connect(final IClientToServerTransport transport)
 	{
 		this.transportCombo.setEnabled(false);
 		this.connectButton.setAction(new DisconnectAction());

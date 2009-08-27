@@ -5,7 +5,7 @@ import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
 import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
-import info.reflectionsofmind.connexion.platform.core.transport.IClientTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IClientToServerTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.local.LocalClientTransport;
 
 import java.util.List;
@@ -16,8 +16,8 @@ public interface IClient
 	// === COMMANDS
 	// ====================================================================================================
 
-	/** Will not {@link IClientTransport#start()} the transport. */
-	void connect(IClientTransport transport);
+	/** Will not {@link IClientToServerTransport#start()} the transport. */
+	void connect(IClientToServerTransport transport);
 
 	/** Will not {@link LocalClientTransport#stop()} the transport. */
 	void disconnect(DisconnectReason reason);
