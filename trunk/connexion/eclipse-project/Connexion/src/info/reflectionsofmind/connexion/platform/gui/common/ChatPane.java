@@ -2,8 +2,8 @@ package info.reflectionsofmind.connexion.platform.gui.common;
 
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
-import info.reflectionsofmind.connexion.platform.core.transport.IClientTransport;
-import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IClientToServerTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IServerToClientTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.IServerTransportFactory;
 
 import java.awt.event.ActionEvent;
@@ -133,12 +133,12 @@ public class ChatPane extends JPanel
 		return "[<font color=red>" + (client == null ? "Server" : client.getName()) + "</font>]";
 	}
 
-	public static String format(IClientTransport transport)
+	public static String format(IClientToServerTransport transport)
 	{
 		return "[<font color=blue>" + transport.getName() + "</font>]";
 	}
 
-	public static String format(IServerTransport transport)
+	public static String format(IServerToClientTransport transport)
 	{
 		return "[<font color=blue>" + transport.getName() + "</font>]";
 	}

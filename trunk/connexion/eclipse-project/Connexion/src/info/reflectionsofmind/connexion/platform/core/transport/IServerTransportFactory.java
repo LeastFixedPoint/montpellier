@@ -6,7 +6,7 @@ import info.reflectionsofmind.connexion.util.form.Form;
 
 public interface IServerTransportFactory extends INamed
 {
-	IServerTransport createTransport(Form form) throws TransportException;
+	IServerToClientTransport createTransport(Form form) throws TransportException;
 	IApplication getApplication();
 	Form newConfigurationForm();
 }

@@ -1,8 +1,9 @@
 package info.reflectionsofmind.connexion.platform.gui.play;
 
-import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
+ import static java.awt.geom.AffineTransform.getQuadrantRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
+import info.reflectionsofmind.connexion.fortress.core.common.Player;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Board;
 import info.reflectionsofmind.connexion.fortress.core.common.board.BoardUtil;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Feature;
@@ -12,8 +13,7 @@ import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDir
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.Location;
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.RectangularGeometry;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Section;
-import info.reflectionsofmind.connexion.fortress.core.game.Game;
-import info.reflectionsofmind.connexion.fortress.core.game.Player;
+import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
 import info.reflectionsofmind.connexion.platform.gui.play.GameWindow.State;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileData;
@@ -69,7 +69,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 		super.paintComponent(g);
 
-		final Game game = getClientUI().getClient().getGame();
+		final IClientGame game = getClientUI().getClient().getGame();
 
 		for (final TilePlacement placement : game.getBoard().getPlacements())
 		{
@@ -120,9 +120,9 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 	private void drawPlacement(final Graphics g, final TilePlacement placement)
 	{
-		final ITileSource tileSource = getClientUI().getClient().getTileSource();
+		final ITileSource tileSource = getClientUI().getTileSource();
 		final String code = placement.getTile().getCode();
-		final TileData tileData = TileSourceUtil.getTileData(tileSource, code);
+		final TileData tileData = TileSourceUtil.getTileDataByCode(tileSource, code);
 		final BufferedImage image = tileData.getImage();
 
 		final int d = placement.getDirection().getIndex();
@@ -156,7 +156,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 		final Point p = getLocationPoint(location);
 
 		final IDirection direction = getClientUI().getCurrentTilePanel().getDirection();
-		final Game game = getClientUI().getClient().getGame();
+		final IClientGame game = getClientUI().getClient().getGame();
 
 		if (BoardUtil.isValidLocation(game.getBoard(), game.getCurrentTile(), direction, location))
 		{
@@ -178,7 +178,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 			final int ls = getLocationSide();
 
 			final IDirection direction = getClientUI().getCurrentTilePanel().getDirection();
-			final Game game = getClientUI().getClient().getGame();
+			final IClientGame game = getClientUI().getClient().getGame();
 
 			if (BoardUtil.isValidLocation(game.getBoard(), game.getCurrentTile(), direction, mouseLocation))
 			{
@@ -230,7 +230,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 	{
 		final Location location = getLocationByPoint(clickPoint);
 		final IDirection direction = getClientUI().getCurrentTilePanel().getDirection();
-		final Game game = getClientUI().getClient().getGame();
+		final IClientGame game = getClientUI().getClient().getGame();
 
 		if (!BoardUtil.isValidLocation(game.getBoard(), game.getCurrentTile(), direction, location)) return;
 
@@ -239,7 +239,7 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 	private void placeMeeple(final Point clickPoint)
 	{
-		final Game game = getClientUI().getClient().getGame();
+		final IClientGame game = getClientUI().getClient().getGame();
 
 		final Section section = getSectionByPoint(clickPoint);
 		if (section == null) return;
@@ -287,13 +287,13 @@ class GameBoardPanel extends JPanel implements MouseInputListener
 
 	private Point getSectionPoint(final Section section)
 	{
-		final Game game = getClientUI().getClient().getGame();
+		final IClientGame game = getClientUI().getClient().getGame();
 		final TilePlacement placement = BoardUtil.getPlacementOf(game.getBoard(), section.getTile());
 		final Location location = (Location) placement.getLocation();
 
-		final ITileSource tileSource = getClientUI().getClient().getTileSource();
+		final ITileSource tileSource = getClientUI().getTileSource();
 		final String code = section.getTile().getCode();
-		final TileData tileData = TileSourceUtil.getTileData(tileSource, code);
+		final TileData tileData = TileSourceUtil.getTileDataByCode(tileSource, code);
 		final int sectionIndex = placement.getTile().getSections().indexOf(section);
 		final Point2D point = tileData.getSectionPoint(sectionIndex);
 

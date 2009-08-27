@@ -133,7 +133,7 @@ class CurrentTilePanel extends JPanel
 		final String code = getGame().getCurrentTile().getCode();
 		final ITileSource tileSource = getClientUI().getClient().getTileSource();
 		
-		return TileSourceUtil.getTileData(tileSource, code).getImage();
+		return TileSourceUtil.getTileDataByCode(tileSource, code).getImage();
 	}
 
 	public IDirection getDirection()

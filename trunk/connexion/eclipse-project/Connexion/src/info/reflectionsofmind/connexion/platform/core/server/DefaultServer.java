@@ -14,7 +14,7 @@ import info.reflectionsofmind.connexion.platform.core.server.game.IServerGame;
 import info.reflectionsofmind.connexion.platform.core.server.game.IServerGameFactory;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientNode;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientPacket;
-import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IServerToClientTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
 import info.reflectionsofmind.connexion.util.AbstractListener;
 import info.reflectionsofmind.connexion.util.form.Form;
@@ -54,7 +54,7 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 	}
 
 	@Override
-	public synchronized void onBeforeStopped(IServerTransport transport)
+	public synchronized void onBeforeStopped(IServerToClientTransport transport)
 	{
 		for (IRemoteClient client : getClients())
 		{

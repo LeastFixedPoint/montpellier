@@ -1,7 +1,7 @@
 package info.reflectionsofmind.connexion.platform.core.transport.jabber;
 
 import info.reflectionsofmind.connexion.IApplication;
-import info.reflectionsofmind.connexion.platform.core.transport.IClientTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IClientToServerTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.IClientTransportFactory;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
 import info.reflectionsofmind.connexion.util.form.Form;
@@ -25,7 +25,7 @@ public class JabberClientTransportFactory implements IClientTransportFactory
 	}
 
 	@Override
-	public IClientTransport createTransport(Form form) throws TransportException
+	public IClientToServerTransport createTransport(Form form) throws TransportException
 	{
 		final String loginSettings = FormUtil.getStringById(form, FIELD_LOGIN_SETTINGS);
 		final String serverAddress = FormUtil.getStringById(form, FIELD_SERVER_ADDRESS);

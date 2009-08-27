@@ -1,6 +1,6 @@
 package info.reflectionsofmind.connexion.platform.gui.host;
 
-import info.reflectionsofmind.connexion.platform.core.transport.IServerTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IServerToClientTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.IServerTransportFactory;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
 import info.reflectionsofmind.connexion.platform.gui.common.ChatPane;
@@ -22,7 +22,7 @@ public class TransportPanel extends JPanel
 	private final JButton openCloseButton;
 	private final TransportsPanel transportsPanel;
 	private final IServerTransportFactory transportFactory;
-	private IServerTransport transport;
+	private IServerToClientTransport transport;
 
 	public TransportPanel(final TransportsPanel transportsPanel, final IServerTransportFactory transportFactory)
 	{

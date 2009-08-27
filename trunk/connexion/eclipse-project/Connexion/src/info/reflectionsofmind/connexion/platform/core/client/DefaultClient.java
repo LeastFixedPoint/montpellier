@@ -24,7 +24,7 @@ import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMess
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantConnected;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantDisconnected;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantStateChanged;
-import info.reflectionsofmind.connexion.platform.core.transport.IClientTransport;
+import info.reflectionsofmind.connexion.platform.core.transport.IClientToServerTransport;
 import info.reflectionsofmind.connexion.platform.core.transport.TransportException;
 import info.reflectionsofmind.connexion.util.AbstractListener;
 
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class DefaultClient extends AbstractListener<IClient.IListener> implements IClient, IClientTransport.IListener, ISTCMessageTarget
+public class DefaultClient extends AbstractListener<IClient.IListener> implements IClient, IClientToServerTransport.IListener, ISTCMessageTarget
 {
 	// Basic fields
 
@@ -43,7 +43,7 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 	// Connected-state fields
 
 	private final List<Participant> participants = new ArrayList<Participant>();
-	private IClientTransport transport;
+	private IClientToServerTransport transport;
 	private Participant participant;
 
 	// Game-state fields
@@ -80,7 +80,7 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 		this.gameFactory = factory;
 	}
 
-	public void connect(final IClientTransport transport)
+	public void connect(final IClientToServerTransport transport)
 	{
 		this.transport = transport;
 		getTransport().addListener(this);
@@ -119,6 +119,10 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 	// === TRANSPORT LISTENERS
 	// ============================================================================================
 
+	public void onStarted()
+	{
+	}
+	
 	@Override
 	public void onPacket(final String contents)
 	{
@@ -129,6 +133,10 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 	public void onError(final TransportException exception)
 	{
 		throw new RuntimeException(exception);
+	}
+	
+	public void onStopped()
+	{
 	}
 
 	// ============================================================================================
@@ -284,7 +292,7 @@ public class DefaultClient extends AbstractListener<IClient.IListener> implement
 		return this.game;
 	}
 
-	public IClientTransport getTransport()
+	public IClientToServerTransport getTransport()
 	{
 		return this.transport;
 	}

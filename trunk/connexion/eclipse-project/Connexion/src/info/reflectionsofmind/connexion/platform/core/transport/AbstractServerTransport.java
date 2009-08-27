@@ -3,8 +3,8 @@ package info.reflectionsofmind.connexion.platform.core.transport;
 import info.reflectionsofmind.connexion.util.AbstractListener;
 
 public abstract class AbstractServerTransport // 
-		extends AbstractListener<IServerTransport.IListener> // 
-		implements IServerTransport
+		extends AbstractListener<IServerToClientTransport.IListener> // 
+		implements IServerToClientTransport
 {
 	@Override
 	public void stop()
@@ -24,7 +24,7 @@ public abstract class AbstractServerTransport //
 			listener.onError(exception);
 	}
 
-	protected final void fireBeforeStopped(IServerTransport transport)
+	protected final void fireBeforeStopped(IServerToClientTransport transport)
 	{
 		for (final IListener listener : getListeners())
 			listener.onBeforeStopped(transport);

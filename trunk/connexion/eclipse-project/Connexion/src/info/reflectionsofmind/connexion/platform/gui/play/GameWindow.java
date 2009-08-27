@@ -13,6 +13,7 @@ import info.reflectionsofmind.connexion.platform.core.client.IClient;
 import info.reflectionsofmind.connexion.platform.core.client.exception.DesynchronizationException;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
+import info.reflectionsofmind.connexion.tilelist.ITileSource;
 
 import java.awt.Dimension;
 
@@ -33,6 +34,7 @@ public class GameWindow extends JFrame implements IClient.IListener
 
 	private final IClient client;
 
+	private final ITileSource tileSource;
 	private final CurrentTilePanel currentTilePanel;
 	private final PlayersPanel playersPanel;
 	private final GameBoardPanel gameBoardPanel;
@@ -255,5 +257,10 @@ public class GameWindow extends JFrame implements IClient.IListener
 	{
 		JOptionPane.showMessageDialog(this, "Desynchronization occured, game cannot continue.", "Error", JOptionPane.ERROR_MESSAGE);
 		this.turnMode = State.ERROR;
+	}
+
+	public ITileSource getTileSource()
+	{
+		return this.tileSource;
 	}
 }

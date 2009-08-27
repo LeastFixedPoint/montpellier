@@ -9,7 +9,7 @@ public final class TileSourceUtil
 		throw new UnsupportedOperationException();
 	}
 
-	public static TileData getTileData(final ITileSource tileSource, final String code)
+	public static TileData getTileDataByCode(final ITileSource tileSource, final String code)
 	{
 		for (final TileData tileData : tileSource.getTiles())
 		{
