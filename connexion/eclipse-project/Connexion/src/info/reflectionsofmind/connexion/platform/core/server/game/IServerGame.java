@@ -1,11 +1,11 @@
 package info.reflectionsofmind.connexion.platform.core.server.game;
 
 import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
+import info.reflectionsofmind.connexion.platform.core.common.game.IGame;
 import info.reflectionsofmind.connexion.platform.core.common.game.IPlayer;
 import info.reflectionsofmind.connexion.platform.core.common.game.IStartInfo;
-import info.reflectionsofmind.connexion.platform.core.server.IServerCoder;
 
-public interface IServerGame
+public interface IServerGame<TListener extends IServerGame.IListener> extends IGame
 {
 	void start(int numPlayers);
 
@@ -13,9 +13,7 @@ public interface IServerGame
 
 	void onAction(IAction action);
 
-	void addListener(IListener listener);
-	
-	IServerCoder getCoder();
+	void addListener(TListener listener);
 
 	public interface IListener
 	{
@@ -23,5 +21,4 @@ public interface IServerGame
 
 		void onFinished();
 	}
-
 }

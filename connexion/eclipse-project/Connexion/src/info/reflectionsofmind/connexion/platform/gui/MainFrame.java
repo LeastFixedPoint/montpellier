@@ -21,7 +21,7 @@ import org.jvnet.substance.skin.SubstanceBusinessLookAndFeel;
 
 public class MainFrame extends JConnexionFrame
 {
-	public MainFrame(IApplication application)
+	public MainFrame(final IApplication application)
 	{
 		super(application);
 		setTitle("Connexion");
@@ -40,7 +40,7 @@ public class MainFrame extends JConnexionFrame
 		setVisible(true);
 	}
 
-	public static void main(String[] args) throws Exception
+	public static void main(final String[] args) throws Exception
 	{
 		try
 		{
@@ -86,7 +86,7 @@ public class MainFrame extends JConnexionFrame
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			new JoinGameFrame(getApplication().newClient()).setVisible(true); 
+			new JoinGameFrame(getApplication().newClient()).setVisible(true);
 		}
 	}
 

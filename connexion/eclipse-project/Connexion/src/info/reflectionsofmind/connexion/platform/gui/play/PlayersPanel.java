@@ -1,8 +1,8 @@
 package info.reflectionsofmind.connexion.platform.gui.play;
 
+import info.reflectionsofmind.connexion.fortress.core.common.Player;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
-import info.reflectionsofmind.connexion.fortress.core.game.Game;
-import info.reflectionsofmind.connexion.fortress.core.game.Player;
+import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
 import info.reflectionsofmind.connexion.util.Colors;
 
 import java.awt.Color;
@@ -37,7 +37,7 @@ class PlayersPanel extends JPanel
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		final Game game = this.clientUI.getClient().getGame();
+		final IClientGame game = this.clientUI.getClient().getGame();
 
 		for (final Player player : game.getPlayers())
 		{
@@ -101,7 +101,7 @@ class PlayersPanel extends JPanel
 		{
 			this.turnMarker.setVisible(this.player == getClientUI().getClient().getGame().getCurrentPlayer());
 			this.scoreLabel.setText("" + this.player.getScore());
-			this.meeplesLabel.setText(MEEPLE_NAMES.get(Meeple.Type.MEEPLE) + player.getMeeples().size());
+			this.meeplesLabel.setText(MEEPLE_NAMES.get(Meeple.Type.MEEPLE) + this.player.getMeeples().size());
 		}
 	}
 }

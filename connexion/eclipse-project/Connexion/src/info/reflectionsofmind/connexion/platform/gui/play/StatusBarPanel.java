@@ -1,14 +1,14 @@
 package info.reflectionsofmind.connexion.platform.gui.play;
 
 import info.reflectionsofmind.connexion.fortress.core.common.GameUtil;
+import info.reflectionsofmind.connexion.fortress.core.common.Player;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Board;
 import info.reflectionsofmind.connexion.fortress.core.common.board.BoardUtil;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Feature;
 import info.reflectionsofmind.connexion.fortress.core.common.board.Meeple;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Section;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Type;
-import info.reflectionsofmind.connexion.fortress.core.game.Game;
-import info.reflectionsofmind.connexion.fortress.core.game.Player;
+import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
 
 import java.awt.Color;
 import java.util.List;
@@ -63,7 +63,7 @@ public class StatusBarPanel extends JPanel
 		}
 		else
 		{
-			final Game game = getClientUI().getClient().getGame();
+			final IClientGame game = getClientUI().getClient().getGame();
 			final Board board = game.getBoard();
 			final Feature feature = BoardUtil.getFeatureOf(board, section);
 
@@ -85,7 +85,7 @@ public class StatusBarPanel extends JPanel
 			if (meeplesOnFeature.size() > 0)
 			{
 				builder.append("Meeples: ");
-				for (Player player : meeplesByPlayer.keySet())
+				for (final Player player : meeplesByPlayer.keySet())
 				{
 					if (player != meeplesByPlayer.keySet().iterator().next()) builder.append(", ");
 					builder.append(player.getName()).append(" (").append(meeplesByPlayer.get(player).size()).append(")");

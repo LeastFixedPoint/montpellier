@@ -5,7 +5,7 @@ import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.rectangular.RectangularGeometry;
-import info.reflectionsofmind.connexion.fortress.core.game.Game;
+import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
 import info.reflectionsofmind.connexion.platform.gui.play.GameWindow.State;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 import info.reflectionsofmind.connexion.tilelist.TileSourceUtil;
@@ -24,15 +24,15 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import org.jvnet.substance.SubstanceLookAndFeel;
-
 import net.miginfocom.swing.MigLayout;
+
+import org.jvnet.substance.SubstanceLookAndFeel;
 
 class CurrentTilePanel extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	
-	private BufferedImage emptyImage;
+	private final BufferedImage emptyImage;
 	private BufferedImage meepleImage;
 
 	private final GameWindow clientUI;
@@ -53,24 +53,24 @@ class CurrentTilePanel extends JPanel
 			final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
 			this.meepleImage = ImageIO.read(stream);
 		}
-		catch (IOException exception)
+		catch (final IOException exception)
 		{
 			this.meepleImage = this.emptyImage;
-		}		
+		}
 		
 		this.clientUI = localGuiClient;
 		setLayout(new MigLayout("", "[65!]6[65!]", "[]6[136!]6[]"));
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		rotateLeftButton = new JButton(new RotateLeftAction("<"));
-		rotateLeftButton.setFocusable(false);
-		rotateLeftButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, true);
-		add(rotateLeftButton, "grow");
+		this.rotateLeftButton = new JButton(new RotateLeftAction("<"));
+		this.rotateLeftButton.setFocusable(false);
+		this.rotateLeftButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, true);
+		add(this.rotateLeftButton, "grow");
 
-		rotateRightButton = new JButton(new RotateRightAction(">"));
-		rotateRightButton.setFocusable(false);
-		rotateRightButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, true);
-		add(rotateRightButton, "grow, wrap");
+		this.rotateRightButton = new JButton(new RotateRightAction(">"));
+		this.rotateRightButton.setFocusable(false);
+		this.rotateRightButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, true);
+		add(this.rotateRightButton, "grow, wrap");
 
 		this.tileImage = new StretchingImage(getImage());
 		add(this.tileImage, "grow, span");
@@ -131,7 +131,7 @@ class CurrentTilePanel extends JPanel
 		if (getGame().getCurrentTile() == null) return null;
 		
 		final String code = getGame().getCurrentTile().getCode();
-		final ITileSource tileSource = getClientUI().getClient().getTileSource();
+		final ITileSource tileSource = getClientUI().getTileSource();
 		
 		return TileSourceUtil.getTileDataByCode(tileSource, code).getImage();
 	}
@@ -141,7 +141,7 @@ class CurrentTilePanel extends JPanel
 		return this.rotation;
 	}
 
-	private Game getGame()
+	private IClientGame getGame()
 	{
 		return getClientUI().getClient().getGame();
 	}

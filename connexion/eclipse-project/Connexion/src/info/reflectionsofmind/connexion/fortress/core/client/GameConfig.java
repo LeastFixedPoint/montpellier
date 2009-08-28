@@ -13,19 +13,19 @@ public final class GameConfig implements IGameConfig
 	public final class Coder extends AbstractCoder<GameConfig>
 	{
 		@Override
-		public boolean accepts(String string)
+		public boolean accepts(final String string)
 		{
 			return true;
 		}
 
 		@Override
-		public GameConfig decode(String string)
+		public GameConfig decode(final String string)
 		{
 			return new GameConfig();
 		}
 
 		@Override
-		public String encode(GameConfig initInfo)
+		public String encode(final IGameConfig initInfo)
 		{
 			return "";
 		}
@@ -34,13 +34,13 @@ public final class GameConfig implements IGameConfig
 	public static final class Decoder implements IDecoder<GameConfig>
 	{
 		@Override
-		public boolean accepts(String string)
+		public boolean accepts(final String string)
 		{
 			return true;
 		}
 
 		@Override
-		public GameConfig decode(String string)
+		public GameConfig decode(final String string)
 		{
 			return new GameConfig();
 		}
