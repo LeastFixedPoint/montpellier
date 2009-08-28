@@ -7,12 +7,12 @@ import info.reflectionsofmind.connexion.fortress.core.common.board.exception.Til
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.IDirection;
 import info.reflectionsofmind.connexion.fortress.core.common.board.geometry.ILocation;
 import info.reflectionsofmind.connexion.fortress.core.common.tile.Section;
-import info.reflectionsofmind.connexion.fortress.core.game.Game;
-import info.reflectionsofmind.connexion.fortress.core.game.Turn;
 import info.reflectionsofmind.connexion.platform.core.client.IClient;
 import info.reflectionsofmind.connexion.platform.core.client.exception.DesynchronizationException;
+import info.reflectionsofmind.connexion.platform.core.client.game.IClientGame;
 import info.reflectionsofmind.connexion.platform.core.common.DisconnectReason;
 import info.reflectionsofmind.connexion.platform.core.common.Participant;
+import info.reflectionsofmind.connexion.platform.core.common.game.IAction;
 import info.reflectionsofmind.connexion.tilelist.ITileSource;
 
 import java.awt.Dimension;
@@ -42,7 +42,7 @@ public class GameWindow extends JFrame implements IClient.IListener
 	private final StatusBarPanel statusBarPanel;
 
 	private State turnMode = State.WAITING;
-	private Turn turn = null;
+	private final IAction action = null;
 
 	public GameWindow(final IClient client)
 	{
@@ -89,7 +89,7 @@ public class GameWindow extends JFrame implements IClient.IListener
 	// ============================================================================================
 
 	@Override
-	public void onTurn(Turn turn, String nextTileCode)
+	public void onTurn(final Turn turn, final String nextTileCode)
 	{
 		if (getClient().getGame().isFinished())
 		{
@@ -111,22 +111,22 @@ public class GameWindow extends JFrame implements IClient.IListener
 	}
 
 	@Override
-	public void onAfterConnectionBroken(DisconnectReason reason)
+	public void onAfterConnectionBroken(final DisconnectReason reason)
 	{
 	}
 
 	@Override
-	public void onChatMessage(Participant sender, String message)
+	public void onChatMessage(final Participant sender, final String message)
 	{
 	}
 
 	@Override
-	public void onClientConnected(Participant client)
+	public void onClientConnected(final Participant client)
 	{
 	}
 
 	@Override
-	public void onClientDisconnected(Participant client)
+	public void onClientDisconnected(final Participant client)
 	{
 	}
 
@@ -155,7 +155,7 @@ public class GameWindow extends JFrame implements IClient.IListener
 		{
 			getClient().getGame().getBoard().placeTile(getClient().getGame().getCurrentTile(), location, direction);
 		}
-		catch (TilePlacementException exception)
+		catch (final TilePlacementException exception)
 		{
 			JOptionPane.showMessageDialog(this, "Invalid tile location.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -169,7 +169,7 @@ public class GameWindow extends JFrame implements IClient.IListener
 	{
 		if (getTurnMode() != State.PLACE_MEEPLE) JOptionPane.showMessageDialog(this, "Cannot place meeple now.", "Error", JOptionPane.ERROR_MESSAGE);
 
-		final Game game = getClient().getGame();
+		final IClientGame game = getClient().getGame();
 
 		final Meeple freeMeeple = GameUtil.getFreeMeepleOfType(game.getBoard(), game.getCurrentPlayer(), meepleType);
 

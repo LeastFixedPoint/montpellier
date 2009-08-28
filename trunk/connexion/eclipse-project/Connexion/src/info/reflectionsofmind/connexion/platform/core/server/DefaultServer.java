@@ -32,7 +32,7 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 	private IServerGameFactory gameFactory;
 	private IServerGame game;
 
-	public DefaultServer(IApplication application)
+	public DefaultServer(final IApplication application)
 	{
 		this.application = application;
 	}
@@ -42,21 +42,21 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 	// ============================================================================================
 
 	@Override
-	public synchronized void onPacket(IClientPacket packet)
+	public synchronized void onPacket(final IClientPacket packet)
 	{
 		CTSMessageDecoder.decode(packet.getContents()).dispatch(packet.getFrom(), this);
 	}
 
 	@Override
-	public synchronized void onError(TransportException exception)
+	public synchronized void onError(final TransportException exception)
 	{
 		exception.printStackTrace();
 	}
 
 	@Override
-	public synchronized void onBeforeStopped(IServerToClientTransport transport)
+	public synchronized void onBeforeStopped(final IServerToClientTransport transport)
 	{
-		for (IRemoteClient client : getClients())
+		for (final IRemoteClient client : getClients())
 		{
 			if (client.getNode().getTransport() == transport)
 			{
@@ -70,7 +70,7 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 	// ============================================================================================
 
 	@Override
-	public synchronized void onConnectionRequest(IClientNode from, CTSMessage_ConnectionRequest event)
+	public synchronized void onConnectionRequest(final IClientNode from, final CTSMessage_ConnectionRequest event)
 	{
 		final IRemoteClient newRemoteClient = new RemoteClient(this, new Participant(event.getPlayerName()), from);
 
@@ -78,7 +78,7 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 
 		newRemoteClient.sendConnectionAccepted();
 
-		for (IRemoteClient client : getClients())
+		for (final IRemoteClient client : getClients())
 		{
 			if (client != newRemoteClient)
 			{
@@ -86,7 +86,7 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 			}
 		}
 
-		for (IServer.IListener listener : getListeners())
+		for (final IServer.IListener listener : getListeners())
 		{
 			listener.onClientConnected(newRemoteClient);
 		}
@@ -95,18 +95,18 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 	}
 
 	@Override
-	public synchronized void onDisconnectNotice(IClientNode from, CTSMessage_DisconnectNotice event)
+	public synchronized void onDisconnectNotice(final IClientNode from, final CTSMessage_DisconnectNotice event)
 	{
 		final IRemoteClient disconnectedClient = ServerUtil.getClientByNode(this, from);
 		disconnect(disconnectedClient, event.getReason());
 	}
 
 	@Override
-	public synchronized void onChatMessage(IClientNode from, CTSMessage_Chat event)
+	public synchronized void onChatMessage(final IClientNode from, final CTSMessage_Chat event)
 	{
 		final IRemoteClient client = ServerUtil.getClientByNode(this, from);
 
-		for (IRemoteClient otherClient : getClients())
+		for (final IRemoteClient otherClient : getClients())
 		{
 			if (otherClient != client)
 			{
@@ -114,16 +114,16 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 			}
 		}
 
-		for (IServer.IListener listener : getListeners())
+		for (final IServer.IListener listener : getListeners())
 		{
 			listener.onClientMessage(client, event.getMessage());
 		}
 	}
 
 	@Override
-	public void onAction(IClientNode from, CTSMessage_Action event)
+	public void onAction(final IClientNode from, final CTSMessage_Action event)
 	{
-		this.game.onAction(this.game.getCoder().decodeAction(event.getEncodedAction()));
+		this.game.onAction(this.game.getActionCoder().decode(event.getEncodedAction()));
 	}
 
 	// ====================================================================================================
@@ -131,9 +131,9 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 	// ====================================================================================================
 
 	@Override
-	public void onAfterClientStateChange(Participant client, State previousState)
+	public void onAfterClientStateChange(final Participant client, final State previousState)
 	{
-		for (IRemoteClient remoteClient : getClients())
+		for (final IRemoteClient remoteClient : getClients())
 		{
 			remoteClient.sendStateChanged(ServerUtil.getClient(this, client), previousState);
 		}
@@ -144,9 +144,9 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 	// ============================================================================================
 
 	@Override
-	public void disconnect(IRemoteClient disconnectedClient, DisconnectReason reason)
+	public void disconnect(final IRemoteClient disconnectedClient, final DisconnectReason reason)
 	{
-		for (IRemoteClient client : getClients())
+		for (final IRemoteClient client : getClients())
 		{
 			if (client != disconnectedClient)
 				client.sendDisconnected(disconnectedClient, reason);
@@ -154,7 +154,7 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 
 		this.clients.remove(disconnectedClient);
 
-		for (IServer.IListener listener : getListeners())
+		for (final IServer.IListener listener : getListeners())
 		{
 			listener.onClientDisconnected(disconnectedClient);
 		}
@@ -171,22 +171,22 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 		this.game = this.gameFactory.createServerGame(form);
 
 		int numPlayers = 0;
-		for (IRemoteClient client : getClients())
+		for (final IRemoteClient client : getClients())
 			if (client.getParticipant().getState() == State.ACCEPTED)
 				numPlayers++;
 
 		this.game.start(numPlayers);
 
-		for (IRemoteClient client : getClients())
+		for (final IRemoteClient client : getClients())
 		{
 			client.sendGameStarted();
 		}
 	}
 
 	@Override
-	public void sendChat(String message)
+	public void sendChat(final String message)
 	{
-		for (IRemoteClient client : getClients())
+		for (final IRemoteClient client : getClients())
 		{
 			client.sendChatMessage(null, message);
 		}
@@ -209,7 +209,7 @@ public class DefaultServer extends AbstractListener<IServer.IListener> implement
 	}
 
 	@Override
-	public void setGameFactory(IServerGameFactory gameFactory)
+	public void setGameFactory(final IServerGameFactory gameFactory)
 	{
 		this.gameFactory = gameFactory;
 	}

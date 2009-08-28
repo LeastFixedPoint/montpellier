@@ -10,7 +10,6 @@ import info.reflectionsofmind.connexion.platform.core.common.message.stc.Abstrac
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_Change;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_Chat;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ConnectionAccepted;
-import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_GameChanged;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_GameStarted;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantConnected;
 import info.reflectionsofmind.connexion.platform.core.common.message.stc.STCMessage_ParticipantDisconnected;
@@ -81,14 +80,14 @@ public final class RemoteClient implements IRemoteClient
 	public void sendGameStarted()
 	{
 		final IStartInfo startInfo = this.server.getGame().getClientStartInfo(this.player);
-		final String string = this.server.getGame().getCoder().encodeStartInfo(startInfo);
+		final String string = this.server.getGame().getStartInfoCoder().encode(startInfo);
 		sendMessage(new STCMessage_GameStarted(string));
 	}
 
 	@Override
 	public void sendChange(final IChange change)
 	{
-		sendMessage(new STCMessage_Change(this.server.getGame().getCoder().encodeChange(change)));
+		sendMessage(new STCMessage_Change(this.server.getGame().getChangeCoder().encode(change)));
 	}
 
 	// ====================================================================================================
