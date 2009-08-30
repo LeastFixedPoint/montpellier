@@ -31,7 +31,7 @@ public abstract class FormDialog extends JDialog
 		super(parent, title, true);
 		this.form = form;
 
-		setLayout(new MigLayout("", "[]6[30][grow]", Util.copy(form.getFields().size(), "[]6") + "[]"));
+		setLayout(new MigLayout("", "[]6[45][grow]", Util.copy(form.getFields().size(), "[]6") + "[]"));
 
 		final SubmitAction submitAction = new SubmitAction(submitActionName);
 
@@ -42,8 +42,8 @@ public abstract class FormDialog extends JDialog
 			if (field instanceof IntField)
 			{
 				final JTextField textField = new JTextField(((IntField) field).getValue().toString());
-				textField.setSelectionStart(0);
-				textField.setSelectionEnd(textField.getText().length());
+				// textField.setSelectionStart(0);
+				// textField.setSelectionEnd(textField.getText().length());
 				textField.setAction(submitAction);
 
 				add(textField, "grow, wrap");
@@ -56,7 +56,6 @@ public abstract class FormDialog extends JDialog
 
 				add(textField, "grow, span");
 				textFields.add(textField);
-				break;
 			}
 			else
 			{

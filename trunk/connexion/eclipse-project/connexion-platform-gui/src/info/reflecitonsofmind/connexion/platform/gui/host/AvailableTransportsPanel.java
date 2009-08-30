@@ -3,6 +3,7 @@ package info.reflecitonsofmind.connexion.platform.gui.host;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.ITransportFactory;
 import info.reflectionsofmind.connexion.util.Util;
+import info.reflectionsofmind.connexion.util.form.FormDialog;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
@@ -11,7 +12,6 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
@@ -50,13 +50,15 @@ public class AvailableTransportsPanel extends JPanel
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			final String connString = JOptionPane.showInputDialog("Enter connection string");
-			if (connString == null) return;
-			
-			final ITransport transport = this.factory.createTransport(connString);
-			
-			AvailableTransportsPanel.this.hostGameFrame.onTransportAdded(transport);
-			transport.start();
+			new FormDialog(hostGameFrame, this.factory.newConnectionForm(), "Add transport", "Add")
+			{
+				protected void onSubmit()
+				{
+					final ITransport transport = factory.createTransport(getForm());
+					AvailableTransportsPanel.this.hostGameFrame.onTransportAdded(transport);
+					transport.start();
+				}
+			}.setVisible(true);
 		}
 	}
 }

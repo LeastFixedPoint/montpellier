@@ -9,10 +9,10 @@ public final class DummyTransport extends AbstractTransport
 	private final int numberOfPlayers;
 	private final int indexOfTransport;
 	
-	public DummyTransport(final String string)
+	public DummyTransport(final Integer numberOfPlayers)
 	{
 		this.indexOfTransport = (++index);
-		this.numberOfPlayers = Integer.parseInt(string);
+		this.numberOfPlayers = numberOfPlayers;
 		
 		for (int i = 1; i < this.numberOfPlayers + 1; i++)
 		{
