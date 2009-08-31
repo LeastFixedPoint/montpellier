@@ -5,6 +5,6 @@
 	<classpathentry kind="lib" path="lib/smack.jar"/>
 	<classpathentry kind="lib" path="lib/smackx-debug.jar"/>
 	<classpathentry kind="lib" path="lib/smackx.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/connexion-transport"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

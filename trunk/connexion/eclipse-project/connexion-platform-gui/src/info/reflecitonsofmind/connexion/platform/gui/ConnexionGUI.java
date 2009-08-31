@@ -5,14 +5,15 @@ import info.reflecitonsofmind.connexion.platform.gui.event.cts.IClientToServerMe
 import info.reflecitonsofmind.connexion.platform.gui.event.stc.IServerToClientMessage;
 import info.reflecitonsofmind.connexion.platform.gui.event.stc.ServerToClientMessageCoder;
 import info.reflecitonsofmind.connexion.platform.gui.host.HostGameFrame;
+import info.reflecitonsofmind.connexion.platform.gui.host.IAddTransportWizard;
 import info.reflectionsofmind.connexion.transport.ITransportFactory;
-import info.reflectionsofmind.connexion.transport.dummy.DummyTransportFactory;
-import info.reflectionsofmind.connexion.transport.jabber.JabberTransportFactory;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -26,8 +27,7 @@ public class ConnexionGUI
 	private static final ICoder<IClientToServerMessage> CTS_MESSAGE_CODER = new ClientToServerMessageCoder();
 	private static final ICoder<IServerToClientMessage> STC_MESSAGE_CODER = new ServerToClientMessageCoder();
 	
-	private final List<? extends ITransportFactory> transportFactories = Arrays.asList(//
-			new JabberTransportFactory(), new DummyTransportFactory());
+	private final Map<ITransportFactory, IAddTransportWizard> ADD_TRANSPORT_WIZARDS = new LinkedHashMap<ITransportFactory, IAddTransportWizard>();
 	
 	public ConnexionGUI(final File configRoot)
 	{
@@ -57,14 +57,9 @@ public class ConnexionGUI
 		}
 	}
 	
-	public static void main(final String[] args)
-	{
-		new ConnexionGUI(null).start();
-	}
-	
 	public List<? extends ITransportFactory> getTransportFactories()
 	{
-		return this.transportFactories;
+		return new ArrayList<ITransportFactory>(this.ADD_TRANSPORT_WIZARDS.keySet());
 	}
 	
 	public ICoder<IClientToServerMessage> getCTSMessageCoder()
@@ -75,5 +70,10 @@ public class ConnexionGUI
 	public ICoder<IServerToClientMessage> getSTCMessageCoder()
 	{
 		return STC_MESSAGE_CODER;
+	}
+	
+	public Map<ITransportFactory, IAddTransportWizard> getAddTransportWizards()
+	{
+		return this.ADD_TRANSPORT_WIZARDS;
 	}
 }
