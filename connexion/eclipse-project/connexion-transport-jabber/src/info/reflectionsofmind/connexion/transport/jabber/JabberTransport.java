@@ -17,14 +17,13 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 	private final String host, node, password, resource;
 	private final Integer port;
 	
-	public JabberTransport(final String node, final String host, final Integer port, final String password,
-			final String resource)
+	public JabberTransport(final JabberConnectionParameters parameters)
 	{
-		this.node = node;
-		this.host = host;
-		this.port = port;
-		this.password = password;
-		this.resource = resource;
+		this.node = parameters.getNode();
+		this.host = parameters.getHost();
+		this.port = parameters.getPort() == null ? 5222 : parameters.getPort();
+		this.password = parameters.getPassword();
+		this.resource = parameters.getResource();
 		
 		System.out.println(getName());
 	}

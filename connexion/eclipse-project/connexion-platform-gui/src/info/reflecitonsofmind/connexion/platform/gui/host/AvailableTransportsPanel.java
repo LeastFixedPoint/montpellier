@@ -1,9 +1,10 @@
 package info.reflecitonsofmind.connexion.platform.gui.host;
 
+import info.reflecitonsofmind.connexion.platform.gui.ConnexionGUI;
+import info.reflectionsofmind.connexion.transport.IConnectionParameters;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.ITransportFactory;
 import info.reflectionsofmind.connexion.util.Util;
-import info.reflectionsofmind.connexion.util.form.FormDialog;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
@@ -50,15 +51,16 @@ public class AvailableTransportsPanel extends JPanel
 		@Override
 		public void actionPerformed(final ActionEvent event)
 		{
-			new FormDialog(hostGameFrame, this.factory.newConnectionForm(), "Add transport", "Add")
+			final ConnexionGUI gui = AvailableTransportsPanel.this.hostGameFrame.getMainFrame().getGui();
+			final IConnectionParameters parameters = gui.getAddTransportWizards().get(this.factory).execute(
+					AvailableTransportsPanel.this.hostGameFrame);
+			
+			if (parameters != null)
 			{
-				protected void onSubmit()
-				{
-					final ITransport transport = factory.createTransport(getForm());
-					AvailableTransportsPanel.this.hostGameFrame.onTransportAdded(transport);
-					transport.start();
-				}
-			}.setVisible(true);
+				final ITransport transport = this.factory.createTransport(parameters);
+				AvailableTransportsPanel.this.hostGameFrame.onTransportAdded(transport);
+				transport.start();
+			}
 		}
 	}
 }
