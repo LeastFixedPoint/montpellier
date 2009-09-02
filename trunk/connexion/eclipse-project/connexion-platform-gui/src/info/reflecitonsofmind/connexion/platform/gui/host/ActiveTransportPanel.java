@@ -1,9 +1,11 @@
 package info.reflecitonsofmind.connexion.platform.gui.host;
 
+import static javax.swing.BorderFactory.createLineBorder;
 import static javax.swing.BorderFactory.createTitledBorder;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.util.Util;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +28,9 @@ public class ActiveTransportPanel extends JPanel
 		this.activeTransportsPanel = activeTransportsPanel;
 		this.transport = transport;
 		
-		setLayout(new MigLayout("", "[max, fill]", getRowConstraints()));
+		setLayout(new MigLayout("ins 3 6 6 6", "[max, fill]", getRowConstraints()));
 		
-		setBorder(createTitledBorder(transport.getName()));
+		setBorder(createTitledBorder(createLineBorder(Color.BLACK), transport.getName()));
 		add(new JButton(new ShutdownTransportAction()), "wrap");
 	}
 	
@@ -101,7 +103,7 @@ public class ActiveTransportPanel extends JPanel
 		public void actionPerformed(final ActionEvent arg0)
 		{
 			for (final ParticipantPanel panel : ActiveTransportPanel.this.panels)
-				getActiveTransportsPanel().getHostGameFrame().disconnect(panel.getParticipant());
+				getActiveTransportsPanel().getHostGameFrame().kick(panel.getParticipant());
 			
 			ActiveTransportPanel.this.transport.stop();
 		}

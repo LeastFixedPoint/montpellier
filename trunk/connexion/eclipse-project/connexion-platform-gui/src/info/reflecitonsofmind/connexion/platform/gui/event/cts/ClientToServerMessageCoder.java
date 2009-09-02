@@ -47,10 +47,10 @@ public class ClientToServerMessageCoder implements ICoder<IClientToServerMessage
 	{
 		try
 		{
-			final JSONObject json = new JSONObject().append("type", message.getClass().getSimpleName());
+			final JSONObject json = new JSONObject().put("type", message.getClass().getSimpleName());
 			
 			if (message instanceof ParticipationRequest) //
-				return json.append("name", ((ParticipationRequest)message).getName()).toString();
+				return json.put("name", ((ParticipationRequest) message).getName()).toString();
 			
 			if (message instanceof DisconnectNotice) //
 				return json.toString();

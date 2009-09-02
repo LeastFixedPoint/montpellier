@@ -44,12 +44,19 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 			final ConnectionConfiguration configuration = new ConnectionConfiguration(getHost(), getPort());
 			
 			this.connection = new XMPPConnection(configuration);
+			
+			fireTrace("Trying to connect.");
+			
 			this.connection.connect();
+			
+			fireTrace("Connected, trying to authorize.");
 			
 			if (getResource() != null)
 				this.connection.login(getNode(), getPassword(), getResource());
 			else
 				this.connection.login(getNode(), getPassword());
+			
+			fireTrace("Authorized successfully.");
 			
 			this.connection.addPacketListener(this, null);
 			

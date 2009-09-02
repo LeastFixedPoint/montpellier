@@ -5,15 +5,19 @@ import info.reflectionsofmind.connexion.transport.ITransportFactory;
 
 public class JabberTransportFactory implements ITransportFactory
 {
-	@Override
 	public String getName()
 	{
 		return "Jabber/XMPP";
 	}
 	
-	@Override
 	public JabberTransport createTransport(final IConnectionParameters parameters)
 	{
 		return new JabberTransport((JabberConnectionParameters) parameters);
+	}
+	
+	public IConnectionParameters fromString(final String parameters)
+	{
+		final String[] tokens = parameters.split(" ");
+		return new JabberConnectionParameters(tokens[0], tokens[1], tokens[2], tokens[3], Integer.valueOf(tokens[4]));
 	}
 }

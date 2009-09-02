@@ -29,7 +29,7 @@ public class AvailableTransportsPanel extends JPanel
 		final List<? extends ITransportFactory> factories = hostGameFrame.getMainFrame().getGui()
 				.getTransportFactories();
 		
-		setLayout(new MigLayout("", "[36][max]", Util.copy(factories.size(), "[]")));
+		setLayout(new MigLayout("ins 3 6 6 6", "[36][max]", Util.copy(factories.size(), "[]")));
 		
 		for (final ITransportFactory factory : factories)
 		{
@@ -52,14 +52,21 @@ public class AvailableTransportsPanel extends JPanel
 		public void actionPerformed(final ActionEvent event)
 		{
 			final ConnexionGUI gui = AvailableTransportsPanel.this.hostGameFrame.getMainFrame().getGui();
-			final IConnectionParameters parameters = gui.getAddTransportWizards().get(this.factory).execute(
-					AvailableTransportsPanel.this.hostGameFrame);
+			final IConnectionParameters parameters = gui.getAddTransportWizards().get(AddTransportAction.this.factory)
+					.execute(AvailableTransportsPanel.this.hostGameFrame);
 			
 			if (parameters != null)
 			{
-				final ITransport transport = this.factory.createTransport(parameters);
-				AvailableTransportsPanel.this.hostGameFrame.onTransportAdded(transport);
-				transport.start();
+				new Thread()
+				{
+					@Override
+					public void run()
+					{
+						final ITransport transport = AddTransportAction.this.factory.createTransport(parameters);
+						AvailableTransportsPanel.this.hostGameFrame.onTransportAdded(transport);
+						transport.start();
+					}
+				}.start();
 			}
 		}
 	}

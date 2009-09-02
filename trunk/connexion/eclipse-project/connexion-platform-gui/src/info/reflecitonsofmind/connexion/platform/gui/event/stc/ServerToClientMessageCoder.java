@@ -30,6 +30,9 @@ public class ServerToClientMessageCoder implements ICoder<IServerToClientMessage
 			if (KickNotice.class.getSimpleName().equals(type)) //
 				return new KickNotice();
 			
+			if (ParticipationAccepted.class.getSimpleName().equals(type)) //
+				return new ParticipationAccepted();
+			
 			throw new DecodingException("Cannot decode message of type [" + json.getString("type")
 					+ "]. Message contents: [" + string + "].");
 		}
@@ -47,6 +50,9 @@ public class ServerToClientMessageCoder implements ICoder<IServerToClientMessage
 			final JSONObject json = new JSONObject().append("type", message.getClass().getSimpleName());
 			
 			if (message instanceof KickNotice) //
+				return json.toString();
+			
+			if (message instanceof ParticipationAccepted) //
 				return json.toString();
 			
 			throw new EncodingException("Unrecognized class [" + message.getClass() + "] of object [" + message + "]");

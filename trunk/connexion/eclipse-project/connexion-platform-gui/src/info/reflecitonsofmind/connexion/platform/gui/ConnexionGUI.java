@@ -1,11 +1,13 @@
 package info.reflecitonsofmind.connexion.platform.gui;
 
+import info.reflecitonsofmind.connexion.platform.gui.connect.ServerInfo;
 import info.reflecitonsofmind.connexion.platform.gui.event.cts.ClientToServerMessageCoder;
 import info.reflecitonsofmind.connexion.platform.gui.event.cts.IClientToServerMessage;
 import info.reflecitonsofmind.connexion.platform.gui.event.stc.IServerToClientMessage;
 import info.reflecitonsofmind.connexion.platform.gui.event.stc.ServerToClientMessageCoder;
-import info.reflecitonsofmind.connexion.platform.gui.host.HostGameFrame;
 import info.reflecitonsofmind.connexion.platform.gui.host.IAddTransportWizard;
+import info.reflecitonsofmind.connexion.platform.gui.host.IHostGameGui;
+import info.reflecitonsofmind.connexion.platform.gui.join.IJoinGameGui;
 import info.reflectionsofmind.connexion.transport.ITransportFactory;
 import info.reflectionsofmind.connexion.util.convert.ICoder;
 
@@ -27,7 +29,10 @@ public class ConnexionGUI
 	private static final ICoder<IClientToServerMessage> CTS_MESSAGE_CODER = new ClientToServerMessageCoder();
 	private static final ICoder<IServerToClientMessage> STC_MESSAGE_CODER = new ServerToClientMessageCoder();
 	
-	private final Map<ITransportFactory, IAddTransportWizard> ADD_TRANSPORT_WIZARDS = new LinkedHashMap<ITransportFactory, IAddTransportWizard>();
+	private final Map<ITransportFactory, IAddTransportWizard> addTransportWizards = new LinkedHashMap<ITransportFactory, IAddTransportWizard>();
+	private final List<IHostGameGui> hostGameGuis = new ArrayList<IHostGameGui>();
+	private final List<IJoinGameGui> joinGameGuis = new ArrayList<IJoinGameGui>();
+	private final List<ServerInfo> serverList = new ArrayList<ServerInfo>();
 	
 	public ConnexionGUI(final File configRoot)
 	{
@@ -45,8 +50,7 @@ public class ConnexionGUI
 			{
 				public void run()
 				{
-					new HostGameFrame(new MainFrame(ConnexionGUI.this)).setVisible(true);
-					// new MainFrame(ConnexionGUI.this).setVisible(true);
+					new MainFrame(ConnexionGUI.this).setVisible(true);
 				}
 			});
 		}
@@ -59,7 +63,7 @@ public class ConnexionGUI
 	
 	public List<? extends ITransportFactory> getTransportFactories()
 	{
-		return new ArrayList<ITransportFactory>(this.ADD_TRANSPORT_WIZARDS.keySet());
+		return new ArrayList<ITransportFactory>(this.addTransportWizards.keySet());
 	}
 	
 	public ICoder<IClientToServerMessage> getCTSMessageCoder()
@@ -74,6 +78,21 @@ public class ConnexionGUI
 	
 	public Map<ITransportFactory, IAddTransportWizard> getAddTransportWizards()
 	{
-		return this.ADD_TRANSPORT_WIZARDS;
+		return this.addTransportWizards;
+	}
+	
+	public List<IHostGameGui> getHostGameGuis()
+	{
+		return this.hostGameGuis;
+	}
+	
+	public List<IJoinGameGui> getJoinGameGuis()
+	{
+		return this.joinGameGuis;
+	}
+	
+	public List<ServerInfo> getServerList()
+	{
+		return this.serverList;
 	}
 }

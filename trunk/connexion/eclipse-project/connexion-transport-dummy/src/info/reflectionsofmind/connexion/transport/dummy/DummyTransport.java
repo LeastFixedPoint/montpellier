@@ -8,6 +8,7 @@ public final class DummyTransport extends AbstractTransport
 	private static int index = 0;
 	private final int numberOfPlayers;
 	private final int indexOfTransport;
+	private boolean running = false;
 	
 	public DummyTransport(final Integer numberOfPlayers)
 	{
@@ -18,7 +19,7 @@ public final class DummyTransport extends AbstractTransport
 		{
 			final int n = i;
 			
-			new Thread("Player #" + this.indexOfTransport + ":" + n)
+			new Thread()
 			{
 				@Override
 				public void run()
@@ -32,10 +33,14 @@ public final class DummyTransport extends AbstractTransport
 						e.printStackTrace();
 					}
 					
-					firePacket(new TransportNode(DummyTransport.this, getName()), "{" //
-							+ " type: \"ParticipationRequest\"," //
-							+ " name: \"" + getName() + "\"" //
-							+ "}");
+					if (DummyTransport.this.running)
+					{
+						firePacket(new TransportNode(DummyTransport.this, // 
+								"p" + n + "@dt" + DummyTransport.this.indexOfTransport), "{" //
+								+ " type: \"ParticipationRequest\"," //
+								+ " name: \"" + "Player #" + DummyTransport.this.indexOfTransport + ":" + n + "\"" //
+								+ "}");
+					}
 				}
 			}.start();
 		}
@@ -50,12 +55,14 @@ public final class DummyTransport extends AbstractTransport
 	@Override
 	public void start()
 	{
+		this.running = true;
 		fireStarted();
 	}
 	
 	@Override
 	public void stop()
 	{
+		this.running = false;
 		fireStopped();
 	}
 	
