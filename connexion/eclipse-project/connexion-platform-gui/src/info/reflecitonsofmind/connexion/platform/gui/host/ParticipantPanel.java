@@ -38,7 +38,7 @@ public class ParticipantPanel extends JPanel
 		@Override
 		public void actionPerformed(final ActionEvent e)
 		{
-			ParticipantPanel.this.activeTransportPanel.getActiveTransportsPanel().getHostGameFrame().disconnect(
+			ParticipantPanel.this.activeTransportPanel.getActiveTransportsPanel().getHostGameFrame().kick(
 					ParticipantPanel.this.participant);
 		}
 	}

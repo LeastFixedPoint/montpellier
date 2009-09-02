@@ -11,5 +11,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport-jabber-gui"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport-dummy-gui"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/connexion-game-fortress"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/connexion-game-fortress-gui"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

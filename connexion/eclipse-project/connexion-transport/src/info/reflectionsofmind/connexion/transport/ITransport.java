@@ -21,5 +21,7 @@ public interface ITransport extends INamed
 		void onError(ITransport transport, String error);
 		
 		void onStopped(ITransport transport);
+		
+		void onTrace(ITransport transport, String trace);
 	}
 }

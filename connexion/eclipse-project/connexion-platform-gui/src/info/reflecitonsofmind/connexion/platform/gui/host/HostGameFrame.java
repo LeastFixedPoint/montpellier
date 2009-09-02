@@ -1,14 +1,19 @@
 package info.reflecitonsofmind.connexion.platform.gui.host;
 
+import info.reflecitonsofmind.connexion.platform.gui.IMainFrameReference;
 import info.reflecitonsofmind.connexion.platform.gui.MainFrame;
+import info.reflecitonsofmind.connexion.platform.gui.MessageFactory;
+import info.reflecitonsofmind.connexion.platform.gui.MessagePanel;
 import info.reflecitonsofmind.connexion.platform.gui.event.cts.DisconnectNotice;
 import info.reflecitonsofmind.connexion.platform.gui.event.cts.IClientToServerMessage;
 import info.reflecitonsofmind.connexion.platform.gui.event.cts.IClientToServerMessageDispatchTarget;
 import info.reflecitonsofmind.connexion.platform.gui.event.cts.ParticipationRequest;
 import info.reflecitonsofmind.connexion.platform.gui.event.stc.KickNotice;
+import info.reflecitonsofmind.connexion.platform.gui.event.stc.ParticipationAccepted;
 import info.reflectionsofmind.connexion.transport.AbstractTransport;
 import info.reflectionsofmind.connexion.transport.ITransport;
 import info.reflectionsofmind.connexion.transport.TransportNode;
+import info.reflectionsofmind.connexion.transport.ITransport.IListener;
 import info.reflectionsofmind.connexion.util.convert.DecodingException;
 import info.reflectionsofmind.connexion.util.convert.EncodingException;
 
@@ -19,29 +24,33 @@ import javax.swing.JFrame;
 
 import net.miginfocom.swing.MigLayout;
 
-public class HostGameFrame extends JFrame
+public class HostGameFrame extends JFrame implements IMainFrameReference
 {
 	private final IClientToServerMessageDispatchTarget dispatchTarget = new ClientToServerMessageDispatchTarget();
 	private final TransportMessageDecoder transportMessageDecoder = new TransportMessageDecoder();
+	private final IListener transportListener = new HostGameFrame.TransportEventLogger();
 	
 	private final MainFrame mainFrame;
-	private final List<Participant> participants = new ArrayList<Participant>();
-	private final ActiveTransportsPanel activeTransportsPanel;
 	
-	public HostGameFrame(final MainFrame mainFrame)
+	private final List<Participant> participants = new ArrayList<Participant>();
+	
+	private final ActiveTransportsPanel activeTransportsPanel;
+	private final MessagePanel messagePanel;
+	
+	public HostGameFrame(final MainFrame mainFrame, final IHostGameGui gameGui)
 	{
 		super("Connexion :: Host game");
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		this.mainFrame = mainFrame;
 		
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setLayout(new MigLayout("", "[240!, grow 0][max]", "[][][]"));
 		
-		setLayout(new MigLayout("", "[240, fill][]", "[][fill]"));
+		add(new AvailableTransportsPanel(this), "cell 0 0");
 		
-		add(new AvailableTransportsPanel(this), "wrap");
-		
-		this.activeTransportsPanel = new ActiveTransportsPanel(this);
-		add(this.activeTransportsPanel);
+		add(gameGui.getServerGamePanelFactory().createGamePanel(this), "grow, cell 0 1");
+		add(this.activeTransportsPanel = new ActiveTransportsPanel(this), "cell 0 2");
+		add(this.messagePanel = new MessagePanel(this), "cell 1 0, spany, grow");
 		
 		pack();
 		setSize(800, 600);
@@ -58,9 +67,11 @@ public class HostGameFrame extends JFrame
 	{
 		transport.addListener(this.activeTransportsPanel.getTransportListener());
 		transport.addListener(this.transportMessageDecoder);
+		transport.addListener(this.transportListener);
+		this.messagePanel.addRawLine(MessageFactory.createTransportStarting(transport));
 	}
 	
-	public void disconnect(final Participant participant)
+	public void kick(final Participant participant)
 	{
 		try
 		{
@@ -68,6 +79,7 @@ public class HostGameFrame extends JFrame
 			participant.getNode().send(message);
 			this.participants.remove(participant);
 			this.activeTransportsPanel.removeParticipant(participant);
+			HostGameFrame.this.messagePanel.addRawLine(MessageFactory.createParticipantKicked(participant));
 		}
 		catch (final EncodingException e)
 		{
@@ -91,6 +103,7 @@ public class HostGameFrame extends JFrame
 			final Participant participant = getParticipantByTransport(sender.getTransport());
 			HostGameFrame.this.participants.remove(participant);
 			HostGameFrame.this.activeTransportsPanel.removeParticipant(participant);
+			HostGameFrame.this.messagePanel.addRawLine(MessageFactory.createParticipantDisconnected(participant));
 		}
 		
 		@Override
@@ -99,6 +112,16 @@ public class HostGameFrame extends JFrame
 			final Participant participant = new Participant(sender, participationRequest.getName());
 			HostGameFrame.this.participants.add(participant);
 			HostGameFrame.this.activeTransportsPanel.addParticipant(participant);
+			HostGameFrame.this.messagePanel.addRawLine(MessageFactory.createParticipantAdded(participant));
+			
+			try
+			{
+				sender.send(getMainFrame().getGui().getSTCMessageCoder().encode(new ParticipationAccepted()));
+			}
+			catch (final EncodingException exception)
+			{
+				throw new RuntimeException(exception);
+			}
 		}
 	}
 	
@@ -117,6 +140,27 @@ public class HostGameFrame extends JFrame
 				e.printStackTrace();
 				return;
 			}
+		}
+	}
+	
+	private final class TransportEventLogger extends AbstractTransport.Listener
+	{
+		@Override
+		public void onStarted(final ITransport transport)
+		{
+			HostGameFrame.this.messagePanel.addRawLine(MessageFactory.createTransportStarted(transport));
+		}
+		
+		@Override
+		public void onStopped(final ITransport transport)
+		{
+			HostGameFrame.this.messagePanel.addRawLine(MessageFactory.createTransportStopped(transport));
+		}
+		
+		@Override
+		public void onTrace(final ITransport transport, final String trace)
+		{
+			HostGameFrame.this.messagePanel.addRawLine(MessageFactory.createTransportTrace(transport, trace));
 		}
 	}
 }

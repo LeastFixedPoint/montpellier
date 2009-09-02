@@ -1,6 +1,8 @@
 package info.reflectionsofmind.connexion.transport;
 
-public class TransportNode
+import info.reflectionsofmind.connexion.util.INamed;
+
+public class TransportNode implements INamed
 {
 	private final ITransport transport;
 	private final String address;
@@ -24,5 +26,10 @@ public class TransportNode
 	public void send(final String contents)
 	{
 		getTransport().send(this, contents);
+	}
+	
+	public String getName()
+	{
+		return getAddress();
 	}
 }

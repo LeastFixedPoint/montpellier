@@ -24,7 +24,7 @@ public class ActiveTransportsPanel extends JPanel
 	{
 		this.hostGameFrame = hostGameFrame;
 		setBorder(BorderFactory.createTitledBorder("Active transports"));
-		setLayout(new MigLayout("", "[max, fill]", getRowConstraints()));
+		setLayout(new MigLayout("ins 3 6 6 6", "[max, fill]", getRowConstraints()));
 	}
 	
 	public HostGameFrame getHostGameFrame()
@@ -55,13 +55,14 @@ public class ActiveTransportsPanel extends JPanel
 		@Override
 		public void onStarted(final ITransport transport)
 		{
-			final ActiveTransportPanel panelToAdd = new ActiveTransportPanel(ActiveTransportsPanel.this, transport);
-			ActiveTransportsPanel.this.panels.add(panelToAdd);
-			
 			SwingUtilities.invokeLater(new Runnable()
 			{
 				public void run()
 				{
+					final ActiveTransportPanel panelToAdd = new ActiveTransportPanel(ActiveTransportsPanel.this,
+							transport);
+					ActiveTransportsPanel.this.panels.add(panelToAdd);
+					
 					getLayout().setRowConstraints(getRowConstraints());
 					add(panelToAdd, "wrap");
 					updateUI();

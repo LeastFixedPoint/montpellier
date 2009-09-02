@@ -36,25 +36,31 @@ public abstract class AbstractTransport implements ITransport
 			listener.onError(this, error);
 	}
 	
+	protected final void fireTrace(final String trace)
+	{
+		for (final IListener listener : this.listeners)
+			listener.onTrace(this, trace);
+	}
+	
 	public static abstract class Listener implements ITransport.IListener
 	{
-		@Override
 		public void onError(final ITransport transport, final String error)
 		{
 		}
 		
-		@Override
 		public void onPacket(final TransportNode sender, final String contents)
 		{
 		}
 		
-		@Override
 		public void onStarted(final ITransport transport)
 		{
 		}
 		
-		@Override
 		public void onStopped(final ITransport transport)
+		{
+		}
+		
+		public void onTrace(final ITransport transport, final String trace)
 		{
 		}
 	}

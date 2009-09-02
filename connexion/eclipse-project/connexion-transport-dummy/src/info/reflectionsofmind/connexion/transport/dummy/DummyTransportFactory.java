@@ -16,4 +16,10 @@ public final class DummyTransportFactory implements ITransportFactory
 	{
 		return "Dummy";
 	}
+	
+	@Override
+	public IConnectionParameters fromString(final String parameters)
+	{
+		return new DummyConnectionParameters(Integer.valueOf(parameters));
+	}
 }
