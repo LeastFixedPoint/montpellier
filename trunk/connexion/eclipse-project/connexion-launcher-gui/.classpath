@@ -6,12 +6,11 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-platform"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-platform-gui"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport-dummy"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport-jabber"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport-jabber-gui"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport-dummy-gui"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-game-fortress"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/connexion-game-fortress-gui"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/connexion-transport-hotseat-gui"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
