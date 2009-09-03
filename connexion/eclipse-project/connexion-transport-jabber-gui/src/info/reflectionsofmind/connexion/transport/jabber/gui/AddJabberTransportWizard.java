@@ -1,9 +1,9 @@
 package info.reflectionsofmind.connexion.transport.jabber.gui;
 
-import info.reflecitonsofmind.connexion.platform.gui.IOkCancelListener;
-import info.reflecitonsofmind.connexion.platform.gui.OkCancelPanel;
-import info.reflecitonsofmind.connexion.platform.gui.host.HostGameFrame;
-import info.reflecitonsofmind.connexion.platform.gui.host.IAddTransportWizard;
+import info.reflectionsofmind.connexion.platform.gui.IOkCancelListener;
+import info.reflectionsofmind.connexion.platform.gui.OkCancelPanel;
+import info.reflectionsofmind.connexion.platform.gui.host.HostGameFrame;
+import info.reflectionsofmind.connexion.platform.gui.host.IAddTransportWizard;
 import info.reflectionsofmind.connexion.transport.jabber.JabberConnectionParameters;
 
 import java.awt.Frame;

@@ -24,8 +24,6 @@ public class JabberTransport extends AbstractTransport implements PacketListener
 		this.port = parameters.getPort() == null ? 5222 : parameters.getPort();
 		this.password = parameters.getPassword();
 		this.resource = parameters.getResource();
-		
-		System.out.println(getName());
 	}
 	
 	@Override
