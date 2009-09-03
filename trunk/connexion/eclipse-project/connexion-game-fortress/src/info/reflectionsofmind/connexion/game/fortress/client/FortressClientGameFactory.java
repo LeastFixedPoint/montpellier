@@ -1,4 +1,4 @@
-package info.reflectionsofmind.connexion.game.fortress.server;
+package info.reflectionsofmind.connexion.game.fortress.client;
 
 import info.reflectionsofmind.connexion.platform.game.client.IClientGame;
 import info.reflectionsofmind.connexion.platform.game.client.IClientGameFactory;
