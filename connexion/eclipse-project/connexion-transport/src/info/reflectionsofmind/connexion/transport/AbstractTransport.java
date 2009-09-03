@@ -12,6 +12,11 @@ public abstract class AbstractTransport implements ITransport
 		this.listeners.add(listener);
 	}
 	
+	public void removeListener(final IListener listener)
+	{
+		this.listeners.remove(listener);
+	}
+	
 	protected final void fireStarted()
 	{
 		for (final IListener listener : this.listeners)

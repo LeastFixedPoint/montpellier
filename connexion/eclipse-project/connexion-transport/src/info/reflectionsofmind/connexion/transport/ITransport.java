@@ -12,6 +12,8 @@ public interface ITransport extends INamed
 	
 	void addListener(IListener listener);
 	
+	void removeListener(IListener logger);
+	
 	public interface IListener
 	{
 		void onStarted(ITransport transport);
